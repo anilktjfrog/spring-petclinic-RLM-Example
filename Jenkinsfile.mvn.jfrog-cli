@@ -73,7 +73,7 @@ node {
                 sh """ #!/bin/bash
                     export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
 
-                    jf rt mvn clean install -DskipTests=true --scan=true --build-name=${projectName} --build-number=${env.BUILD_ID} --detailed-summary=true 
+                    jf mvn clean install -DskipTests=true --scan=true --build-name=${projectName} --build-number=${env.BUILD_ID} --detailed-summary=true 
                 """
             } // stage: compile
             stage('scan') {

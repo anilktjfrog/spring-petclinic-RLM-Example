@@ -150,55 +150,44 @@ node {
                 jf rt bag ${projectName} ${env.BUILD_ID} 
             """
         } // stage: vcs info
-        stage('MAVEN') {
-            stage('build:publish') {
+        stage('build:create') { 
+            withCredentials([string(credentialsId: 'JF_ACCESS_TOKEN', variable: 'JF_ACCESS_TOKEN')]) {
                 sh """ #!/bin/bash
                     export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
-
-                    jf rt bp ${projectName} ${env.BUILD_ID} --detailed-summary=true
+                    # jf rt curl -XGET "/api/storage/${RT_REPO_DOCKER}-virtual/${projectName}/${env.BUILD_ID}/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" -o "${DKR_MANIFEST}"
+                    jf rt curl -XGET "/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-09-11-13-56/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" -o "${DKR_MANIFEST}"
                 """
-            } // stage: build publish
-            stage('build:scan') { 
-                try {
-                sh """ #!/bin/bash
-                    export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
-                    jf bs ${projectName} ${env.BUILD_ID} --rescan=true --format=table --extended-table=true --vuln=true --fail=false
-                """
-                } catch (err) {
-                }
-            } // stage: build scan
-        } // stage: maven
-        stage('Docker') {
-            stage('build:create') { 
-                withCredentials([string(credentialsId: 'JF_ACCESS_TOKEN', variable: 'JF_ACCESS_TOKEN')]) {
-                    sh """ #!/bin/bash
-                        export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
-                        # jf rt curl -XGET "/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-09-11-13-56/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" -o "${DKR_MANIFEST}"
-                        jf rt curl -XGET "/api/storage/${RT_DOCKER_REPO}-virtual/${projectName}/${env.BUILD_ID}/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" -o "${DKR_MANIFEST}"
-                        
-                        cat "${DKR_MANIFEST}" | jq -r '.originalChecksums.sha256'
-                    """
-                } // withCredentials
-                script {
-                    def imageSha256 = sh(returnStdout: true, script: "cat ${DKR_MANIFEST} | jq -r .originalChecksums.sha256").trim()
-                    echo imageSha256
+            } // withCredentials
+            imageSha256=sh(returnStdout: true, script: "cat ${DKR_MANIFEST} | jq -r '.originalChecksums.sha256'").trim()
+            sh """
+                echo ${imageSha256}
 
-                    echo ${JF_RT_HOST}/${RT_REPO_DOCKER}-virtual/${projectName}:${env.BUILD_ID}}@sha256:${imageSha256} > ${SPEC_BP_DOCKER}
+                echo ${JF_RT_HOST}/${RT_REPO_DOCKER}-virtual/${projectName}:${env.BUILD_ID}@sha256:${imageSha256} > ${SPEC_BP_DOCKER}
 
-                } // script
-                sh """ #!/bin/bash
-                    export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
-                    #
-                    echo ${JF_RT_HOST}/${RT_DOCKER_REPO}-virtual/${projectName}:${env.BUILD_ID}}@sha256:${imageSha256} > image-file-details
+                cat ${SPEC_BP_DOCKER}
 
-                    jf rt bdc ${RT_DOCKER_REPO}-virtual --image-file image-file-details --build-name ${projectName}  --build-number ${env.BUILD_ID} 
+                jf rt bdc ${RT_REPO_DOCKER}-virtual --image-file ${SPEC_BP_DOCKER} --build-name ${projectName} --build-number ${env.BUILD_ID} 
+            """
 
-                """
-            } // stage: build create
+        } // stage: build create
+        stage('build:publish') {
+            sh """ #!/bin/bash
+                export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
 
-
-        } // stage: docker
+                jf rt bp ${projectName} ${env.BUILD_ID} --detailed-summary=true
+            """
+        } // stage: build publish
+        stage('build:scan') { 
+            try {
+            sh """ #!/bin/bash
+                export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
+                jf bs ${projectName} ${env.BUILD_ID} --rescan=true --format=table --extended-table=true --vuln=true --fail=false
+            """
+            } catch (err) {
+            }
+        } // stage: build scan
     } // stage: BUILD INFO
+    
     stage('cleanup') {
         sh """ #!/bin/bash
             rm -rf $DKR_MANIFEST
