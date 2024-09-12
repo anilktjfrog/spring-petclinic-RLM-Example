@@ -10,7 +10,23 @@ Develop a DevOps pipeline to automate tasks such as code compile, unit testing, 
 Note: This process with not deploy to the envionrmnet platform. 
 
 ## Jenkins
-### JAR
+### DOCKER
+### Pipeline Flow
+- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+#### Package DevOps steps
+- [pipeline file: Jenkinsfile.docker.jfrog-cli](./Jenkinsfile.docker.jfrog-cli)
+- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+#### Package SBOM
+- [pipeline file: Jenkinsfile.docker.jfrog-cli](./Jenkinsfile.docker.jfrog-cli)
+- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+### Release Bundle v2 - Create
+- [pipeline file: Jenkinsfile.docker.jfrog-cli](./Jenkinsfile.docker.jfrog-cli)
+- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+
+
+### MAVEN
+### Pipeline Flow
+- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
 #### Package DevOps steps
 - [pipeline file: Jenkinsfile.mvn.jfrog-cli](./Jenkinsfile.mvn.jfrog-cli)
 - [![Walk through demo](https://img.youtube.com/vi/cHC79tWz8d4/0.jpg)](https://www.youtube.com/watch?v=cHC79tWz8d4)

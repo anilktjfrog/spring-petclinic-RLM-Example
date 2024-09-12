@@ -76,8 +76,14 @@ jf docker scan psazuse.jfrog.io/${RT_DOCKER_REPO}-virtual/${BUILD_NAME}:${BUILD_
 ## bdc: build-docker-create, Adding Published Docker Images to the Build-Info 
 echo "\n\n**** Docker: build create ****"
 # export imageSha256=$(jf rt curl -XGET "/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-07-31-18-35/list.manifest.json" | jq -r '.originalChecksums.sha256')
+# curl -XGET 'https://psazuse.jfrog.io/artifactory/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-09-11-13-56/list.manifest.json' --header 'Content-Type:  application/json' --header "Authorization: Bearer ${JF_ACCESS_TOKEN}"
+# jf rt curl -XGET "/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-09-11-13-56/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}"
 
 export imageSha256=$(jf rt curl -XGET "/api/storage/${RT_DOCKER_REPO}-virtual/${BUILD_NAME}/${BUILD_ID}/list.manifest.json" | jq -r '.originalChecksums.sha256')
+
+
+jf rt curl -XGET "/api/storage/${RT_DOCKER_REPO}-virtual/${BUILD_NAME}/${BUILD_ID}/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}"
+
 
 echo psazuse.jfrog.io/krishnam-docker-virtual/${BUILD_NAME}:${BUILD_ID}@sha256:${imageSha256} > image-file-details
 

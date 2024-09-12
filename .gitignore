@@ -17,3 +17,5 @@ _site/
 !petclinic.css
 rbv2-spec-*.json
 *.json
+*.bkp
+*.drawio.bkp
