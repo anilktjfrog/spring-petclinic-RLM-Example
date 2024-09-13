@@ -12,6 +12,7 @@ Note: This process with not deploy to the envionrmnet platform.
 ## Jenkins
 ### DOCKER
 ### Pipeline Flow
+<img src="./DevSecOps-Docker.svg">
 - [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
 #### Package DevOps steps
 - [pipeline file: Jenkinsfile.docker.jfrog-cli](./Jenkinsfile.docker.jfrog-cli)
@@ -26,7 +27,8 @@ Note: This process with not deploy to the envionrmnet platform.
 
 ### MAVEN
 ### Pipeline Flow
-- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+<img src="./DevSecOps-mvn.svg">
+- [![Walk through demo](https://img.youtube.com/vi/uSpKVVXIZW0/0.jpg)](https://www.youtube.com/watch?v=uSpKVVXIZW0)
 #### Package DevOps steps
 - [pipeline file: Jenkinsfile.mvn.jfrog-cli](./Jenkinsfile.mvn.jfrog-cli)
 - [![Walk through demo](https://img.youtube.com/vi/cHC79tWz8d4/0.jpg)](https://www.youtube.com/watch?v=cHC79tWz8d4)
