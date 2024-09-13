@@ -17,7 +17,7 @@ jf rt ping --url=${JF_RT_URL}/artifactory
 # MVN 
 ## Config - project
 ### CLI
-export BUILD_NAME="spring-petclinic" BUILD_ID="cmd.$(date '+%Y-%m-%d-%H-%M')" PACKAGE_CATEGORY="WEBAPP-CONTAINER"
+export BUILD_NAME="spring-petclinic-docker" BUILD_ID="cmd.$(date '+%Y-%m-%d-%H-%M')" PACKAGE_CATEGORY="WEBAPP-CONTAINER"
 
 ### Jenkins
 # export BUILD_NAME=${env.JOB_NAME} BUILD_ID=${env.BUILD_ID} PACKAGE_CATEGORY="WEBAPP-CONTAINER"
@@ -84,9 +84,16 @@ jf rt curl -XGET "/api/storage/${RT_DOCKER_REPO}-virtual/${BUILD_NAME}/${BUILD_I
 
 SPEC_BP_DOCKER="dockerimage-file-details-${env.BUILD_ID}"
 
-echo ${JF_RT_HOST}/${RT_REPO_DOCKER}-virtual/${projectName}:${env.BUILD_ID}@sha256:${imageSha256} > ${SPEC_BP_DOCKER}
+echo ${JF_RT_HOST}/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${env.BUILD_ID}@sha256:${imageSha256} > ${SPEC_BP_DOCKER}
 cat ${SPEC_BP_DOCKER}
-jf rt bdc ${RT_REPO_DOCKER}-virtual --image-file ${SPEC_BP_DOCKER} --build-name ${projectName} --build-number ${env.BUILD_ID} 
+jf rt bdc ${RT_REPO_DOCKER}-virtual --image-file ${SPEC_BP_DOCKER} --build-name ${BUILD_NAME} --build-number ${env.BUILD_ID} 
+
+
+## Release Bundle v2
+echo "\n\n**** Docker: build create ****"
+jf rt dpr ${BUILD_NAME} 
+
+
 
 
 ## bp:build-publish - Publish build info

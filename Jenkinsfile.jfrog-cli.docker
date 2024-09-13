@@ -187,6 +187,27 @@ node {
             }
         } // stage: build scan
     } // stage: BUILD INFO
+    stage('RELEASE BUNDLE v2') {
+        // https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-artifactory/release-lifecycle-management
+        stage('spec') {
+            // { "files": [ {"build": "spring-petclinic-rbv2/cmd.2024-08-30-17-01", "includeDeps": "false" } ] }
+            // { "files": [ {"build": "build_name/build_number"} ] }
+            script {
+                def rb2info=  [
+                'build' : "${projectName}/${env.BUILD_ID}",
+                'includeDeps' : "false"
+                ]
+                def json = new groovy.json.JsonBuilder()
+                json "files": [ rb2info ]
+                def file = new File("${JSON_SPEC_FNAME}")
+                file.write(groovy.json.JsonOutput.prettyPrint(json.toString()))
+            }
+            sh """ #!/bin/bash
+                cat ${JSON_SPEC_FNAME}
+            """
+        } // stage: spec
+
+    }
     
     stage('cleanup') {
         sh """ #!/bin/bash
