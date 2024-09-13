@@ -19,3 +19,8 @@ rbv2-spec-*.json
 *.json
 *.bkp
 *.drawio.bkp
+dockerimage-file-details-*
+list.manifest-cmd.*
+list-manifest-cmd*
+rb2-spec-cmd*
+rb2-spec-cmd.*

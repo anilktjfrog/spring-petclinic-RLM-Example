@@ -18,7 +18,7 @@ jf rt ping --url=${JF_RT_URL}/artifactory
 ## Config - project
 ### CLI
 export BUILD_NAME="spring-petclinic-docker" BUILD_ID="cmd.$(date '+%Y-%m-%d-%H-%M')" PACKAGE_CATEGORY="WEBAPP-CONTAINER" 
-export DKR_MANIFEST="list.manifest-${BUILD_ID}.json" SPEC_BP_DOCKER="dockerimage-file-details-${BUILD_ID}" SPEC_RBv2="rb2-spec-${BUILD_ID}.json"
+export DKR_MANIFEST="list-manifest-${BUILD_ID}.json" SPEC_BP_DOCKER="dockerimage-file-details-${BUILD_ID}" SPEC_RBv2="rb2-spec-${BUILD_ID}.json"
 ### Jenkins
 # export BUILD_NAME=${env.JOB_NAME} BUILD_ID=${BUILD_ID} PACKAGE_CATEGORY="WEBAPP-CONTAINER"
 
@@ -113,15 +113,19 @@ jf rbc ${BUILD_NAME} ${BUILD_ID} --sync="true" --access-token="${JF_ACCESS_TOKEN
 
 ## RBv2: release bundle - DEV promote
 echo "\n\n**** RBv2: Promoted to DEV ****\n\n"
-jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" ${BUILD_NAME} ${BUILD_ID} DEV 
+jf rbp ${BUILD_NAME} ${BUILD_ID} DEV --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" 
 
 
 ## RBv2: release bundle - QA promote
 echo "\n\n**** RBv2: Promoted to DEV ****\n\n"
 # jf rt dpr ${BUILD_NAME} ${RT_REPO_DOCKER}-dev-local ${RT_REPO_DOCKER}-qa-local
-jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" ${BUILD_NAME} ${BUILD_ID} QA 
+jf rbp ${BUILD_NAME} ${BUILD_ID} QA --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" 
 
 
+echo "\n\n**** CLEAN UP ****\n\n"
 rm -rf ${DKR_MANIFEST}
 rm -rf ${SPEC_BP_DOCKER}
 rm -rf ${SPEC_RBv2}
+
+docker image prune -a --force --filter "until=24h"
+docker system prune -a --force --filter "until=24h"
