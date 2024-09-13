@@ -199,15 +199,46 @@ node {
                 ]
                 def json = new groovy.json.JsonBuilder()
                 json "files": [ rb2info ]
-                def file = new File("${JSON_SPEC_FNAME}")
+                def file = new File("${SPEC_RBv2}")
                 file.write(groovy.json.JsonOutput.prettyPrint(json.toString()))
             }
             sh """ #!/bin/bash
-                cat ${JSON_SPEC_FNAME}
+                cat ${SPEC_RBv2}
             """
         } // stage: spec
+         stage('RBv2:NEW') {
+            withCredentials([string(credentialsId: 'JF_ACCESS_TOKEN', variable: 'JF_ACCESS_TOKEN')]) {
+                // NOTE: 
+                sh """ #!/bin/bash
+                    export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
 
-    }
+                    jf rbc --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --spec="${SPEC_RBv2}" --spec-vars="build_name=${projectName};build_id=${env.BUILD_ID};PACKAGE_CATEGORY=${PACKAGE_CATEGORY};state=new2dev" --server-id="${JFROG_NAME}" ${projectName} ${env.BUILD_ID}
+                """
+             } // withCredentials: JF_ACCESS_TOKEN
+        } // stage: RBv2:NEW
+        stage('RBv2:DEV') {
+            withCredentials([string(credentialsId: 'JF_ACCESS_TOKEN', variable: 'JF_ACCESS_TOKEN')]) {
+                // NOTE: 
+                sh """ #!/bin/bash
+                    export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
+
+                    jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" ${projectName} ${env.BUILD_ID} DEV 
+                """
+             } // withCredentials: JF_ACCESS_TOKEN
+        } // stage: RBv2:DEV
+        stage('RBv2:QA') {
+            // jf rt dpr ${projectName} ${RT_REPO_DOCKER}-dev-local ${RT_REPO_DOCKER}-qa-local 
+            withCredentials([string(credentialsId: 'JF_ACCESS_TOKEN', variable: 'JF_ACCESS_TOKEN')]) {
+                // NOTE: 
+                sh """ #!/bin/bash
+                    export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
+                    
+                    jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" ${projectName} ${env.BUILD_ID} QA 
+                """
+             } // withCredentials: JF_ACCESS_TOKEN
+        } // stage: RBv2:PROD
+        
+    } // stage: RELEASE BUNDLE v2
     
     stage('cleanup') {
         sh """ #!/bin/bash

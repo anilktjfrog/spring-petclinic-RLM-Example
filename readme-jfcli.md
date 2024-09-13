@@ -15,13 +15,7 @@ Note: This process with not deploy to the envionrmnet platform.
 <img src="./DevSecOps-Docker.svg">
 
 - [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
-#### Package DevOps steps
-- [pipeline file: Jenkinsfile.jfrog-cli.docker](./Jenkinsfile.jfrog-cli.docker)
-- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
-#### Package SBOM
-- [pipeline file: Jenkinsfile.jfrog-cli.docker](./Jenkinsfile.jfrog-cli.docker)
-- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
-### Release Bundle v2 - Create & promote
+#### DevOps steps: Package, Build Info (SBOM), Release Bundle v2
 - [pipeline file: Jenkinsfile.jfrog-cli.docker](./Jenkinsfile.jfrog-cli.docker)
 - [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
 
