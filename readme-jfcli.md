@@ -14,10 +14,10 @@ Note: This process with not deploy to the envionrmnet platform.
 ### Pipeline Flow
 <img src="./DevSecOps-Docker.svg">
 
-- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+- [![Walk through demo](https://img.youtube.com/vi/I28Qv_1oIsk/0.jpg)](https://www.youtube.com/watch?v=I28Qv_1oIsk)
 #### DevOps steps: Package, Build Info (SBOM), Release Bundle v2
 - [pipeline file: Jenkinsfile.jfrog-cli.docker](./Jenkinsfile.jfrog-cli.docker)
-- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+- [![Walk through demo](https://img.youtube.com/vi/60P9nerD5Ig/0.jpg)](https://www.youtube.com/watch?v=60P9nerD5Ig)
 
 ### MAVEN  using JF CLI
 ### Pipeline Flow
