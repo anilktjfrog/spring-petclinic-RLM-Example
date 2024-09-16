@@ -5,8 +5,8 @@ name: JF-CLI with Maven
 
 on:
 # TURN-OFF on every push 
-#  push:
-#    branches: [ main ]
+  push:
+    branches: [ main ]
 #   pull_request:
 #     branches: [ main ]
 # issue_comment triggers this action on each comment on issues and pull requests
@@ -24,7 +24,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
+        os: [macos-latest, ubuntu-latest]
         java: [ '17' ]
     env:
           MVN_REPO: 'krishnam-virtual'
