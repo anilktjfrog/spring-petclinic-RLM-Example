@@ -26,14 +26,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [ubuntu-latest]
         java: [ '17' ]
     env:
           MVN_REPO: 'krishnam-virtual'
           # JFROG_NAME: ${{ secrets.JF_NAME }}
+          JF_RT_URL: https://${{ vars.JF_NAME }}.jfrog.io
           JF_NAME: ${{ vars.JF_NAME }}
           JF_HOST: ${{ vars.JF_NAME }}.jfrog.io
-          JF_RT_URL: https://${{ vars.JF_NAME }}.jfrog.io
           RBv2_SIGNING_KEY: ${{ vars.RBV2_SIGNING_KEY }}
           JF_GIT_TOKEN: ${{ vars.GITHUB_TOKEN }}
           JF_ACCESS_TOKEN: ${{ vars.RBV2_SIGNING_KEY }}
