@@ -38,8 +38,12 @@ jobs:
           JF_GIT_TOKEN: ${{ vars.GITHUB_TOKEN }}
           JF_ACCESS_TOKEN: ${{ vars.RBV2_SIGNING_KEY }}
           #JF_OIDC_PROVIDER_NAME: ${{ vars.JF_OIDC_PROVIDER_NAME }}
+          RT_PROJECT_REPO_VIRTUAL: 'krishnam-mvn-virtual'
+          RT_PROJECT_REPO_LOCAL: 'krishnam-mvn-dev-local'
           PACKAGE_CATEGORY: 'WebApp'
           JOB_SUMMARY: false
+          BUILD_NAME: 'spring-petclinic-ga'
+          BUILD_ID: ${{ github.run_number }} # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
     steps:
       # Use the specific setup-cli branch. Ref https://github.com/marketplace/actions/setup-jfrog-cli
       - name: Setup JFrog CLI
@@ -55,3 +59,22 @@ jobs:
           jf --version
           # Ping the server
           jf rt ping
+          # Java
+          java -version
+          # MVN
+          mvn -version
+          # Docker
+          docker -v
+          # Python
+          python3 -V
+          pip3 -V
+      - name: Clone VCS
+        uses: actions/checkout@v4
+      - name: Config jf with mvn repos
+        run: |
+          jf mvnc --server-id-resolve ${{ env.JF_NAME}} --server-id-deploy ${{ env.JF_NAME}} --repo-resolve-releases ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_PROJECT_REPO_LOCAL}} --repo-deploy-snapshots ${{ env.RT_PROJECT_REPO_LOCAL}}
+      - name: Xray Audit
+        run: jf audit --mvn --extended-table=true
+      - name: Create Build
+        run: jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
+
