@@ -31,13 +31,13 @@ jobs:
     env:
           MVN_REPO: 'krishnam-virtual'
           # JFROG_NAME: ${{ secrets.JF_NAME }}
-          JFROG_NAME: ${{ vars.JF_NAME }}
-          JFROG_HOST: ${{ vars.JFROG_HOST }}.jfrog.io
-          JF_RT_URL: https://${{ vars.JFROG_HOST }}/
+          JF_NAME: ${{ vars.JF_NAME }}
+          JF_HOST: ${{ vars.JF_NAME }}.jfrog.io
+          JF_RT_URL: https://${{ vars.JF_NAME }}.jfrog.io
           RBv2_SIGNING_KEY: ${{ vars.RBV2_SIGNING_KEY }}
           JF_GIT_TOKEN: ${{ vars.GITHUB_TOKEN }}
           JF_ACCESS_TOKEN: ${{ vars.RBV2_SIGNING_KEY }}
-          JF_OIDC_PROVIDER_NAME: ${{ vars.JF_OIDC_PROVIDER_NAME }}
+          #JF_OIDC_PROVIDER_NAME: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           PACKAGE_CATEGORY: 'WebApp'
           JOB_SUMMARY: false
     steps:
@@ -48,7 +48,7 @@ jobs:
         env:
           JF_URL: ${{env.JF_RT_URL}}
         with:
-          oidc-provider-name: ${{env.JF_OIDC_PROVIDER_NAME}} 
+          oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           disable-job-summary: ${{env.JOB_SUMMARY}}
       - run: |
           # JFrog CLI version
