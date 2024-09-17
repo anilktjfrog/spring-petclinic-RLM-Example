@@ -10,6 +10,25 @@ Develop a DevOps pipeline to automate tasks such as code compile, unit testing, 
 Note: This process with not deploy to the envionrmnet platform. 
 
 ## Jenkins
+### GitHub Actions using JF CLI
+
+[![JF-CLI with Maven](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml)
+
+#### GitHub Actions steps: Docker Package, Build Info (SBOM), Release Bundle v2
+- [pipeline file: GitHub Actions for Docker build](./github/jfcli-docker.yml)
+- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+
+#### GitHub Actions steps: MVN Package, Build Info (SBOM), Release Bundle v2
+- [pipeline file: GitHub Actions for MVN build](./github/jfcli-mvn.yml)
+- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+#### Reference: Jenkins to GitHub Actions
+- [migrating from jenkins to github actions](https://docs.github.com/en/actions/migrating-to-github-actions/manually-migrating-to-github-actions/migrating-from-jenkins-to-github-actions)
+#### Error solutions
+- <details><summary>Error: Exchanging JSON web token with an access token failed: getaddrinfo EAI_AGAIN access</summary>
+    It is possbile that JF_RT_URL might be a NULL value
+</details>
+
+
 ### DOCKER using JF CLI
 ### Pipeline Flow
 <img src="./DevSecOps-Docker.svg">
