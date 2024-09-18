@@ -67,6 +67,7 @@ jobs:
           JF_URL: ${{env.JF_RT_URL}}
           JFROG_CLI_RELEASES_REPO: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_PROJECT_REPO_VIRTUAL}}' 
           JFROG_CLI_EXTRACTORS_REMOTE: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_PROJECT_REPO_VIRTUAL}}'
+          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           disable-job-summary: ${{env.JOB_SUMMARY}}
@@ -145,7 +146,10 @@ jobs:
       - name: RBv2 promote DEV
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
-
+      - name: RBv2 promote QA
+        run: |
+          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
+          
   ## DO NOT MODIFY BELOW CODE - for Advanced code scanning. ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages#using-multiple-build-modes-in-a-multi-language-repository
       # - name: Initialize CodeQL to analyze ${{ matrix.language }}
       #   uses: github/codeql-action/init@v3
