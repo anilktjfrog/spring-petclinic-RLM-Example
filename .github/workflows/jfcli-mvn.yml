@@ -42,6 +42,7 @@ jobs:
           RT_PROJECT_REPO_LOCAL: 'krishnam-mvn-dev-local'
           PACKAGE_CATEGORY: 'WebApp'
           JOB_SUMMARY: false
+          JFROG_CLI_LOG_LEVEL: 'DEBUG'
           BUILD_NAME: 'spring-petclinic-ga'
           BUILD_ID: ${{ github.run_number }} # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
     steps:
@@ -69,12 +70,25 @@ jobs:
           python3 -V
           pip3 -V
       - name: Clone VCS
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
+        with:
+          path: '/myapp'
       - name: Config jf with mvn repos
         run: |
+          export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
+
           jf mvnc --server-id-resolve ${{ env.JF_NAME}} --server-id-deploy ${{ env.JF_NAME}} --repo-resolve-releases ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_PROJECT_REPO_LOCAL}} --repo-deploy-snapshots ${{ env.RT_PROJECT_REPO_LOCAL}}
       - name: Xray Audit
         run: jf audit --mvn --extended-table=true
       - name: Create Build
         run: jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
+  ## DO NOT MODIFY BELOW CODE - for Advanced code scanning. ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#changing-the-languages-that-are-analyzed
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin # ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#changing-the-languages-that-are-analyzed
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java-kotlin"
