@@ -7,8 +7,13 @@ on:
   push:
     branches: 
       - main
-    paths:
-      - src
+    paths-ignore:
+      - '.github/**'
+      - 'target/**'
+      - 'gradle/**'
+      - '.mvn/**'
+      - '.devcontainer/**'
+      - '.jfrog/**'
 #   pull_request:
 #     branches: [ main ]
 # issue_comment triggers this action on each comment on issues and pull requests
@@ -23,10 +28,11 @@ permissions:
   security-events: write # Required for uploading code scanning.
 jobs:
   build:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest]
+        java: [17 ]
         include:
           - language: ['java-kotlin']
             build-mode: none
@@ -50,6 +56,7 @@ jobs:
       JFROG_CLI_LOG_LEVEL: 'DEBUG'
       BUILD_NAME: 'spring-petclinic-ga'
       BUILD_ID: ${{ github.run_number }} # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
+    runs-on: ${{ matrix.os }}
     steps:
       # Use the specific setup-cli branch. Ref https://github.com/marketplace/actions/setup-jfrog-cli
       - name: Setup JFrog CLI
@@ -129,22 +136,22 @@ jobs:
 
 
   ## DO NOT MODIFY BELOW CODE - for Advanced code scanning. ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages#using-multiple-build-modes-in-a-multi-language-repository
-      - name: Initialize CodeQL to analyze ${{ matrix.language }}
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }} 
-      - if: ${{ matrix.build-mode == 'manual' }}
-        name: Build C and C++ code
-        run: |
-          echo 'If you are using a "manual" build mode for one or more of the' \
-            'languages you are analyzing, replace this with the commands to build' \
-            'your code, for example:'
-          echo '  make bootstrap'
-          echo '  make release'
-          exit 1
-      - name: Perform CodeQL Analysis 
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
+      # - name: Initialize CodeQL to analyze ${{ matrix.language }}
+      #   uses: github/codeql-action/init@v3
+      #   with:
+      #     languages: ${{ matrix.language }}
+      # - if: ${{ matrix.build-mode == 'manual' }}
+      #   name: Build C and C++ code
+      #   run: |
+      #     echo 'If you are using a "manual" build mode for one or more of the' \
+      #       'languages you are analyzing, replace this with the commands to build' \
+      #       'your code, for example:'
+      #     echo '  make bootstrap'
+      #     echo '  make release'
+      #     exit 1
+      # - name: Perform CodeQL Analysis 
+      #   uses: github/codeql-action/analyze@v3
+      #   with:
+      #     category: "/language:${{ matrix.language }}"
           
 
