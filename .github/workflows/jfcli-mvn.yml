@@ -5,14 +5,23 @@ name: JF-CLI with Maven
 on:
 # TURN-OFF on every push 
   push:
-    branches: [ main ]
+    branches: 
+      - main
+    paths:
+      - src
+    paths-ignore:
+      - ".github/**"
+      - "target/**"
+      - "gradle/**"
+      - ".mvn/**"
+      - ".devcontainer/**"
+      - ".jfrog/**"
 #   pull_request:
 #     branches: [ main ]
 # issue_comment triggers this action on each comment on issues and pull requests
   issue_comment:
     types: [created]
-  pull_request_target:
-    types: [opened, synchronize]
+    
 permissions:
   actions: read # for detecting the Github Actions environment.
   id-token: write # for creating OIDC tokens for signing.
@@ -31,7 +40,6 @@ jobs:
     env:  
       JAVA_PROVIDER: 'corretto'
       JAVA_VERSION: '17'
-      LANGUAGE: 'java-kotlin'
       # REPO INFO
       MVN_REPO: 'krishnam-virtual'
       # JFROG_NAME: ${{ secrets.JF_NAME }}
@@ -131,17 +139,8 @@ jobs:
       - name: Initialize CodeQL to analyze ${{ matrix.language }}
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
-          config: |   # ref https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#example-configuration-files
-            paths:
-              - src 
-            paths-ignore:
-              - .github
-              - target
-              - gradle
-              - .mvn
-              - .devcontainer
-              - .jfrog
+          languages: ${{ matrix.language }} # https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#using-a-custom-configuration-file
+          # config-file: ./.github/codeql/codeql-config.yml 
       - if: ${{ matrix.build-mode == 'manual' }}
         name: Build C and C++ code
         run: |
