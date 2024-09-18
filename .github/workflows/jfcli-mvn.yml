@@ -24,6 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        include:
+          - language: ['java-kotlin']
+            build-mode: none
     env:  
       JAVA_PROVIDER: 'corretto'
       JAVA_VERSION: '17'
@@ -105,13 +109,22 @@ jobs:
       - name: Create Build
         run: jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
-  ## DO NOT MODIFY BELOW CODE - for Advanced code scanning. ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#changing-the-languages-that-are-analyzed
+  ## DO NOT MODIFY BELOW CODE - for Advanced code scanning. ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages#using-multiple-build-modes-in-a-multi-language-repository
       - name: Initialize CodeQL to analyze ${{ env.LANGUAGE }}
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ env.LANGUAGE }} # ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#changing-the-languages-that-are-analyzed
+          languages: ${{ matrix.language }}
+      - if: ${{ matrix.build-mode == 'manual' }}
+        name: Build C and C++ code
+        run: |
+          echo 'If you are using a "manual" build mode for one or more of the' \
+            'languages you are analyzing, replace this with the commands to build' \
+            'your code, for example:'
+          echo '  make bootstrap'
+          echo '  make release'
+          exit 1
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ env.LANGUAGE }}"
+          category: "/language:${{ matrix.language }}"
 
