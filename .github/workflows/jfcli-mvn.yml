@@ -82,8 +82,8 @@ jobs:
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
 
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
-        run: jf audit --mvn=true --format=table --extended-table=true -server-id=${{env.JF_NAME}} --secrets=true --sast=true --sca=true --licenses=true --fail=false
-        
+        run: jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false
+
       - name: Create Build
         run: jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
