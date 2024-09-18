@@ -25,8 +25,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        java: [ '17' ]
+        include:
+          - language: 'java-kotlin'
+          - os: [ubuntu-latest]
+          - java: [ '17' ]
     env:
           MVN_REPO: 'krishnam-virtual'
           # JFROG_NAME: ${{ secrets.JF_NAME }}
@@ -51,6 +53,8 @@ jobs:
         id: setup-cli
         env:
           JF_URL: ${{env.JF_RT_URL}}
+          JFROG_CLI_RELEASES_REPO: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_PROJECT_REPO_VIRTUAL}}' 
+          JFROG_CLI_EXTRACTORS_REMOTE: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_PROJECT_REPO_VIRTUAL}}'
         with:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           disable-job-summary: ${{env.JOB_SUMMARY}}
@@ -73,22 +77,21 @@ jobs:
       - name: Clone VCS
         uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
 
-      - name: Java ${{ matrix.Java }}
+      - name: Java ${{ matrix.java }}
         uses: actions/setup-java@v4   # ref https://github.com/actions/setup-java
         with:
           distribution: 'corretto'
-          java-version: '17'
+          java-version: ${{ matrix.java}}
           cache: 'maven'
           cache-dependency-path: 'pom.xml'
 
       - name: Config jf with mvn repos
         run: |
+          java -version
+
           export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
 
           jf mvnc --repo-resolve-releases ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_PROJECT_REPO_LOCAL}} --repo-deploy-snapshots ${{ env.RT_PROJECT_REPO_LOCAL}}
-
-          export JFROG_CLI_RELEASES_REPO="https://psazuse.jfrog.io/artifactory/${{ env.RT_PROJECT_REPO_VIRTUAL}}" 
-          export JFROG_CLI_EXTRACTORS_REMOTE="https://psazuse.jfrog.io/artifactory/${{ env.RT_PROJECT_REPO_VIRTUAL}}"
 
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
 
@@ -104,12 +107,12 @@ jobs:
         run: jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
   ## DO NOT MODIFY BELOW CODE - for Advanced code scanning. ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#changing-the-languages-that-are-analyzed
-      - name: Initialize CodeQL
+      - name: Initialize CodeQL to analyze ${{matrix.language}}
         uses: github/codeql-action/init@v3
         with:
-          languages: java-kotlin # ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#changing-the-languages-that-are-analyzed
+          languages: ${{ matrix.language }} # ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#changing-the-languages-that-are-analyzed
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:java-kotlin"
+          category: "/language:${{matrix.language}}"
 
