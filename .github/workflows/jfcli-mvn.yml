@@ -69,6 +69,8 @@ jobs:
           # Python
           python3 -V
           pip3 -V
+          # jf config
+          jf config show
       - name: Clone VCS
         uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
       - name: Config jf with mvn repos
@@ -78,8 +80,10 @@ jobs:
           jf mvnc --server-id-resolve ${{ env.JF_NAME}} --server-id-deploy ${{ env.JF_NAME}} --repo-resolve-releases ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_PROJECT_REPO_LOCAL}} --repo-deploy-snapshots ${{ env.RT_PROJECT_REPO_LOCAL}}
 
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
-      - name: Xray Audit
-        run: jf audit --mvn --extended-table=true
+
+      - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
+        run: jf audit --mvn=true --format=table --extended-table=true -server-id=${{env.JF_NAME}} --secrets=true --sast=true --sca=true --licenses=true --fail=false
+        
       - name: Create Build
         run: jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
