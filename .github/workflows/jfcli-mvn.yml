@@ -134,16 +134,17 @@ jobs:
 #        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --rescan=true --format=table --extended-table=true --vuln=true --fail=false 
 
 # Release Bundle v2
-      - name: RBv2 spec
+      - name: RBv2 spec - create
         run: |
           echo "{ \"files\": [ {\"build\": \"${{ env.BUILD_NAME}}/${{ env.BUILD_ID }}\" } ] }"  > RBv2-SPEC-${{ env.BUILD_ID }}.json
-      - name: RBv2 Create
+      - name: RBv2 spec - print
+        run: cat RBv2-SPEC-${{ env.BUILD_ID }}.json
+      - name: RBv2 Create NEW
         run: |
-          cat RBv2-SPEC-${{ env.BUILD_ID }}.json
           jf rbc ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} --spec=RBv2-SPEC-${{ env.BUILD_ID }}.json
       - name: RBv2 promote DEV
         run: |
-          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync="true" --url="${JF_RT_URL}" --signing-key=${{env.RBv2_SIGNING_KEY}}  
+          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
 
   ## DO NOT MODIFY BELOW CODE - for Advanced code scanning. ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages#using-multiple-build-modes-in-a-multi-language-repository
       # - name: Initialize CodeQL to analyze ${{ matrix.language }}
