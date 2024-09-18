@@ -132,8 +132,7 @@ jobs:
       - name: Initialize CodeQL to analyze ${{ matrix.language }}
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }} # https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#using-a-custom-configuration-file
-          # config-file: ./.github/codeql/codeql-config.yml 
+          languages: ${{ matrix.language }} 
       - if: ${{ matrix.build-mode == 'manual' }}
         name: Build C and C++ code
         run: |
