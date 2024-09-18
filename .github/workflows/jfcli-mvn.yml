@@ -121,8 +121,8 @@ jobs:
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
 
-      - name: Build Scan
-        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --rescan=true  --extended-table=true --vuln=true --fail=false 
+#      - name: Build Scan
+#        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --rescan=true --format=table --extended-table=true --vuln=true --fail=false 
 
 # Release Bundle v2
 
@@ -132,7 +132,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          config: |
+          config: |   # ref https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning#example-configuration-files
             paths:
               - src 
             paths-ignore:
