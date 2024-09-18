@@ -9,13 +9,6 @@ on:
       - main
     paths:
       - src
-    paths-ignore:
-      - ".github/**"
-      - "target/**"
-      - "gradle/**"
-      - ".mvn/**"
-      - ".devcontainer/**"
-      - ".jfrog/**"
 #   pull_request:
 #     branches: [ main ]
 # issue_comment triggers this action on each comment on issues and pull requests
