@@ -9,10 +9,12 @@ Develop a DevOps pipeline to automate tasks such as code compile, unit testing, 
 
 Note: This process with not deploy to the envionrmnet platform. 
 
-## Jenkins
-### GitHub Actions using JF CLI
 
-[![JF-CLI with Maven](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml)
+## CI/CD Pipelines
+### GitHub Actions using JF CLI
+- [![JF-CLI with Maven](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml)
+- [![Automatic Dependency Submission](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependency-graph/auto-submission/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependency-graph/auto-submission)
+- [![CodeQL Advanced](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/codeql.yml)
 
 #### GitHub Actions steps: Docker Package, Build Info (SBOM), Release Bundle v2
 - [pipeline file: GitHub Actions for Docker build](./github/workflows/jfcli-docker.yml)
