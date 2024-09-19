@@ -16,8 +16,8 @@ on:
 # issue_comment triggers this action on each comment on issues and pull requests
   issue_comment:
     types: [created]
-  # pull_request_target:
-  #   types: [opened, synchronize]
+  pull_request_target:
+     types: [opened, synchronize]
 permissions:
   actions: read # for detecting the Github Actions environment.
   id-token: write # for creating OIDC tokens for signing.
@@ -120,9 +120,8 @@ jobs:
       - name: Clone VCS
         uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
 
-
-##### DONOT DELETE BELOW CODE ##### 
-  analyze:
+    ##### DONOT DELETE BELOW CODE ##### 
+   analyze:
     name: Analyze (${{ matrix.language }})
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
