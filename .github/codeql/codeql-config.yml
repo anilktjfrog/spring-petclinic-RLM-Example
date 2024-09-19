@@ -1,9 +1,0 @@
-paths:
-  - src
-paths-ignore:
-  - .github/
-  - target/
-  - gradle/
-  - .mvn/
-  - .devcontainer/
-  - .jfrog/

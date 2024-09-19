@@ -1,13 +1,13 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: JF-CLI with Maven - v2
+name: JF-CLI with Maven
 on:
 # TURN-OFF on every push 
   push:
     branches: 
       - main
-    paths-ignore: # When the below folders are checked-in, the GitHub Actions job will not start.
+    paths-ignore:
       - '.github/**'
       - 'target/**'
       - 'gradle/**'
@@ -40,12 +40,19 @@ jobs:
     env:  
       JAVA_PROVIDER: 'corretto'
       JAVA_VERSION: '17'
+      # REPO INFO
+      MVN_REPO: 'krishnam-virtual'
+      # JFROG_NAME: ${{ secrets.JF_NAME }}
       JF_RT_URL: https://${{ vars.JF_NAME }}.jfrog.io
+      JF_NAME: ${{ vars.JF_NAME }}
+      JF_HOST: ${{ vars.JF_NAME }}.jfrog.io
       RBv2_SIGNING_KEY: ${{ vars.RBV2_SIGNING_KEY }}
       JF_GIT_TOKEN: ${{ vars.GITHUB_TOKEN }}
+      JF_ACCESS_TOKEN: ${{ vars.RBV2_SIGNING_KEY }}
       #JF_OIDC_PROVIDER_NAME: ${{ vars.JF_OIDC_PROVIDER_NAME }}
-      RT_MVN_REPO_VIRTUAL: 'krishnam-mvn-virtual'
-      PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
+      RT_PROJECT_REPO_VIRTUAL: 'krishnam-mvn-virtual'
+      RT_PROJECT_REPO_LOCAL: 'krishnam-mvn-dev-local'
+      PACKAGE_CATEGORY: 'WebApp'
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: 'DEBUG'
       BUILD_NAME: 'spring-petclinic-ga'
@@ -58,8 +65,8 @@ jobs:
         id: setup-cli
         env:
           JF_URL: ${{env.JF_RT_URL}}
-          JFROG_CLI_RELEASES_REPO: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_MVN_REPO_VIRTUAL}}' 
-          JFROG_CLI_EXTRACTORS_REMOTE: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_MVN_REPO_VIRTUAL}}'
+          JFROG_CLI_RELEASES_REPO: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_PROJECT_REPO_VIRTUAL}}' 
+          JFROG_CLI_EXTRACTORS_REMOTE: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_PROJECT_REPO_VIRTUAL}}'
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
@@ -97,7 +104,7 @@ jobs:
 
           export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
 
-          jf mvnc --repo-resolve-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}}
+          jf mvnc --repo-resolve-releases ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_PROJECT_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_PROJECT_REPO_LOCAL}} --repo-deploy-snapshots ${{ env.RT_PROJECT_REPO_LOCAL}}
 
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
 
@@ -114,9 +121,6 @@ jobs:
 
       - name: Xray Scan
         run: jf scan . --extended-table=true --format=simple-json
-      
-      - name: set build vars
-        run: export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
  # Build Info
       - name: Collect env
         run: jf rt bce ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
@@ -145,75 +149,24 @@ jobs:
       - name: RBv2 promote QA
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
+          
+  ## DO NOT MODIFY BELOW CODE - for Advanced code scanning. ref: https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages#using-multiple-build-modes-in-a-multi-language-repository
+      # - name: Initialize CodeQL to analyze ${{ matrix.language }}
+      #   uses: github/codeql-action/init@v3
+      #   with:
+      #     languages: ${{ matrix.language }}
+      # - if: ${{ matrix.build-mode == 'manual' }}
+      #   name: Build C and C++ code
+      #   run: |
+      #     echo 'If you are using a "manual" build mode for one or more of the' \
+      #       'languages you are analyzing, replace this with the commands to build' \
+      #       'your code, for example:'
+      #     echo '  make bootstrap'
+      #     echo '  make release'
+      #     exit 1
+      # - name: Perform CodeQL Analysis 
+      #   uses: github/codeql-action/analyze@v3
+      #   with:
+      #     category: "/language:${{ matrix.language }}"
+          
 
-
-  analyze:
-    name: Analyze (${{ matrix.language }})
-    # Runner size impacts CodeQL analysis time. To learn more, please see:
-    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
-    #   - https://gh.io/supported-runners-and-hardware-resources
-    #   - https://gh.io/using-larger-runners (GitHub.com only)
-    # Consider using larger runners or machines with greater resources for possible analysis time improvements.
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    permissions:
-      # required for all workflows
-      security-events: write
-
-      # required to fetch internal or private CodeQL packs
-      packages: read
-
-      # only required for workflows in private repositories
-      actions: read
-      contents: read
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - language: java-kotlin
-          build-mode: none # This mode only analyzes Java. Set this to 'autobuild' or 'manual' to analyze Kotlin too.
-        # CodeQL supports the following values keywords for 'language': 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
-        # Use `c-cpp` to analyze code written in C, C++ or both
-        # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
-        # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
-        # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
-        # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
-        # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
-        # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
-        # If you wish to specify custom queries, you can do so here or in a config file.
-        # By default, queries listed here will override any specified in a config file.
-        # Prefix the list here with "+" to use these queries and those in the config file.
-
-        # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-        # queries: security-extended,security-and-quality
-
-    # If the analyze step fails for one of the languages you are analyzing with
-    # "We were unable to automatically build your code", modify the matrix above
-    # to set the build mode to "manual" for that language. Then modify this step
-    # to build your code.
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-    - if: matrix.build-mode == 'manual'
-      shell: bash
-      run: |
-        echo 'If you are using a "manual" build mode for one or more of the' \
-          'languages you are analyzing, replace this with the commands to build' \
-          'your code, for example:'
-        echo '  make bootstrap'
-        echo '  make release'
-        exit 1
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{matrix.language}}"
