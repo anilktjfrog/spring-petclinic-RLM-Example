@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: JF-CLI with Maven - v2
+name: JF-CLI with Maven
 on:
 # TURN-OFF on every push 
   push:
@@ -146,7 +146,7 @@ jobs:
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
 
-
+  ##### DONOT DELETE BELOW CODE ##### 
   analyze:
     name: Analyze (${{ matrix.language }})
     # Runner size impacts CodeQL analysis time. To learn more, please see:
