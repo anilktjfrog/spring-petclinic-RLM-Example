@@ -57,7 +57,7 @@ jobs:
       - name: Ubuntu software version
         run: |
           # Ubuntu version
-          lsb_release -a
+          cat /etc/os-release
           # Java
           java -version
           # MVN
@@ -97,8 +97,7 @@ jobs:
         run: |
           # jf config
           jf config show
-          # docker config
-          cat ~/.config/docker/daemon.json 
+          # docker config cat ~/.config/docker/daemon.json 
       - name: Java provider = ${{ env.JAVA_PROVIDER }} with ver = ${{ env.JAVA_VERSION }} 
         uses: actions/setup-java@v4   # ref https://github.com/actions/setup-java
         with:
