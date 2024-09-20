@@ -155,7 +155,7 @@ jobs:
       - name: Release Bundle v2 Summary
         run: |
           echo "## Release Bundle v2 Summary" >> $GITHUB_STEP_SUMMARY
-          cat "RBv2 spec \n RBv2-SPEC-${{ env.BUILD_ID }}.json" >> $GITHUB_STEP_SUMMARY
+          cat "RBv2-SPEC-${{ env.BUILD_ID }}.json" >> $GITHUB_STEP_SUMMARY
           echo "Stages: NEW -> DEV -> QA" >> $GITHUB_STEP_SUMMARY
   ##### DONOT DELETE BELOW CODE ##### 
   analyze:
