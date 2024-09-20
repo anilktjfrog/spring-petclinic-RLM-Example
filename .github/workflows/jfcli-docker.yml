@@ -130,7 +130,7 @@ jobs:
         run: |
           jfcliv=`jf --version`
           jfdcliv=`jf docker --version`
-          echo "# :frog: :flatbread: Prestep Summary " >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " - Installed JFrog CLI ${jfcliv}, Java ${{ env.JAVA_PROVIDER }} v${{ env.JAVA_VERSION }}, and Docker v${jfdcliv} " >> $GITHUB_STEP_SUMMARY
@@ -181,7 +181,7 @@ jobs:
       
       - name: package-summary
         run: |
-          echo "# :frog: :package: Package Summary " >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Package Summary :package: " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " - Build Name: ${{env.BUILD_NAME}} " >> $GITHUB_STEP_SUMMARY
@@ -244,14 +244,15 @@ jobs:
           
       - name: rbv2-summary
         run: |
-          echo "# :frog: :rocket: Release Bundle v2 Summary" >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Release Bundle v2 Summary :rocket: " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
-          echo "<details><summary>The Build Artifacts has elevated to the subsequent stages</summary>" >> $GITHUB_STEP_SUMMARY
+          # echo "<details><summary>The Build Artifacts has elevated to the subsequent stages</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "The Build Artifacts has elevated to the subsequent stages" >> $GITHUB_STEP_SUMMARY
           echo " - NEW" >> $GITHUB_STEP_SUMMARY
           echo " - DEV" >> $GITHUB_STEP_SUMMARY
           echo " - QA" >> $GITHUB_STEP_SUMMARY
-          echo "<details>" >> $GITHUB_STEP_SUMMARY
+          # echo "<details>" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 
     ##### DONOT DELETE BELOW CODE ##### 

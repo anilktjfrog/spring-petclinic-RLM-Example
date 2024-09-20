@@ -105,7 +105,7 @@ jobs:
       - name: prestep-summary
         run: |
           jfcliv=`jf --version`
-          echo "# :frog: :flatbread: Prestep Summary " >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " - Installed JFrog CLI ${jfcliv} and Java ${{ env.JAVA_PROVIDER }}  v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
@@ -145,11 +145,11 @@ jobs:
       - name: RBv2 spec - create
         run: |
           echo "{ \"files\": [ {\"build\": \"${{ env.BUILD_NAME}}/${{ env.BUILD_ID }}\" } ] }"  > RBv2-SPEC-${{ env.BUILD_ID }}.json
-          echo "# :frog: :rocket: Release Bundle v2 Summary" >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Release Bundle v2 Summary :rocket:" >> $GITHUB_STEP_SUMMARY
       - name: RBv2 spec - print
         run: | 
-          cat RBv2-SPEC-${{ env.BUILD_ID }}.json >> $GITHUB_STEP_SUMMARY
-          echo "<details><summary>The Build Artifacts has elevated to the subsequent stages</summary>" >> $GITHUB_STEP_SUMMARY
+          cat RBv2-SPEC-${{ env.BUILD_ID }}.json
+          echo "The Build Artifacts has elevated to the subsequent stages " >> $GITHUB_STEP_SUMMARY
       - name: RBv2 Create NEW
         run: |
           jf rbc ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} --spec=RBv2-SPEC-${{ env.BUILD_ID }}.json
