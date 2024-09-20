@@ -130,6 +130,9 @@ jobs:
       - name: Clone VCS
         uses: actions/checkout@v4     # ref: https://github.com/actions/checkout
 
+      - name: JF config
+        run: jf config show
+        
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
         run: |
           cd /home/runner/work/spring-petclinic/spring-petclinic
