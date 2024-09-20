@@ -128,8 +128,8 @@ jobs:
           # JF Docker 
       - name: prestep-summary
         run: |
-          jfcliv=`jf --version`
-          jfdcliv=`jf docker --version`
+          jfcliv=`jf -v`
+          jfdcliv=`docker -v`
           echo "# :frog: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
@@ -143,9 +143,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: docker load -i /tmp/myimage-to-reuse.tar
-      - run: docker run -it myimage-to-reuse
-
       - name: Clone VCS
         uses: actions/checkout@v4     # ref: https://github.com/actions/checkout
 
