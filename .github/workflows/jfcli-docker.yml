@@ -127,6 +127,12 @@ jobs:
           pip3 -V
           # JF Docker 
           jf docker --version
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: myimage-to-reuse
+          path: /tmp/myimage-to-reuse.tar
 
    package:
     name: Package
@@ -135,6 +141,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: load prestep saved image myimage-to-reuse
+        uses: actions/download-artifact@v3
+        with:
+          name: myimage-to-reuse
+      - run: docker load -i /tmp/myimage-to-reuse.tar
+      - run: docker run -it myimage-to-reuse
+
       - name: Clone VCS
         uses: actions/checkout@v4     # ref: https://github.com/actions/checkout
 
