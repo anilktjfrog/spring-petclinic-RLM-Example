@@ -28,7 +28,7 @@ Note: This process with not deploy to the envionrmnet platform.
 - [migrating from jenkins to github actions](https://docs.github.com/en/actions/migrating-to-github-actions/manually-migrating-to-github-actions/migrating-from-jenkins-to-github-actions)
 #### Error solutions
 - <details><summary>Error: Exchanging JSON web token with an access token failed: getaddrinfo EAI_AGAIN access</summary>
-    It is possbile that JF_RT_URL might be a NULL value
+    It is possbile that JF_RT_URL might be a NULL value. Ref [https://github.com/krishnamanchikalapudi/spring-petclinic/actions/runs/10892482444](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/runs/10892482444)
 </details>
 
 

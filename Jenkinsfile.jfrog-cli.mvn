@@ -240,11 +240,11 @@ node {
         //                 if ('WEBAPP' == $BUILDINFO_PACKAGE_CATEGORY ) {   
         //                     echo " Condition TRUE"
         //                     echo "\n\n**** RBv2: Promoted to NEW --> DEV --> PROD ****\n\n"
-        //                     jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${projectName} ${env.BUILD_ID} PROD
+        //                     jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${projectName} ${env.BUILD_ID} PROD
         //                 } else {
         //                     echo " Condition FALSE"
         //                     echo "\n\n**** RBv2: Promoted to NEW --> DEV --> QA ****\n\n"
-        //                     jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${projectName} ${env.BUILD_ID} QA  
+        //                     jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${projectName} ${env.BUILD_ID} QA  
         //                 } // if
         //             } // script
                 

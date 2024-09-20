@@ -154,8 +154,8 @@ node {
             withCredentials([string(credentialsId: 'JF_ACCESS_TOKEN', variable: 'JF_ACCESS_TOKEN')]) {
                 sh """ #!/bin/bash
                     export JFROG_CLI_LOG_LEVEL="${JF_CLI_LOG_LEVEL}"
-                    # jf rt curl -XGET "/api/storage/${RT_REPO_DOCKER}-virtual/${projectName}/${env.BUILD_ID}/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" -o "${DKR_MANIFEST}"
-                    jf rt curl -XGET "/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-09-11-13-56/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" -o "${DKR_MANIFEST}"
+                    jf rt curl -XGET "/api/storage/${RT_REPO_DOCKER}-virtual/${projectName}/${env.BUILD_ID}/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" -o "${DKR_MANIFEST}"
+                    # jf rt curl -XGET "/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-09-11-13-56/list.manifest.json" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" -o "${DKR_MANIFEST}"
                 """
             } // withCredentials
             imageSha256=sh(returnStdout: true, script: "cat ${DKR_MANIFEST} | jq -r '.originalChecksums.sha256'").trim()

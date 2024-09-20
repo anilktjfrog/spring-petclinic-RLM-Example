@@ -109,17 +109,17 @@ echo "{ \"files\": [ {\"build\": \"${BUILD_NAME}/${BUILD_ID}\", \"includeDeps\":
 echo "\n" && cat ${SPEC_RBv2} && echo "\n"
 
   # create RB to state=NEW
-jf rbc ${BUILD_NAME} ${BUILD_ID} --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="krishnam" --spec="${SPEC_RBv2} --server-id="psazuse" 
+jf rbc ${BUILD_NAME} ${BUILD_ID} --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --spec="${SPEC_RBv2} --server-id="psazuse" 
 
 ## RBv2: release bundle - DEV promote
 echo "\n\n**** RBv2: Promoted to DEV ****\n\n"
-jf rbp ${BUILD_NAME} ${BUILD_ID} DEV --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" 
+jf rbp ${BUILD_NAME} ${BUILD_ID} DEV --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" 
 
 
 ## RBv2: release bundle - QA promote
 echo "\n\n**** RBv2: Promoted to DEV ****\n\n"
 # jf rt dpr ${BUILD_NAME} ${RT_REPO_DOCKER}-dev-local ${RT_REPO_DOCKER}-qa-local
-jf rbp ${BUILD_NAME} ${BUILD_ID} QA --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" 
+jf rbp ${BUILD_NAME} ${BUILD_ID} QA --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" 
 
 
 echo "\n\n**** CLEAN UP ****\n\n"

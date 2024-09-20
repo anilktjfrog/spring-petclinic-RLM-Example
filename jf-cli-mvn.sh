@@ -53,11 +53,11 @@ echo "{ \"files\": [ {\"build\": \"${BUILD_NAME}/${BUILD_ID}\", \"includeDeps\":
 echo "\n" && cat RBv2-SPEC-${BUILD_ID}.json && echo "\n"
 
   # create RB to state=NEW
-jf rbc ${BUILD_NAME} ${BUILD_ID} --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --spec="RBv2-SPEC-${BUILD_ID}.json" --server-id="psazuse" # --spec-vars="build_name=${BUILD_NAME};build_id=${BUILD_ID};PACKAGE_CATEGORY=${PACKAGE_CATEGORY};state=new" 
+jf rbc ${BUILD_NAME} ${BUILD_ID} --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --spec="RBv2-SPEC-${BUILD_ID}.json" --server-id="psazuse" # --spec-vars="build_name=${BUILD_NAME};build_id=${BUILD_ID};PACKAGE_CATEGORY=${PACKAGE_CATEGORY};state=new" 
 
 ## RBv2: release bundle - DEV promote
 echo "\n\n**** RBv2: Promoted to DEV ****\n\n"
-jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${BUILD_NAME} ${BUILD_ID} DEV 
+jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${BUILD_NAME} ${BUILD_ID} DEV 
 
 sleep 5
 
@@ -87,10 +87,10 @@ echo " Release Bundle state =  $RB2_STATUS "
 if [[ -n $BUILDINFO_PACKAGE_CATEGORY ]] ; then
   if  [[ "WEBAPP" == "${BUILDINFO_PACKAGE_CATEGORY}" ]] && [[ "DEV" == "${RB2_STATUS}" ]] ; then 
     echo "\n\n**** RBv2: Promoted to NEW --> DEV --> PROD ****\n\n"
-    jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${BUILD_NAME} ${BUILD_ID} PROD  
+    jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${BUILD_NAME} ${BUILD_ID} PROD  
   else 
     echo "\n\n**** RBv2: Promoted to NEW --> DEV --> QA ****\n\n"
-    jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN=}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${BUILD_NAME} ${BUILD_ID} QA  
+    jf rbp --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RT_PROJECT_RB_SIGNING_KEY}" --server-id="psazuse" ${BUILD_NAME} ${BUILD_ID} QA  
   fi
 fi
 
