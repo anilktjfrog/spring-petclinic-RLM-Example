@@ -87,7 +87,7 @@ jobs:
       - name: Show configs
         run: |
           # jf config
-          jf config show
+          jf config show >> $GITHUB_STEP_SUMMARY
           
       - name: Java provider = ${{ env.JAVA_PROVIDER }} with ver = ${{ env.JAVA_VERSION }} 
         id: setup-java
@@ -113,20 +113,20 @@ jobs:
       - name: Software versions
         run: |
           # JFrog CLI version
-          jf --version
+          jf --version >> $GITHUB_STEP_SUMMARY
           # Ping the server
-          jf rt ping
+          jf rt ping >> $GITHUB_STEP_SUMMARY
           # Java
-          java -version
+          java -version >> $GITHUB_STEP_SUMMARY
           # MVN
-          mvn -version
+          mvn -version >> $GITHUB_STEP_SUMMARY
           # Docker
-          docker -v
+          docker -v >> $GITHUB_STEP_SUMMARY
           # Python
-          python3 -V
-          pip3 -V
+          python3 -V >> $GITHUB_STEP_SUMMARY
+          pip3 -V >> $GITHUB_STEP_SUMMARY
           # JF Docker 
-          jf docker --version
+          jf docker --version >> $GITHUB_STEP_SUMMARY
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4 # ref: https://github.com/actions/upload-artifact
@@ -184,6 +184,9 @@ jobs:
    buildinfo:
     name: Build Info
     runs-on: ubuntu-latest
+    # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
+    # US Cyber Defence Agency: https://www.cisa.gov/sbom
+    #  NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
     needs: 
       - package 
     steps:
