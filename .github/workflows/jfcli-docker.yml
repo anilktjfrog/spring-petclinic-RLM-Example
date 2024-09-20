@@ -52,6 +52,11 @@ jobs:
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: 'DEBUG'
     runs-on: ${{ matrix.os }}
+    outputs:
+      output1: ${{ steps.setup-cli.outputs.test }}
+      output2: ${{ steps.setup-java.outputs.test }}
+      output3: ${{ steps.config-mvn.outputs.test }}
+      output4: ${{steps.config-docker.outputs.tests}}
     steps:
       - name: Ubuntu software version
         run: |
@@ -85,18 +90,21 @@ jobs:
           jf config show
           
       - name: Java provider = ${{ env.JAVA_PROVIDER }} with ver = ${{ env.JAVA_VERSION }} 
+        id: setup-java
         uses: actions/setup-java@v4   # ref https://github.com/actions/setup-java
         with:
           distribution: ${{ env.JAVA_PROVIDER }} # corretto
           java-version: ${{ env.JAVA_VERSION }}  # 17
 
       - name: Config jf with mvn repos
+        id: config-mvn
         run: |
           export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
           jf mvnc --repo-resolve-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}}
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
           pwd
       - name: Docker authentication  # ref https://github.com/marketplace/actions/docker-login
+        id: config-docker
         uses: docker/login-action@v3
         with: 
           registry: ${{env.JF_RT_URL}}
@@ -132,7 +140,7 @@ jobs:
 
       - name: JF config
         run: jf config show
-        
+
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
         run: |
           cd /home/runner/work/spring-petclinic/spring-petclinic
