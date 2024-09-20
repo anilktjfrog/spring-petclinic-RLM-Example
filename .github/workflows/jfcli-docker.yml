@@ -126,11 +126,16 @@ jobs:
           python3 -V 
           pip3 -V 
           # JF Docker 
-          jf docker --version 
-      - name: summary
+      - name: prestep-summary
         run: |
           jfcliv=`jf --version`
-          echo "# Prestep summary \n Installed JFrog CLI ${jfcliv} and ${{ env.JAVA_PROVIDER }} Java v${{ env.JAVA_VERSION }}, and configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
+          jfdcliv=`jf docker --version`
+          echo "# :frog: :flatbread: Prestep Summary " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " - Installed JFrog CLI ${jfcliv}, Java ${{ env.JAVA_PROVIDER }} v${{ env.JAVA_VERSION }}, and Docker v${jfdcliv} " >> $GITHUB_STEP_SUMMARY
+          echo " - Configured the JFrog Cli and Docker login using SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
+
    package:
     name: Package
     needs: 
@@ -173,6 +178,16 @@ jobs:
 
       - name: set build vars
         run: export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
+      
+      - name: package-summary
+        run: |
+          echo "# :frog: :package: Package Summary " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " - Build Name: ${{env.BUILD_NAME}} " >> $GITHUB_STEP_SUMMARY
+          echo " - Build Number: ${{env.BUILD_ID}} " >> $GITHUB_STEP_SUMMARY
+          echo " - MVN artifacts upload to ${{env.JF_RT_URL}}/${{env.RT_MVN_REPO_VIRTUAL}} " >> $GITHUB_STEP_SUMMARY
+          echo " - Docker artifact upload to ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}} " >> $GITHUB_STEP_SUMMARY
 
    buildinfo:
     name: Build Info
@@ -226,6 +241,18 @@ jobs:
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} >> $GITHUB_STEP_SUMMARY
 
+          
+      - name: rbv2-summary
+        run: |
+          echo "# :frog: :rocket: Release Bundle v2 Summary" >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>The Build Artifacts has elevated to the subsequent stages</summary>" >> $GITHUB_STEP_SUMMARY
+          echo " - NEW" >> $GITHUB_STEP_SUMMARY
+          echo " - DEV" >> $GITHUB_STEP_SUMMARY
+          echo " - QA" >> $GITHUB_STEP_SUMMARY
+          echo "<details>" >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
 
     ##### DONOT DELETE BELOW CODE ##### 
    analyze:
