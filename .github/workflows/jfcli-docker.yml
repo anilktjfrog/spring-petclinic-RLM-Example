@@ -100,8 +100,10 @@ jobs:
         id: config-mvn
         run: |
           export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
+          export JFROG_CLI_LOG_TIMESTAMP=DATE_AND_TIME
+
           jf mvnc --repo-resolve-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}}
-          
+
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
           pwd
       - name: Docker authentication  # ref https://github.com/marketplace/actions/docker-login
@@ -134,8 +136,9 @@ jobs:
           echo "# :frog: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
-          echo " - Installed JFrog CLI ${jfcliv}, Java ${{ env.JAVA_PROVIDER }} v${{ env.JAVA_VERSION }}, and Docker v${jfdcliv} " >> $GITHUB_STEP_SUMMARY
-          echo " - Configured the JFrog Cli and Docker login using SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
+          echo " - Installed JFrog CLI ${jfcliv} and Java ${{ env.JAVA_PROVIDER }} v${{ env.JAVA_VERSION }}"  >> $GITHUB_STEP_SUMMARY
+          echo " - Installed ${jfdcliv} " >> $GITHUB_STEP_SUMMARY
+          echo " - Configured the JFrog Cli and Docker login using SaaS ${{env.JF_RT_URL}} OIDC integration  " >> $GITHUB_STEP_SUMMARY
 
   #  package:
   #   name: Package
@@ -148,10 +151,14 @@ jobs:
 
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
         run: |
-          jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false
+          echo "# :frog: JFrog Xray Audit information " >> $GITHUB_STEP_SUMMARY
+          JFROG_CLI_LOG_LEVEL=ERROR
+          jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false >> $GITHUB_STEP_SUMMARY
 
       - name: Create Build
-        run: jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME }} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
+        run: |
+          export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
+          jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME }} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
       - name: Xray Scan
         run: jf scan . --extended-table=true
@@ -238,6 +245,11 @@ jobs:
           echo " " >> $GITHUB_STEP_SUMMARY
           # echo "<details><summary>The Build Artifacts has elevated to the subsequent stages</summary>" >> $GITHUB_STEP_SUMMARY
           echo "The Build Artifacts has elevated to the subsequent stages" >> $GITHUB_STEP_SUMMARY
+          RB2_STATUS_RESP=$(curl -v -G ${JF_RT_URL}/lifecycle/api/v2/promotion/records/${BUILD_NAME}/${BUILD_ID}?async=false -H 'Content-Type:  application/json' -H "Authorization: Bearer ${{ steps.setup-cli.outputs.oidc-token }}")
+          echo $RB2_STATUS_RESP > RBv2_STATUS-${{env.BUILD_ID}}.json
+          cat RBv2_STATUS-${{env.BUILD_ID}}.json >> $GITHUB_STEP_SUMMARY
+          # export RB2_STATUS=$(echo $RB2_STATUS_RESP | jq -r '.promotions[0].environment')
+
           echo " - NEW" >> $GITHUB_STEP_SUMMARY
           echo " - DEV" >> $GITHUB_STEP_SUMMARY
           echo " - QA" >> $GITHUB_STEP_SUMMARY
