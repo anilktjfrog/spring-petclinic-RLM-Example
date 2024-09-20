@@ -34,8 +34,8 @@ env:
   PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
 
 jobs:
-   prestep:
-    name: PreStep
+   dockerpackage:
+    name: Docker Package
     strategy:
       fail-fast: false
       matrix:
@@ -136,13 +136,12 @@ jobs:
           echo " - Installed JFrog CLI ${jfcliv}, Java ${{ env.JAVA_PROVIDER }} v${{ env.JAVA_VERSION }}, and Docker v${jfdcliv} " >> $GITHUB_STEP_SUMMARY
           echo " - Configured the JFrog Cli and Docker login using SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
 
-   package:
-    name: Package
-    needs: 
-      - prestep 
-    runs-on: ubuntu-latest
-
-    steps:
+  #  package:
+  #   name: Package
+  #   needs: 
+  #     - prestep 
+  #   runs-on: ubuntu-latest
+    # steps:
       - name: Clone VCS
         uses: actions/checkout@v4     # ref: https://github.com/actions/checkout
 
@@ -186,15 +185,15 @@ jobs:
           echo " - MVN artifacts upload to ${{env.JF_RT_URL}}/${{env.RT_MVN_REPO_VIRTUAL}} " >> $GITHUB_STEP_SUMMARY
           echo " - Docker artifact upload to ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}} " >> $GITHUB_STEP_SUMMARY
 
-   buildinfo:
-    name: Build Info
-    runs-on: ubuntu-latest
-    # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
-    # US Cyber Defence Agency: https://www.cisa.gov/sbom
-    #  NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
-    needs: 
-      - package 
-    steps:
+   # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
+   # US Cyber Defence Agency: https://www.cisa.gov/sbom
+   #  NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
+  #  buildinfo:
+  #   name: Build Info
+  #   runs-on: ubuntu-latest
+  #   needs: 
+  #     - package 
+  #   steps:
       - name: Collect env
         run: jf rt bce ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
  
@@ -204,10 +203,8 @@ jobs:
       - name: Docker build create
         run: |
           jf rt curl -XGET "/api/storage/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}/list.manifest.json" -H "Authorization: Bearer ${{ steps.setup-cli.outputs.oidc-token }}" -o "listmanifest-${{ env.BUILD_ID}}.json"
-
           imageSha256=`cat "listmanifest-${{ env.BUILD_ID}}.json" | jq -r '.originalChecksums.sha256'`
           echo ${imageSha256}
-
           echo ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}@sha256:${imageSha256} > "dockerimage-file-details-${{env.BUILD_ID}}"
           cat "dockerimage-file-details-${{env.BUILD_ID}}"
 
@@ -217,12 +214,12 @@ jobs:
         run: |
           jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true >> $GITHUB_STEP_SUMMARY
 
-   releasebundlev2:
-    name: Release Bundle v2
-    runs-on: ubuntu-latest
-    needs: 
-      - buildinfo 
-    steps:
+  #  releasebundlev2:
+  #   name: Release Bundle v2
+  #   runs-on: ubuntu-latest
+  #   needs: 
+  #     - buildinfo 
+  #   steps:
       - name: RBv2 spec - create
         run: |
           echo "{ \"files\": [ {\"build\": \"${{ env.BUILD_NAME}}/${{ env.BUILD_ID }}\" } ] }"  > RBv2-SPEC-${{ env.BUILD_ID }}.json
@@ -237,8 +234,7 @@ jobs:
       - name: RBv2 promote QA
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} >> $GITHUB_STEP_SUMMARY
-
-          
+     
       - name: rbv2-summary
         run: |
           echo "# :frog: Release Bundle v2 Summary :rocket: " >> $GITHUB_STEP_SUMMARY
@@ -262,8 +258,8 @@ jobs:
     # Consider using larger runners or machines with greater resources for possible analysis time improvements.
     # runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     runs-on: ubuntu-latest
-    needs: 
-      - releasebundlev2 
+    # needs: 
+    #   - releasebundlev2 
     permissions:
       # required for all workflows
       security-events: write
