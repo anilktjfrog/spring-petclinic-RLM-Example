@@ -129,7 +129,7 @@ jobs:
           jf docker --version
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4 # ref: https://github.com/actions/upload-artifact
         with:
           name: myimage-to-reuse
           path: /tmp/myimage-to-reuse.tar
@@ -142,7 +142,7 @@ jobs:
 
     steps:
       - name: load prestep saved image myimage-to-reuse
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4  # ref: https://github.com/marketplace/actions/download-a-build-artifact
         with:
           name: myimage-to-reuse
       - run: docker load -i /tmp/myimage-to-reuse.tar

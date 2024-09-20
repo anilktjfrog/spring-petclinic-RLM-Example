@@ -12,6 +12,8 @@ Note: This process with not deploy to the envionrmnet platform.
 
 ## CI/CD Pipelines
 ### GitHub Actions using JF CLI
+
+- [![JF-CLI with Docker](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-docker.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-docker.yml)
 - [![JF-CLI with Maven](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml)
 - [![Automatic Dependency Submission](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependency-graph/auto-submission/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependency-graph/auto-submission)
 
