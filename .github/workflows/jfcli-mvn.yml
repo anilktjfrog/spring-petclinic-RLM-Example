@@ -162,7 +162,7 @@ jobs:
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
           echo " - QA" >> $GITHUB_STEP_SUMMARY
-          echo "<details>">> $GITHUB_STEP_SUMMARY
+          # echo "<details>">> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
   ##### DONOT DELETE BELOW CODE ##### 
   analyze:
