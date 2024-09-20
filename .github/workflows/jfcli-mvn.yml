@@ -105,7 +105,9 @@ jobs:
       - name: prestep-summary
         run: |
           jfcliv=`jf --version`
-          echo "# Prestep summary \n Installed JFrog CLI ${jfcliv} and ${{ env.JAVA_PROVIDER }} Java v${{ env.JAVA_VERSION }}, and configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
+          echo "# Prestep summary" >> $GITHUB_STEP_SUMMARY
+          echo " - Installed JFrog CLI ${jfcliv} and ${{ env.JAVA_PROVIDER }} Java v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
+          echo " - Configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
 # Package
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
         run: |
@@ -141,22 +143,24 @@ jobs:
       - name: RBv2 spec - create
         run: |
           echo "{ \"files\": [ {\"build\": \"${{ env.BUILD_NAME}}/${{ env.BUILD_ID }}\" } ] }"  > RBv2-SPEC-${{ env.BUILD_ID }}.json
+          echo "## Release Bundle v2 Summary" >> $GITHUB_STEP_SUMMARY
       - name: RBv2 spec - print
-        run: cat RBv2-SPEC-${{ env.BUILD_ID }}.json
+        run: | 
+          cat RBv2-SPEC-${{ env.BUILD_ID }}.json >> $GITHUB_STEP_SUMMARY
+          echo "## Stages" >> $GITHUB_STEP_SUMMARY
       - name: RBv2 Create NEW
         run: |
           jf rbc ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} --spec=RBv2-SPEC-${{ env.BUILD_ID }}.json
+          echo " - New" >> $GITHUB_STEP_SUMMARY
       - name: RBv2 promote DEV
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
+          echo " - DEV" >> $GITHUB_STEP_SUMMARY
       - name: RBv2 promote QA
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
-      - name: Release Bundle v2 Summary
-        run: |
-          echo "## Release Bundle v2 Summary" >> $GITHUB_STEP_SUMMARY
-          cat "RBv2-SPEC-${{ env.BUILD_ID }}.json" >> $GITHUB_STEP_SUMMARY
-          echo "Stages: NEW -> DEV -> QA" >> $GITHUB_STEP_SUMMARY
+          echo " - QA" >> $GITHUB_STEP_SUMMARY
+        
   ##### DONOT DELETE BELOW CODE ##### 
   analyze:
     name: Analyze (${{ matrix.language }})
