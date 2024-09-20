@@ -14,15 +14,13 @@ Note: This process with not deploy to the envionrmnet platform.
 ### GitHub Actions using JF CLI
 - [![JF-CLI with Maven](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml)
 - [![Automatic Dependency Submission](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependency-graph/auto-submission/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependency-graph/auto-submission)
-- [![CodeQL Advanced](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/codeql.yml)
-- [![Dependabot Updates](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependabot/dependabot-updates)
 
 #### GitHub Actions steps: Docker Package, Build Info (SBOM), Release Bundle v2
-- [pipeline file: GitHub Actions for Docker build](./github/workflows/jfcli-docker.yml)
+- [pipeline file: GitHub Actions for Docker build](./.github/workflows/jfcli-docker.yml)
 - [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
 
 #### GitHub Actions steps: MVN Package, Build Info (SBOM), Release Bundle v2
-- [pipeline file: GitHub Actions for MVN build](./github/workflows/jfcli-mvn.yml)
+- [pipeline file: GitHub Actions for MVN build](./.github/workflows/jfcli-mvn.yml)
 - [![Walk through demo](https://img.youtube.com/vi/RPGwoDRLdXQ/0.jpg)](https://www.youtube.com/watch?v=RPGwoDRLdXQ)
 #### Reference: Jenkins to GitHub Actions
 - [migrating from jenkins to github actions](https://docs.github.com/en/actions/migrating-to-github-actions/manually-migrating-to-github-actions/migrating-from-jenkins-to-github-actions)
@@ -47,22 +45,22 @@ Note: This process with not deploy to the envionrmnet platform.
 
 - [![Walk through demo](https://img.youtube.com/vi/uSpKVVXIZW0/0.jpg)](https://www.youtube.com/watch?v=uSpKVVXIZW0)
 #### Package DevOps steps
-- [pipeline file: Jenkinsfile.jfrog-cli.mvn](../blob/main/Jenkinsfile.jfrog-cli.mvn)
+- [pipeline file: Jenkinsfile.jfrog-cli.mvn](./Jenkinsfile.jfrog-cli.mvn)
 - [![Walk through demo](https://img.youtube.com/vi/cHC79tWz8d4/0.jpg)](https://www.youtube.com/watch?v=cHC79tWz8d4)
 #### SBOM
-- [pipeline file: Jenkinsfile.jfrog-cli.mvn](../blob/main/Jenkinsfile.mvn.buildInfo.jfrog-cli)
+- [pipeline file: Jenkinsfile.jfrog-cli.mvn](./Jenkinsfile.mvn.buildInfo.jfrog-cli)
 - [![Walk through demo](https://img.youtube.com/vi/Sm4vWhPsvAY/0.jpg)](https://www.youtube.com/watch?v=Sm4vWhPsvAY)
 #### Release Bundle v2 - Create
-- [pipeline file: Jenkinsfile.jfrog-cli.mvn](./blob/main/Jenkinsfile.jfrog-cli.mvn)
+- [pipeline file: Jenkinsfile.jfrog-cli.mvn](./Jenkinsfile.jfrog-cli.mvn)
 - [![Walk through demo](https://img.youtube.com/vi/zap2gfYA3Vs/0.jpg)](https://www.youtube.com/watch?v=zap2gfYA3Vs)
 #### Release Bundle v2 - Promote
-- [pipeline file: Jenkinsfile.jfrog-cli.mvn](./blob/main/Jenkinsfile.jfrog-cli.mvn)
+- [pipeline file: Jenkinsfile.jfrog-cli.mvn](./Jenkinsfile.jfrog-cli.mvn)
 - [![Walk through demo](https://img.youtube.com/vi/xXSdGRBPFjg/0.jpg)](https://www.youtube.com/watch?v=xXSdGRBPFjg)
 
 ### MAVEN  
 <img src="./cipipeline.svg">
 
-- [pipeline file: Jenkins](./blob/main/Jenkinsfile)
+- [pipeline file: Jenkins](./Jenkinsfile)
 - [![Walk through demo]((https://img.youtube.com/vi/zgiaPIp-ZZA/0.jpg)](https://www.youtube.com/watch?v=zgiaPIp-ZZA)
 
 
