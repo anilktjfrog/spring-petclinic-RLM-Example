@@ -87,7 +87,7 @@ jobs:
       - name: Show configs
         run: |
           # jf config
-          jf config show >> $GITHUB_STEP_SUMMARY
+          jf config show
           
       - name: Java provider = ${{ env.JAVA_PROVIDER }} with ver = ${{ env.JAVA_VERSION }} 
         id: setup-java
@@ -113,27 +113,24 @@ jobs:
       - name: Software versions
         run: |
           # JFrog CLI version
-          jf --version >> $GITHUB_STEP_SUMMARY
+          jf --version 
           # Ping the server
-          jf rt ping >> $GITHUB_STEP_SUMMARY
+          jf rt ping 
           # Java
-          java -version >> $GITHUB_STEP_SUMMARY
+          java -version 
           # MVN
-          mvn -version >> $GITHUB_STEP_SUMMARY
+          mvn -version
           # Docker
-          docker -v >> $GITHUB_STEP_SUMMARY
+          docker -v 
           # Python
-          python3 -V >> $GITHUB_STEP_SUMMARY
-          pip3 -V >> $GITHUB_STEP_SUMMARY
+          python3 -V 
+          pip3 -V 
           # JF Docker 
-          jf docker --version >> $GITHUB_STEP_SUMMARY
-      
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4 # ref: https://github.com/actions/upload-artifact
-        with:
-          name: myimage-to-reuse
-          path: /tmp/myimage-to-reuse.tar
-
+          jf docker --version 
+      - name: summary
+        run: |
+          jfcliv=`jf --version`
+          echo "# Prestep summary \n Installed JFrog CLI ${jfcliv} and ${{ env.JAVA_PROVIDER }} Java v${{ env.JAVA_VERSION }}, and configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
    package:
     name: Package
     needs: 
@@ -141,10 +138,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: load prestep saved image myimage-to-reuse
-        uses: actions/download-artifact@v4  # ref: https://github.com/marketplace/actions/download-a-build-artifact
-        with:
-          name: myimage-to-reuse
       - run: docker load -i /tmp/myimage-to-reuse.tar
       - run: docker run -it myimage-to-reuse
 
