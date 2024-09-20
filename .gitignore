@@ -24,3 +24,6 @@ list.manifest-cmd.*
 list-manifest-cmd*
 rb2-spec-cmd*
 rb2-spec-cmd.*
+*.env
+**/*.env
+**/**/*.env
