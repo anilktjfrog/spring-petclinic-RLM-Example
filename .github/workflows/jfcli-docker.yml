@@ -101,6 +101,7 @@ jobs:
         run: |
           export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
           jf mvnc --repo-resolve-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}}
+          
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
           pwd
       - name: Docker authentication  # ref https://github.com/marketplace/actions/docker-login
@@ -145,20 +146,15 @@ jobs:
       - name: Clone VCS
         uses: actions/checkout@v4     # ref: https://github.com/actions/checkout
 
-      - name: JF config
-        run: jf config show
-
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
         run: |
-          cd /home/runner/work/spring-petclinic/spring-petclinic
-
           jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false
 
       - name: Create Build
         run: jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME }} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
       - name: Xray Scan
-        run: jf scan . --extended-table=true >> $GITHUB_STEP_SUMMARY
+        run: jf scan . --extended-table=true
       
       - name: Docker image
         run: docker image build -f Dockerfile-cli --platform linux/amd64,linux/arm64 -t ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --output=type=image .
@@ -170,7 +166,7 @@ jobs:
         run: jf docker push ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}
       
       - name: Xray Docker scan
-        run: jf docker scan ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} >> $GITHUB_STEP_SUMMARY
+        run: jf docker scan ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}
 
       - name: set build vars
         run: export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
@@ -212,7 +208,7 @@ jobs:
 
       - name: Build Publish
         run: |
-          jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true >> $GITHUB_STEP_SUMMARY
+          jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true 
 
   #  releasebundlev2:
   #   name: Release Bundle v2
@@ -227,13 +223,13 @@ jobs:
         run: cat RBv2-SPEC-${{ env.BUILD_ID }}.json
       - name: RBv2 Create NEW
         run: |
-          jf rbc ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} --spec=RBv2-SPEC-${{ env.BUILD_ID }}.json >> $GITHUB_STEP_SUMMARY
+          jf rbc ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} --spec=RBv2-SPEC-${{ env.BUILD_ID }}.json
       - name: RBv2 promote DEV
         run: |
-          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  >> $GITHUB_STEP_SUMMARY
+          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} 
       - name: RBv2 promote QA
         run: |
-          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} >> $GITHUB_STEP_SUMMARY
+          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}} 
      
       - name: rbv2-summary
         run: |
