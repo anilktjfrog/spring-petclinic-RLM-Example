@@ -44,7 +44,7 @@ jobs:
       RT_MVN_REPO_VIRTUAL: ${{ vars.RT_MVN_REPO_VIRTUAL}}
       RT_DOCKER_REPO_VIRTUAL: ${{ vars.RT_DOCKER_REPO_VIRTUAL}} 
       PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
-      DOCKER_BUILDX_PLATFORMS: [linux/amd64, linux/arm64]
+      DOCKER_BUILDX_PLATFORMS: 'linux/amd64, linux/arm64'
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: ${{vars.JFROG_CLI_LOG_LEVEL}} 'ERROR'  # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: 'spring-petclinic-ga-docker'
