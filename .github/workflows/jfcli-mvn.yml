@@ -48,7 +48,7 @@ jobs:
       RT_MVN_REPO_VIRTUAL: 'krishnam-mvn-virtual'
       PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
       JOB_SUMMARY: false
-      JFROG_CLI_LOG_LEVEL: 'DEBUG'
+      JFROG_CLI_LOG_LEVEL: 'ERROR'  # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: 'spring-petclinic-ga'
       BUILD_ID: ${{ github.run_number }} # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
     runs-on: ${{ matrix.os }}
@@ -115,19 +115,22 @@ jobs:
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
         run: |
           cd /home/runner/work/spring-petclinic/spring-petclinic
-          JFROG_CLI_LOG_LEVEL='ERROR'
+          echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
           jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false >> $GITHUB_STEP_SUMMARY
+          echo " "  >> $GITHUB_STEP_SUMMARY
 
       - name: Create Build
         run: |
-          export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
           jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
       - name: Xray Scan
-        run: jf scan . --extended-table=true --format=simple-json
+        run: |
+          echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
+          jf scan . --extended-table=true >> $GITHUB_STEP_SUMMARY
       
       - name: set build vars
-        run: export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
+        run: |
+          export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
  # Build Info
     # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
     # US Cyber Defence Agency: https://www.cisa.gov/sbom

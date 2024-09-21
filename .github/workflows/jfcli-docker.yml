@@ -50,7 +50,7 @@ jobs:
       # REPO INFO
       # JFROG_NAME: ${{ secrets.JF_NAME }}
       JOB_SUMMARY: false
-      JFROG_CLI_LOG_LEVEL: 'DEBUG'
+      JFROG_CLI_LOG_LEVEL: 'ERROR'  # DEBUG, INFO, WARN, ERROR
     runs-on: ${{ matrix.os }}
     steps:
       - name: Ubuntu software version
@@ -148,17 +148,17 @@ jobs:
 
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
         run: |
-          echo "# :frog: JFrog Xray Audit information " >> $GITHUB_STEP_SUMMARY
-          JFROG_CLI_LOG_LEVEL=ERROR
+          echo "# :frog: JFrog Xray Audit information :rotating_light: " >> $GITHUB_STEP_SUMMARY
           jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false >> $GITHUB_STEP_SUMMARY
-
+          echo " "  >> $GITHUB_STEP_SUMMARY
       - name: Create Build
         run: |
-          export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
           jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME }} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
       - name: Xray Scan
-        run: jf scan . --extended-table=true
+        run:  |
+          echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
+          jf scan . --extended-table=true >> $GITHUB_STEP_SUMMARY
       
       - name: Docker image
         run: docker image build -f Dockerfile-cli --platform linux/amd64,linux/arm64 -t ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --output=type=image .
@@ -170,7 +170,9 @@ jobs:
         run: jf docker push ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}
       
       - name: Xray Docker scan
-        run: jf docker scan ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}
+        run: |
+          echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
+          jf docker scan ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} >> $GITHUB_STEP_SUMMARY
 
       - name: set build vars
         run: export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
