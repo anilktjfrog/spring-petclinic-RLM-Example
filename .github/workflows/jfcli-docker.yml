@@ -90,8 +90,8 @@ jobs:
         with:
           distribution: ${{ env.JAVA_PROVIDER }} # corretto
           java-version: ${{ env.JAVA_VERSION }}  # 17
-          cache: 'maven'
-          cache-dependency-path: 'pom.xml'
+          # cache: 'maven'
+          # cache-dependency-path: 'pom.xml'
 
       - name: Config jf with mvn repos
         id: config-mvn
