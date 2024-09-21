@@ -156,14 +156,11 @@ jobs:
       - name: Docker images list
         run: |
           docker image ls
-
-      - name: Docker push
-        run: |
-          jf docker push ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}
       
       - name: Xray Docker scan
         run: |
-          jf docker scan ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
+          jf docker pull ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
+          jf docker scan ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}   
 
       - name: set build vars
         run: |
@@ -177,6 +174,9 @@ jobs:
  
       - name: Add VCS info
         run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
+      
+      - name: Adds dependencies from the local file-system
+        run: jf rt bad ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
 
       - name: Docker build create
         run: |
@@ -191,8 +191,9 @@ jobs:
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
 
-#      - name: Build Scan
-#        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --rescan=true --format=table --extended-table=true --vuln=true --fail=false 
+      - name: Build Scan
+        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
+        # --rescan=true --format=table --extended-table=true --vuln=true --fail=false 
 
 # Release Bundle v2
       - name: RBv2 spec - create
