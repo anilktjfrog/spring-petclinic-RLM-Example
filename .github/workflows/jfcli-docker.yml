@@ -157,7 +157,7 @@ jobs:
           jf docker pull ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
           jf docker scan ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}   
       
-      - name: Docker images list
+      - name: Docker image list
         run: |
           docker image ls
       
@@ -173,12 +173,6 @@ jobs:
  
       - name: Add VCS info
         run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
-      
-      - name: docker image info
-        run: |
-          curl -XGET "${{env.JF_RT_URL}}/artifactory/api/storage/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{env.BUILD_NAME }}/${{ env.BUILD_ID}}/list.manifest.json" -H "Authorization: Bearer ${{ steps.setup-cli.outputs.oidc-token }}" -o "listmanifest-${{ env.BUILD_ID}}.json"
-
-          cat "listmanifest-${{ env.BUILD_ID}}.json"
 
       - name: Docker build create  
         run: |
@@ -187,7 +181,7 @@ jobs:
           imageDigest=$(cat metadata.json | jq '.["containerimage.digest"]')
           echo "${imageDigest}"
 
-          echo "${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{env.BUILD_NAME }}:${{ env.BUILD_ID}}@$digest" > metadata.json
+          echo "${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{env.BUILD_NAME }}:${{ env.BUILD_ID}}@${imageDigest}" > metadata.json
 
           echo "----" && cat metadata.json && echo "----"
 
