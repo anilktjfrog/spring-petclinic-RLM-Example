@@ -157,8 +157,8 @@ jobs:
 
       - name: Xray Scan
         run:  |
-          echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
-          jf scan . --extended-table=true >> $GITHUB_STEP_SUMMARY
+          # echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
+          jf scan . --extended-table=true # >> $GITHUB_STEP_SUMMARY
       
       - name: Docker image
         run: docker image build -f Dockerfile-cli --platform linux/amd64,linux/arm64 -t ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --output=type=image .
