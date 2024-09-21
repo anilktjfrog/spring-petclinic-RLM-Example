@@ -3,7 +3,7 @@ on:
 # TURN-OFF on every push 
   push:
     branches: 
-      - nobuildonpush
+      - main
     paths-ignore: # When the below folders are checked-in, the GitHub Actions job will not start.
       - 'target/**'
       - 'gradle/**'
@@ -38,7 +38,6 @@ jobs:
       JAVA_PROVIDER: 'corretto'
       JAVA_VERSION: '17'
       JF_RT_URL: https://${{ vars.JF_NAME }}.jfrog.io
-      JF_DOCKER_HOST: ${{ vars.JF_NAME }}.jfrog.io
       RBv2_SIGNING_KEY: ${{ vars.RBV2_SIGNING_KEY }}
       JF_GIT_TOKEN: ${{ vars.GITHUB_TOKEN }}
       #JF_OIDC_PROVIDER_NAME: ${{ vars.JF_OIDC_PROVIDER_NAME }}
@@ -140,9 +139,15 @@ jobs:
           # echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
           jf scan . --extended-table=true # >> $GITHUB_STEP_SUMMARY
       
+      - name: Docker buildx instance
+        uses: docker/setup-buildx-action@v3   # ref: https://docs.docker.com/build/building/multi-platform/
+        with:
+          use: true
+          platforms: linux/amd64,linux/arm64
+          install: true
       - name: Docker image
         run: |
-          docker image build -f Dockerfile-cli --platform linux/amd64,linux/arm64 -t ${{env.JF_DOCKER_HOST}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --output=type=image .
+          docker image build -f Dockerfile-cli -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform linux/amd64,linux/arm64 --metadata-file metadata.json --push .
 
       - name: Docker inspect
         run: docker inspect ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --format='{{.Id}}'
@@ -170,13 +175,13 @@ jobs:
 
       - name: Docker build create
         run: |
-          jf rt curl -XGET "/api/storage/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}/list.manifest.json" -H "Authorization: Bearer ${{ steps.setup-cli.outputs.oidc-token }}" -o "listmanifest-${{ env.BUILD_ID}}.json"
-          imageSha256=`cat "listmanifest-${{ env.BUILD_ID}}.json" | jq -r '.originalChecksums.sha256'`
-          echo ${imageSha256}
-          echo ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}@sha256:${imageSha256} > "dockerimage-file-details-${{env.BUILD_ID}}"
-          cat "dockerimage-file-details-${{env.BUILD_ID}}"
-          
-          jf rt bdc ${{env.RT_DOCKER_REPO_VIRTUAL}} --image-file "dockerimage-file-details-${{env.BUILD_ID}}" --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}}
+          cat metadata.json
+
+          imageDigest=$(cat metadata.json | jq '.["containerimage.digest"]')
+          echo "${imageDigest}"
+
+          echo "${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/env.BUILD_NAME }}:${{ env.BUILD_ID}}@$digest" > metadata.json
+          jf rt bdc ${{env.RT_DOCKER_REPO_VIRTUAL}} --image-file metadata.json --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}}
 
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
