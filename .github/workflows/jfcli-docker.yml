@@ -174,15 +174,21 @@ jobs:
       - name: Add VCS info
         run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
       
-      # - name: Docker build create
-      #   run: |
-      #     cat metadata.json
+      - name: docker image info
+        run: |
+          jf rt curl -XGET "/api/storage/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{env.BUILD_NAME }}/${{ env.BUILD_ID}}/list.manifest.json" -H "Authorization: Bearer ${{ steps.setup-cli.outputs.oidc-token }}" -o "listmanifest-${{ env.BUILD_ID}}.json"
 
-      #     imageDigest=$(cat metadata.json | jq '.["containerimage.digest"]')
-      #     echo "${imageDigest}"
+          cat listmanifest-${{ env.BUILD_ID}}.json
 
-      #     echo "${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/env.BUILD_NAME }}:${{ env.BUILD_ID}}@$digest" > metadata.json
-      #     jf rt bdc ${{env.RT_DOCKER_REPO_VIRTUAL}} --image-file metadata.json --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}}
+      - name: Docker build create  
+        run: |
+          cat metadata.json
+
+          imageDigest=$(cat metadata.json | jq '.["containerimage.digest"]')
+          echo "${imageDigest}"
+
+          echo "${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{env.BUILD_NAME }}:${{ env.BUILD_ID}}@$digest" > metadata.json
+          jf rt bdc ${{env.RT_DOCKER_REPO_VIRTUAL}} --image-file metadata.json --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}}
 
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
