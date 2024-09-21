@@ -143,9 +143,6 @@ jobs:
       - name: Add VCS info
         run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
 
-      - name: Adds dependencies from the local file-system
-        run: jf rt bad ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
-
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
 
