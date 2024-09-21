@@ -153,15 +153,15 @@ jobs:
         run: |
           docker image build -f Dockerfile-cli -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform linux/amd64,linux/arm64 --metadata-file metadata.json --push .
 
-      - name: Docker images list
-        run: |
-          docker image ls
-      
       - name: Xray Docker scan
         run: |
           jf docker pull ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
           jf docker scan ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}   
-
+      
+      - name: Docker images list
+        run: |
+          docker image ls
+      
       - name: set build vars
         run: |
           export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
@@ -175,9 +175,6 @@ jobs:
       - name: Add VCS info
         run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
       
-      - name: Adds dependencies from the local file-system
-        run: jf rt bad ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
-
       - name: Docker build create
         run: |
           cat metadata.json
