@@ -46,7 +46,7 @@ jobs:
       RT_MVN_REPO_VIRTUAL: ${{ vars.RT_MVN_REPO_VIRTUAL}}
       RT_DOCKER_REPO_VIRTUAL: ${{ vars.RT_DOCKER_REPO_VIRTUAL}} 
       PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
-      DOCKER_BUILDX_PLATFORMS: 'linux/amd64, linux/arm64'
+      DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm64'
       DOCKER_METADATA_JSON: 'metadata.json'
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: ${{vars.JFROG_CLI_LOG_LEVEL}} 'ERROR'  # DEBUG, INFO, WARN, ERROR
@@ -154,7 +154,7 @@ jobs:
       
       - name: Docker image
         run: |
-          docker image build -f Dockerfile-cli -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform ${{env.DOCKER_BUILDX_PLATFORMS}} --metadata-file ${{env.DOCKER_METADATA_JSON}} --push .
+          docker image build -f Dockerfile-cli -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file "${{env.DOCKER_METADATA_JSON}}" --push .
 
       - name: Xray Docker scan
         run: |
