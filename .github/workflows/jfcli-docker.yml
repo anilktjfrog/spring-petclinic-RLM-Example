@@ -138,7 +138,12 @@ jobs:
           jf scan . --extended-table=true # >> $GITHUB_STEP_SUMMARY
       
       - name: Docker image
-        run: docker image build -f Dockerfile-cli --platform linux/amd64,linux/arm64 -t ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --output=type=image .
+        run: |
+          # remove https:// from the JF_RT_URL
+          export newUrl=$(echo "${{env.JF_RT_URL}}" | sed 's/^https:\/\/')
+          echo "NEW URL:  $newUrl"
+
+          docker image build -f Dockerfile-cli --platform linux/amd64,linux/arm64 -t ${newUrl}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --output=type=image .
 
       - name: Docker inspect
         run: docker inspect ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --format='{{.Id}}'
@@ -171,7 +176,7 @@ jobs:
           echo ${imageSha256}
           echo ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}@sha256:${imageSha256} > "dockerimage-file-details-${{env.BUILD_ID}}"
           cat "dockerimage-file-details-${{env.BUILD_ID}}"
-
+          
           jf rt bdc ${{env.RT_DOCKER_REPO_VIRTUAL}} --image-file "dockerimage-file-details-${{env.BUILD_ID}}" --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}}
 
       - name: Build Publish
@@ -196,6 +201,9 @@ jobs:
       - name: RBv2 promote QA
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
+      - name: RBv2 promote PROD
+        run: |
+          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} PROD --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
 
       - name: rbv2-summary
         run: |
