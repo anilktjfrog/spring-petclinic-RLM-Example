@@ -25,5 +25,6 @@ list-manifest-cmd*
 rb2-spec-cmd*
 rb2-spec-cmd.*
 *.env
-**/*.env
-**/**/*.env
+.github/workflows/*.env
+.github/workflows/my-custom.env
+.github/workflows/jfcli-docker.env

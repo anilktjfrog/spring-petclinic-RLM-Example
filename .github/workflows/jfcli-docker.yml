@@ -79,6 +79,9 @@ jobs:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           disable-job-summary: ${{env.JOB_SUMMARY}}
       
+      - name: Clone VCS
+        uses: actions/checkout@v4     # ref: https://github.com/actions/checkout
+      
       - name: Show configs
         run: |
           # jf config
@@ -246,13 +249,15 @@ jobs:
           echo "The Build Artifacts has elevated to the subsequent stages" >> $GITHUB_STEP_SUMMARY
           RB2_STATUS_RESP=$(curl -v -G ${JF_RT_URL}/lifecycle/api/v2/promotion/records/${BUILD_NAME}/${BUILD_ID}?async=false -H 'Content-Type:  application/json' -H "Authorization: Bearer ${{ steps.setup-cli.outputs.oidc-token }}")
           echo $RB2_STATUS_RESP > RBv2_STATUS-${{env.BUILD_ID}}.json
-          cat RBv2_STATUS-${{env.BUILD_ID}}.json >> $GITHUB_STEP_SUMMARY
+          cat RBv2_STATUS-${{env.BUILD_ID}}.json 
           # export RB2_STATUS=$(echo $RB2_STATUS_RESP | jq -r '.promotions[0].environment')
-
-          echo " - NEW" >> $GITHUB_STEP_SUMMARY
-          echo " - DEV" >> $GITHUB_STEP_SUMMARY
-          echo " - QA" >> $GITHUB_STEP_SUMMARY
-          # echo "<details>" >> $GITHUB_STEP_SUMMARY
+          items=$(echo "$RB2_STATUS_RESP" | jq -c -r '.promotions[]')
+          for item in ${items[@]}; do
+            # {"status":"COMPLETED","repository_key":"release-bundles-v2","release_bundle_name":"spring-petclinic-ga","release_bundle_version":"58","environment":"QA","service_id":"s","created_by":"token:***","created":"2024-09-21T00:53:57.326Z","created_millis":1726880037326,"xray_retrieval_status":"RECEIVED"}
+            envVal=$(echo $item | jq -r '.environment')
+            crtVal=$(echo $item | jq -r '.created')
+            echo " - ${envVal} on ${crtVal} " >> $GITHUB_STEP_SUMMARY
+          done
           echo " " >> $GITHUB_STEP_SUMMARY
 
     ##### DONOT DELETE BELOW CODE ##### 
