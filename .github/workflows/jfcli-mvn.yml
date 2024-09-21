@@ -66,7 +66,20 @@ jobs:
         with:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           disable-job-summary: ${{env.JOB_SUMMARY}}
-      - run: |
+
+      - name: Clone VCS
+        uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
+
+      - name: Java provider = ${{ env.JAVA_PROVIDER }} with ver = ${{ env.JAVA_VERSION }} 
+        uses: actions/setup-java@v4   # ref https://github.com/actions/setup-java
+        with:
+          distribution: ${{ env.JAVA_PROVIDER }} # corretto
+          java-version: ${{ env.JAVA_VERSION }}  # 17
+          cache: 'maven'
+          cache-dependency-path: 'pom.xml'
+
+      - name: Software version
+        run: |
           # JFrog CLI version
           jf --version
           # Ping the server
@@ -82,21 +95,9 @@ jobs:
           pip3 -V
           # jf config
           jf config show
-      - name: Clone VCS
-        uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
-
-      - name: Java provider = ${{ env.JAVA_PROVIDER }} with ver = ${{ env.JAVA_VERSION }} 
-        uses: actions/setup-java@v4   # ref https://github.com/actions/setup-java
-        with:
-          distribution: ${{ env.JAVA_PROVIDER }} # corretto
-          java-version: ${{ env.JAVA_VERSION }}  # 17
-          cache: 'maven'
-          cache-dependency-path: 'pom.xml'
 
       - name: Config jf with mvn repos
         run: |
-          java -version
-
           export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
           export JFROG_CLI_LOG_TIMESTAMP=DATE_AND_TIME
 
@@ -111,7 +112,7 @@ jobs:
           echo "# :frog: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
-          echo " - Installed JFrog CLI ${jfcliv} and Java ${{ env.JAVA_PROVIDER }}  v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
+          echo " - Installed JFrog CLI [${jfcliv}](https://jfrog.com/getcli/) and Java [${{ env.JAVA_PROVIDER }}](https://github.com/actions/setup-java) v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
           echo " - Configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
 # Package
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code

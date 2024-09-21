@@ -120,7 +120,7 @@ jobs:
         uses: docker/setup-buildx-action@v3   # ref: https://github.com/marketplace/actions/docker-setup-buildx h
         with:
           use: true
-          platforms: ${{env.DOCKER_BUILDX_PLATFORMS}} # linux/amd64,linux/arm64 # ref: ttps://docs.docker.com/reference/cli/docker/buildx/create/#platform
+          platforms: ${{env.DOCKER_BUILDX_PLATFORMS}} # linux/amd64,linux/arm64 # ref: https://docs.docker.com/reference/cli/docker/buildx/create/#platform
           install: true
 
       - name: prestep-summary
@@ -130,10 +130,10 @@ jobs:
           echo "# :frog: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
-          echo " - Installed JFrog CLI ${jfcliv} and Java ${{ env.JAVA_PROVIDER }}  v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
+          echo " - Installed JFrog CLI [${jfcliv}](https://jfrog.com/getcli/) and Java [${{ env.JAVA_PROVIDER }}](https://github.com/actions/setup-java) v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
           echo " - Installed ${jfdcliv} " >> $GITHUB_STEP_SUMMARY
           echo " - Configured the JFrog Cli and Docker login with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
-          echo " - Docker buildx configured with platforms: ${{env.DOCKER_BUILDX_PLATFORMS}} " >> $GITHUB_STEP_SUMMARY
+          echo " - Docker buildx configured with platforms: [${{env.DOCKER_BUILDX_PLATFORMS}}](https://docs.docker.com/reference/cli/docker/buildx/create/#platform) " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 # Package
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
@@ -189,8 +189,8 @@ jobs:
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
 
-      - name: Build Scan
-        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --fail=false --rescan=true --format=table --extended-table=true --vuln=true 
+      # - name: Build Scan
+      #   run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --fail=false --rescan=true --format=table --extended-table=true --vuln=true 
 
 # Release Bundle v2
       - name: RBv2 spec - create
