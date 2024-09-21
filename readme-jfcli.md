@@ -19,7 +19,7 @@ Note: This process with not deploy to the envionrmnet platform.
 
 #### GitHub Actions steps: Docker Package, Build Info (SBOM), Release Bundle v2
 - [pipeline file: GitHub Actions for Docker build](./.github/workflows/jfcli-docker.yml)
-- [![Walk through demo](https://img.youtube.com/vi/?/0.jpg)](https://www.youtube.com/watch?v=)
+- [![Walk through demo](https://img.youtube.com/vi/ho0gQDvjDLc/0.jpg)](https://www.youtube.com/watch?v=ho0gQDvjDLc)
 
 #### GitHub Actions steps: MVN Package, Build Info (SBOM), Release Bundle v2
 - [pipeline file: GitHub Actions for MVN build](./.github/workflows/jfcli-mvn.yml)
