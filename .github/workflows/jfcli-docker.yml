@@ -191,8 +191,7 @@ jobs:
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
 
       - name: Build Scan
-        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
-        # --rescan=true --format=table --extended-table=true --vuln=true --fail=false 
+        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --fail=false --rescan=true --format=table --extended-table=true --vuln=true 
 
 # Release Bundle v2
       - name: RBv2 spec - create
