@@ -115,9 +115,9 @@ jobs:
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
         run: |
           cd /home/runner/work/spring-petclinic/spring-petclinic
-          echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
-          jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false >> $GITHUB_STEP_SUMMARY
-          echo " "  >> $GITHUB_STEP_SUMMARY
+          # echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
+          jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false # >> $GITHUB_STEP_SUMMARY
+          # echo " "  >> $GITHUB_STEP_SUMMARY
 
       - name: Create Build
         run: |
@@ -125,8 +125,8 @@ jobs:
 
       - name: Xray Scan
         run: |
-          echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
-          jf scan . --extended-table=true >> $GITHUB_STEP_SUMMARY
+          # echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
+          jf scan . --extended-table=true # >> $GITHUB_STEP_SUMMARY
       
       - name: set build vars
         run: |

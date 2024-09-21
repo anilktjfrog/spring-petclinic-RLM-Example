@@ -146,11 +146,11 @@ jobs:
       - name: Clone VCS
         uses: actions/checkout@v4     # ref: https://github.com/actions/checkout
 
-      - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
-        run: |
-          echo "# :frog: JFrog Xray Audit information :rotating_light: " >> $GITHUB_STEP_SUMMARY
-          jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false >> $GITHUB_STEP_SUMMARY
-          echo " "  >> $GITHUB_STEP_SUMMARY
+      # - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
+      #   run: |
+      #     echo "# :frog: JFrog Xray Audit information :rotating_light: " >> $GITHUB_STEP_SUMMARY
+      #     jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false >> $GITHUB_STEP_SUMMARY
+      #     echo " "  >> $GITHUB_STEP_SUMMARY
       - name: Create Build
         run: |
           jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME }} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
