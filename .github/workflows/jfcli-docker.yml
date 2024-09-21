@@ -155,7 +155,7 @@ jobs:
 
       - name: Docker inspect
         run: |
-          docker buildx inspect ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
+          docker inspect ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --format='{{.Id}}'
 
       - name: Docker push
         run: |
