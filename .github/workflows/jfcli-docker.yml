@@ -154,15 +154,16 @@ jobs:
           docker image build -f Dockerfile-cli -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform linux/amd64,linux/arm64 --metadata-file metadata.json --push .
 
       - name: Docker inspect
-        run: docker buildx inspect ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
+        run: |
+          docker buildx inspect ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
 
       - name: Docker push
-        run: jf docker push ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}
+        run: |
+          jf docker push ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}
       
       - name: Xray Docker scan
         run: |
-          # echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
-          jf docker scan ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} # >> $GITHUB_STEP_SUMMARY
+          jf docker scan ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
 
       - name: set build vars
         run: |
