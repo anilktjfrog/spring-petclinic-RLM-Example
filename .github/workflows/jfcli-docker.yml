@@ -129,7 +129,6 @@ jobs:
           echo " - Installed JFrog CLI ${jfcliv} and Java ${{ env.JAVA_PROVIDER }}  v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
           echo " - Installed ${jfdcliv} " >> $GITHUB_STEP_SUMMARY
           echo " - Configured the JFrog Cli and Docker login with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
-          echo " - Configured the JFrog Cli and Docker login with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
           echo " - Docker buildx configured with platforms: ${{env.DOCKER_BUILDX_PLATFORMS}} " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 # Package
@@ -175,15 +174,15 @@ jobs:
       - name: Add VCS info
         run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
       
-      - name: Docker build create
-        run: |
-          cat metadata.json
+      # - name: Docker build create
+      #   run: |
+      #     cat metadata.json
 
-          imageDigest=$(cat metadata.json | jq '.["containerimage.digest"]')
-          echo "${imageDigest}"
+      #     imageDigest=$(cat metadata.json | jq '.["containerimage.digest"]')
+      #     echo "${imageDigest}"
 
-          echo "${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/env.BUILD_NAME }}:${{ env.BUILD_ID}}@$digest" > metadata.json
-          jf rt bdc ${{env.RT_DOCKER_REPO_VIRTUAL}} --image-file metadata.json --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}}
+      #     echo "${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/env.BUILD_NAME }}:${{ env.BUILD_ID}}@$digest" > metadata.json
+      #     jf rt bdc ${{env.RT_DOCKER_REPO_VIRTUAL}} --image-file metadata.json --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}}
 
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
