@@ -153,9 +153,9 @@ jobs:
         run: |
           docker image build -f Dockerfile-cli -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform linux/amd64,linux/arm64 --metadata-file metadata.json --push .
 
-      - name: Docker inspect
+      - name: Docker images list
         run: |
-          docker inspect ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --format='{{.Id}}'
+          docker image ls
 
       - name: Docker push
         run: |
