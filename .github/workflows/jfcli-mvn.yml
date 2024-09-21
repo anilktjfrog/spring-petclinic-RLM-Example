@@ -177,7 +177,10 @@ jobs:
           # export RB2_STATUS=$(echo $RB2_STATUS_RESP | jq -r '.promotions[0].environment')
           items=$(echo "$RB2_STATUS_RESP" | jq -c -r '.promotions[]')
           for item in ${items[@]}; do
-              echo " - ${item} " >> $GITHUB_STEP_SUMMARY
+            # {"status":"COMPLETED","repository_key":"release-bundles-v2","release_bundle_name":"spring-petclinic-ga","release_bundle_version":"58","environment":"QA","service_id":"s","created_by":"token:***","created":"2024-09-21T00:53:57.326Z","created_millis":1726880037326,"xray_retrieval_status":"RECEIVED"}
+            envVal=$(echo $item | jq -r '.environment')
+            crtVal=$(echo $item | jq -r '.created')
+            echo " - ${envVal} on ${crtVal} " >> $GITHUB_STEP_SUMMARY
           done
           echo " " >> $GITHUB_STEP_SUMMARY
 
