@@ -52,11 +52,6 @@ jobs:
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: 'DEBUG'
     runs-on: ${{ matrix.os }}
-    outputs:
-      output1: ${{ steps.setup-cli.outputs.test }}
-      output2: ${{ steps.setup-java.outputs.test }}
-      output3: ${{ steps.config-mvn.outputs.test }}
-      output4: ${{steps.config-docker.outputs.tests}}
     steps:
       - name: Ubuntu software version
         run: |
@@ -95,6 +90,8 @@ jobs:
         with:
           distribution: ${{ env.JAVA_PROVIDER }} # corretto
           java-version: ${{ env.JAVA_VERSION }}  # 17
+          cache: 'maven'
+          cache-dependency-path: 'pom.xml'
 
       - name: Config jf with mvn repos
         id: config-mvn

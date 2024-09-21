@@ -28,7 +28,8 @@ permissions:
   contents: read
   security-events: write # Required for uploading code scanning.
 jobs:
-  mvnbuild:
+  mvnpackage:
+    name: MVN Package
     strategy:
       fail-fast: false
       matrix:
