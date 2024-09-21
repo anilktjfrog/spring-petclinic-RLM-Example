@@ -50,7 +50,7 @@ jobs:
       # REPO INFO
       # JFROG_NAME: ${{ secrets.JF_NAME }}
       JOB_SUMMARY: false
-      JFROG_CLI_LOG_LEVEL: 'ERROR'  # DEBUG, INFO, WARN, ERROR
+      JFROG_CLI_LOG_LEVEL: ${{vars.JFROG_CLI_LOG_LEVEL}}  # DEBUG, INFO, WARN, ERROR
     runs-on: ${{ matrix.os }}
     steps:
       - name: Ubuntu software version

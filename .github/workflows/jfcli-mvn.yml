@@ -48,7 +48,7 @@ jobs:
       RT_MVN_REPO_VIRTUAL: 'krishnam-mvn-virtual'
       PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
       JOB_SUMMARY: false
-      JFROG_CLI_LOG_LEVEL: 'ERROR'  # DEBUG, INFO, WARN, ERROR
+      JFROG_CLI_LOG_LEVEL: ${{vars.JFROG_CLI_LOG_LEVEL}} 'ERROR'  # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: 'spring-petclinic-ga'
       BUILD_ID: ${{ github.run_number }} # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
     runs-on: ${{ matrix.os }}
@@ -173,11 +173,11 @@ jobs:
           echo "The Build Artifacts has elevated to the subsequent stages" >> $GITHUB_STEP_SUMMARY
           RB2_STATUS_RESP=$(curl -v -G ${JF_RT_URL}/lifecycle/api/v2/promotion/records/${BUILD_NAME}/${BUILD_ID}?async=false -H 'Content-Type:  application/json' -H "Authorization: Bearer ${{ steps.setup-cli.outputs.oidc-token }}")
           echo $RB2_STATUS_RESP > RBv2_STATUS-${{env.BUILD_ID}}.json
-          cat RBv2_STATUS-${{env.BUILD_ID}}.json >> $GITHUB_STEP_SUMMARY
+          cat RBv2_STATUS-${{env.BUILD_ID}}.json 
           # export RB2_STATUS=$(echo $RB2_STATUS_RESP | jq -r '.promotions[0].environment')
           items=$(echo "$RB2_STATUS_RESP" | jq -c -r '.promotions[]')
           for item in ${items[@]}; do
-              echo " - ${item.environment} on ${item.created}" >> $GITHUB_STEP_SUMMARY
+              echo " - ${item} " >> $GITHUB_STEP_SUMMARY
           done
           echo " " >> $GITHUB_STEP_SUMMARY
 
