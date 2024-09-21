@@ -44,6 +44,7 @@ jobs:
       RT_MVN_REPO_VIRTUAL: ${{ vars.RT_MVN_REPO_VIRTUAL}}
       RT_DOCKER_REPO_VIRTUAL: ${{ vars.RT_DOCKER_REPO_VIRTUAL}} 
       PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
+      DOCKER_BUILDX_PLATFORMS: [linux/amd64, linux/arm64]
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: ${{vars.JFROG_CLI_LOG_LEVEL}} 'ERROR'  # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: 'spring-petclinic-ga-docker'
@@ -111,6 +112,13 @@ jobs:
           username: ${{ steps.setup-cli.outputs.oidc-user }}
           password: ${{ steps.setup-cli.outputs.oidc-token }}
 
+      - name: Docker buildx instance
+        uses: docker/setup-buildx-action@v3   # ref: https://github.com/marketplace/actions/docker-setup-buildx h
+        with:
+          use: true
+          platforms: ${{env.DOCKER_BUILDX_PLATFORMS}} # linux/amd64,linux/arm64 # ref: ttps://docs.docker.com/reference/cli/docker/buildx/create/#platform
+          install: true
+
       - name: prestep-summary
         run: |
           jfcliv=`jf --version`
@@ -121,6 +129,8 @@ jobs:
           echo " - Installed JFrog CLI ${jfcliv} and Java ${{ env.JAVA_PROVIDER }}  v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
           echo " - Installed ${jfdcliv} " >> $GITHUB_STEP_SUMMARY
           echo " - Configured the JFrog Cli and Docker login with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
+          echo " - Configured the JFrog Cli and Docker login with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
+          echo " - Docker buildx configured with platforms: ${{env.DOCKER_BUILDX_PLATFORMS}} " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 # Package
       - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
@@ -139,18 +149,12 @@ jobs:
           # echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
           jf scan . --extended-table=true # >> $GITHUB_STEP_SUMMARY
       
-      - name: Docker buildx instance
-        uses: docker/setup-buildx-action@v3   # ref: https://docs.docker.com/build/building/multi-platform/
-        with:
-          use: true
-          platforms: linux/amd64,linux/arm64
-          install: true
       - name: Docker image
         run: |
           docker image build -f Dockerfile-cli -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform linux/amd64,linux/arm64 --metadata-file metadata.json --push .
 
       - name: Docker inspect
-        run: docker inspect ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --format='{{.Id}}'
+        run: docker buildx inspect ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} 
 
       - name: Docker push
         run: jf docker push ${{env.JF_RT_URL}}/${{env.RT_DOCKER_REPO_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}
