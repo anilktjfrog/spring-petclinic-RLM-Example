@@ -3,8 +3,8 @@ on:
 # TURN-OFF on every push 
   push:
     branches: 
-      - nobuildonpush
-    # - main
+    #  - nobuildonpush
+      - main
     paths-ignore: # When the below folders are checked-in, the GitHub Actions job will not start.
      # - '.github/**'
       - 'target/**'
@@ -61,8 +61,8 @@ jobs:
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
-          disable-job-summary: ${{env.JOB_SUMMARY}}
-          disable-auto-build-publish: ${{env.JOB_SUMMARY}} # ref: https://github.com/marketplace/actions/setup-jfrog-cli#default-behavior
+          # disable-job-summary: ${{env.JOB_SUMMARY}}
+          disable-auto-build-publish: false # ref: https://github.com/marketplace/actions/setup-jfrog-cli#default-behavior
 
       - name: Clone VCS
         uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
