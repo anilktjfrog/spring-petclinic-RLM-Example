@@ -14,6 +14,9 @@ build/*
 .vscode
 _site/
 *.css
+.jfrog
+.jfrog/
+.jfrog/*
 !petclinic.css
 rbv2-spec-*.json
 *.json
@@ -29,4 +32,3 @@ rb2-spec-cmd.*
 .github/workflows/my-custom.env
 .github/workflows/jfcli-docker.env
 .github/workflows/jfcli-custom-runner-image.yml
-jf-cli-test.sh
