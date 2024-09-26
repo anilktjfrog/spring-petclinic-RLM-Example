@@ -88,6 +88,9 @@ jobs:
           # Python
           python3 -V
           pip3 -V
+          # nodejs
+          node -v
+          npm -v
           # jf config
           jf config show
 
@@ -118,8 +121,14 @@ jobs:
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
 
 # set properties
-      - name: Set properties Publish
+      - name: Set properties 
         run: |
-          echo "{\"files\": [ { \"pattern\": \"${{ env.RT_MVN_REPO_VIRTUAL}}/*.jar\",  \"props\": \"pack_cat=webapp;bname=${{ env.BUILD_NAME}};id=${{ env.BUILD_ID}}\" } ] }" > sp-${{ env.BUILD_ID }}.json
+          jf rt sp "env=prod;org=ps;team=arch;pack_cat=webapp;"  --build="${{ env.BUILD_NAME}}/${{ env.BUILD_ID}}"
 
-          jf rt sp --build ${{ env.BUILD_NAME}}/${{ env.BUILD_ID}} --spec sp-${{ env.BUILD_ID }}.json  --props="pack_cat=webapp;bname=${{ env.BUILD_NAME}};id=${{ env.BUILD_ID}}"
+# Query properies
+      - name: Query by prop='team=arch'
+        run: |
+          jf rt curl "/api/search/prop?repos=krishnam-mvn-dev-local&team=arch"
+      - name: Query by prop='build.name=?'
+        run: |
+          jf rt curl "/api/search/prop?repos=krishnam-mvn-dev-local&build.name=${{ env.BUILD_NAME}}"
