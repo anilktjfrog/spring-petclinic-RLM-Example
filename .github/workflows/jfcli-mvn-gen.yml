@@ -61,6 +61,7 @@ jobs:
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
+          disable-auto-build-publish: true
           # disable-job-summary: ${{env.JOB_SUMMARY}}
           # disable-auto-build-publish: false # ref: https://github.com/marketplace/actions/setup-jfrog-cli#default-behavior
 
