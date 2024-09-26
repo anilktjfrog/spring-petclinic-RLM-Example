@@ -62,7 +62,7 @@ jobs:
         with:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           # disable-job-summary: ${{env.JOB_SUMMARY}}
-          disable-auto-build-publish: false # ref: https://github.com/marketplace/actions/setup-jfrog-cli#default-behavior
+          # disable-auto-build-publish: false # ref: https://github.com/marketplace/actions/setup-jfrog-cli#default-behavior
 
       - name: Clone VCS
         uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
