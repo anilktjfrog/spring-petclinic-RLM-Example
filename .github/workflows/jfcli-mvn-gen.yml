@@ -119,4 +119,7 @@ jobs:
 
 # set properties
       - name: Set properties Publish
-        run: jf rt sp --build ${{ env.BUILD_NAME}}/${{ env.BUILD_ID}} --props="pack_cat=webapp;bname=${{ env.BUILD_NAME}};id=${{ env.BUILD_ID}}"
+        run: |
+          echo "{\"files\": [ { \"pattern\": \"${{ env.RT_MVN_REPO_VIRTUAL}}/*.jar\",  \"props\": \"pack_cat=webapp;bname=${{ env.BUILD_NAME}};id=${{ env.BUILD_ID}}\" } ] }" > sp-${{ env.BUILD_ID }}.json
+
+          jf rt sp --build ${{ env.BUILD_NAME}}/${{ env.BUILD_ID}} --spec sp-${{ env.BUILD_ID }}.json  --props="pack_cat=webapp;bname=${{ env.BUILD_NAME}};id=${{ env.BUILD_ID}}"
