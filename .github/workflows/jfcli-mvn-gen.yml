@@ -113,3 +113,6 @@ jobs:
       - name: Create Build
         run: |
           jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
+# BuildInfo
+      - name: Build Publish
+        run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
