@@ -116,3 +116,7 @@ jobs:
 # BuildInfo
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
+
+# set properties
+      - name: Set properties Publish
+        run: jf rt sp --build ${{ env.BUILD_NAME}}/${{ env.BUILD_ID}} --props="pack_cat=webapp;bname=${{ env.BUILD_NAME}};id=${{ env.BUILD_ID}}"
