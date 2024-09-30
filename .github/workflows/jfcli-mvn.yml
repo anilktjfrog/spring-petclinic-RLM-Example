@@ -6,8 +6,8 @@ on:
 # TURN-OFF on every push 
   push:
     branches: 
-      - nobuildonpush
-    # - main
+    #  - nobuildonpush
+      - main
     paths-ignore: # When the below folders are checked-in, the GitHub Actions job will not start.
       - '.github/**'
       - 'target/**'
@@ -115,22 +115,10 @@ jobs:
           echo " - Installed JFrog CLI [${jfcliv}](https://jfrog.com/getcli/) and Java [${{ env.JAVA_PROVIDER }}](https://github.com/actions/setup-java) v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
           echo " - Configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
 # Package
-      - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
-        run: |
-          cd /home/runner/work/spring-petclinic/spring-petclinic
-          # echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
-          jf audit --mvn=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false # >> $GITHUB_STEP_SUMMARY
-          # echo " "  >> $GITHUB_STEP_SUMMARY
-
       - name: Create Build
         run: |
           jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 
-      - name: Xray Scan
-        run: |
-          # echo "# :frog: JFrog Xray Audit Summary :rotating_light:" >> $GITHUB_STEP_SUMMARY
-          jf scan . --extended-table=true # >> $GITHUB_STEP_SUMMARY
-      
       - name: set build vars
         run: |
           export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
@@ -146,9 +134,6 @@ jobs:
 
       - name: Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
-
-      # - name: Build Scan
-      #   run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --rescan=true --format=table --extended-table=true --vuln=true --fail=false 
 
 # Release Bundle v2
       - name: RBv2 spec - create
