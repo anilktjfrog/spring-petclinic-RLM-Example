@@ -75,8 +75,9 @@ jobs:
         with:
           distribution: ${{ env.JAVA_PROVIDER }} # corretto
           java-version: ${{ env.JAVA_VERSION }}  # 17
-          cache: 'gradle'
-          cache-dependency-path: 'pom.xml'
+
+      - name: Setup Gradle    # ref https://docs.github.com/en/enterprise-cloud@latest/actions/use-cases-and-examples/building-and-testing/building-and-testing-java-with-gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
       - name: Software version
         run: |
