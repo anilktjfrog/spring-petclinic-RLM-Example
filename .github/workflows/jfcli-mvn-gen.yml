@@ -58,9 +58,8 @@ jobs:
           JF_URL: ${{env.JF_RT_URL}}
         with:
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
-          disable-auto-build-publish: true
-          # disable-job-summary: ${{env.JOB_SUMMARY}}
-          # disable-auto-build-publish: false # ref: https://github.com/marketplace/actions/setup-jfrog-cli#default-behavior
+          disable-job-summary: false
+          disable-auto-build-publish: false # ref: https://github.com/marketplace/actions/setup-jfrog-cli#default-behavior
 
       - name: Clone VCS
         uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
@@ -117,18 +116,18 @@ jobs:
         run: |
           jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
 # BuildInfo
-      - name: Build Publish
-        run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
+      # - name: Build Publish
+      #   run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
 
 # set properties
       - name: Set properties 
         run: |
           jf rt sp "env=prod;org=ps;team=arch;pack_cat=webapp;"  --build="${{ env.BUILD_NAME}}/${{ env.BUILD_ID}}"
 
-# Query properies
-      - name: Query by prop='team=arch'
-        run: |
-          jf rt curl "/api/search/prop?repos=krishnam-mvn-dev-local&team=arch"
-      - name: Query by prop='build.name=?'
-        run: |
-          jf rt curl "/api/search/prop?repos=krishnam-mvn-dev-local&build.name=${{ env.BUILD_NAME}}"
+# # Query properies
+#       - name: Query by prop='team=arch'
+#         run: |
+#           jf rt curl "/api/search/prop?repos=krishnam-mvn-dev-local&team=arch"
+#       - name: Query by prop='build.name=?'
+#         run: |
+#           jf rt curl "/api/search/prop?repos=krishnam-mvn-dev-local&build.name=${{ env.BUILD_NAME}}"
