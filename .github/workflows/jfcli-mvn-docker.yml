@@ -3,8 +3,8 @@ on:
 # TURN-OFF on every push 
   push:
     branches: 
-      - nobuildonpush
-    # - main
+    #  - nobuildonpush
+      - main
     paths-ignore: # When the below folders are checked-in, the GitHub Actions job will not start.
     #  - '.github/**'
       - 'target/**'

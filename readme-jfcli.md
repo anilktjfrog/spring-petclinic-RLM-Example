@@ -13,8 +13,10 @@ Note: This process with not deploy to the envionrmnet platform.
 ## CI/CD Pipelines
 ### GitHub Actions using JF CLI
 
-- [![JF-CLI with Docker](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-docker.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-docker.yml)
-- [![JF-CLI with Maven](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml)
+- [![JF-CLI with Maven](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml/badge.svg)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn.yml)
+- [![JF-CLI with MVN Docker](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn-docker.yml/badge.svg)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-mvn-docker.yml)
+- [![JF-CLI with Gradle](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-gradle.yml/badge.svg)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-gradle.yml)
+- [![JF-CLI with Gradle Docker](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-gradle-docker.yml/badge.svg)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-gradle-docker.yml)
 - [![Automatic Dependency Submission](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependency-graph/auto-submission/badge.svg?branch=main)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/dependency-graph/auto-submission)
 
 #### GitHub Actions steps: Docker Package, Build Info (SBOM), Release Bundle v2
