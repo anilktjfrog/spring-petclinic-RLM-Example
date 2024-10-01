@@ -1,4 +1,4 @@
-name: JF-CLI with Docker
+name: JF-CLI with Gradle Docker
 on:
 # TURN-OFF on every push 
   push:
@@ -50,7 +50,7 @@ jobs:
       DOCKER_METADATA_JSON: 'metadata.json'
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: ${{vars.JFROG_CLI_LOG_LEVEL}}  # DEBUG, INFO, WARN, ERROR
-      BUILD_NAME: 'spring-petclinic-ga-docker'
+      BUILD_NAME: 'spring-petclinic-gradle-docker'
       BUILD_ID: ${{ github.run_number }} # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
     runs-on: ${{ matrix.os }}
     steps:
@@ -76,8 +76,9 @@ jobs:
         with:
           distribution: ${{ env.JAVA_PROVIDER }} # corretto
           java-version: ${{ env.JAVA_VERSION }}  # 17
-          cache: 'maven'
-          cache-dependency-path: 'pom.xml'
+
+      - name: Setup Gradle    # ref https://docs.github.com/en/enterprise-cloud@latest/actions/use-cases-and-examples/building-and-testing/building-and-testing-java-with-gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
 
       - name: Software version
         run: |
@@ -89,6 +90,8 @@ jobs:
           java -version
           # MVN
           mvn -version
+          # Gradle
+          gradle -v
           # Docker
           docker -v
           # Python
@@ -102,7 +105,7 @@ jobs:
           export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
           export JFROG_CLI_LOG_TIMESTAMP=DATE_AND_TIME
 
-          jf mvnc --repo-resolve-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}}
+          jf gradlec --repo-deploy ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy ${{ env.RT_MVN_REPO_VIRTUAL}}
 
           echo ""
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
@@ -138,7 +141,7 @@ jobs:
 # Package
       - name: Create Build
         run: |
-          jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
+          jf gradlec --repo-deploy ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy ${{ env.RT_MVN_REPO_VIRTUAL}} 
 
       - name: Docker image
         run: |
