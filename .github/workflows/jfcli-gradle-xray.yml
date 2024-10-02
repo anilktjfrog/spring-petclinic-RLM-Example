@@ -1,0 +1,147 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: JF-CLI with Gradle
+on:
+# TURN-OFF on every push 
+  push:
+    branches: 
+    #  - nobuildonpush
+      - main
+    paths-ignore: # When the below folders are checked-in, the GitHub Actions job will not start.
+      - '.github/**'
+      - 'target/**'
+      - 'gradle/**'
+      - '.mvn/**'
+      - '.devcontainer/**'
+      - '.jfrog/**'
+#   pull_request:
+#     branches: [ main ]
+# issue_comment triggers this action on each comment on issues and pull requests
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, synchronize]
+permissions:
+  actions: read # for detecting the Github Actions environment.
+  id-token: write # for creating OIDC tokens for signing.
+  packages: write # for uploading attestations.
+  contents: read
+  security-events: write # Required for uploading code scanning.
+jobs:
+  gradlepackage:
+    name: Gradle Package
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        java: [17 ]
+        include:
+          - language: ['java-kotlin']
+            build-mode: none
+    env:  
+      JAVA_PROVIDER: 'corretto'
+      JAVA_VERSION: '17'
+      JF_RT_URL: https://${{ vars.JF_NAME }}.jfrog.io
+      RBv2_SIGNING_KEY: ${{ vars.RBV2_SIGNING_KEY }}
+      JF_GIT_TOKEN: ${{ vars.GITHUB_TOKEN }}
+      #JF_OIDC_PROVIDER_NAME: ${{ vars.JF_OIDC_PROVIDER_NAME }}
+      RT_MVN_REPO_VIRTUAL: ${{ vars.RT_MVN_REPO_VIRTUAL}}
+      PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
+      JOB_SUMMARY: false
+      JFROG_CLI_LOG_LEVEL: ${{vars.JFROG_CLI_LOG_LEVEL}} # DEBUG, INFO, WARN, ERROR
+      BUILD_NAME: 'spring-petclinic-gradle'
+      BUILD_ID: ${{ github.run_number }} # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
+    runs-on: ${{ matrix.os }}
+    steps:
+      # Use the specific setup-cli branch. Ref https://github.com/marketplace/actions/setup-jfrog-cli
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        id: setup-cli
+        env:
+          JF_URL: ${{env.JF_RT_URL}}
+          JFROG_CLI_RELEASES_REPO: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_MVN_REPO_VIRTUAL}}' 
+          JFROG_CLI_EXTRACTORS_REMOTE: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_MVN_REPO_VIRTUAL}}'
+          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
+          disable-job-summary: ${{env.JOB_SUMMARY}}
+
+      - name: Clone VCS
+        uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
+
+      - name: Java provider = ${{ env.JAVA_PROVIDER }} with ver = ${{ env.JAVA_VERSION }} 
+        uses: actions/setup-java@v4   # ref https://github.com/actions/setup-java
+        with:
+          distribution: ${{ env.JAVA_PROVIDER }} # corretto
+          java-version: ${{ env.JAVA_VERSION }}  # 17
+
+      - name: Setup Gradle    # ref https://docs.github.com/en/enterprise-cloud@latest/actions/use-cases-and-examples/building-and-testing/building-and-testing-java-with-gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      - name: Software version
+        run: |
+          # JFrog CLI version
+          jf --version
+          # Ping the server
+          jf rt ping
+          # Java
+          java -version
+          # MVN
+          mvn -version
+          # Gradle
+          gradle -v
+          # Docker
+          docker -v
+          # Python
+          python3 -V
+          pip3 -V
+          # jf config
+          jf config show
+
+      - name: Config jf with mvn repos
+        run: |
+          export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
+          export JFROG_CLI_LOG_TIMESTAMP=DATE_AND_TIME
+
+          jf gradlec --repo-deploy ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy ${{ env.RT_MVN_REPO_VIRTUAL}}
+
+          ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
+
+          pwd
+      - name: prestep-summary
+        run: |
+          jfcliv=`jf --version`
+          echo "# :frog: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " - Installed JFrog CLI [${jfcliv}](https://jfrog.com/getcli/) and Java [${{ env.JAVA_PROVIDER }}](https://github.com/actions/setup-java) v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
+          echo " - Configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
+# Package
+      - name: Xray Audit  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-source-code
+        run: |
+          cd /home/runner/work/spring-petclinic/spring-petclinic
+          jf audit --gradle=true --format=table --extended-table=true --secrets=true --sast=true --sca=true --licenses=true --fail=false
+
+      - name: Create Build
+        run: |
+          jf gradle clean artifactoryPublish -x test -b ./build.gradle --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} 
+
+      - name: Xray Scan # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-binaries
+        run: |
+          jf scan . --extended-table=true 
+ # Build Info
+    # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
+    # US Cyber Defence Agency: https://www.cisa.gov/sbom
+    #  NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
+      - name: Collect env
+        run: jf rt bce ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
+ 
+      - name: Add VCS info
+        run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
+
+      - name: Build Publish
+        run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
+        
+      - name: Build Scan  # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-published-builds
+        run: jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --rescan=true --format=table --extended-table=true --vuln=true --fail=false 
