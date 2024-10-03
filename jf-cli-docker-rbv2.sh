@@ -33,9 +33,11 @@ echo " BUILD_NAME: $BUILD_NAME \n BUILD_ID: $BUILD_ID \n JFROG_CLI_LOG_LEVEL: $J
 
 jf mvnc --server-id-resolve ${JFROG_NAME} --server-id-deploy ${JFROG_NAME} --repo-resolve-releases ${RT_PROJECT_REPO}-virtual --repo-resolve-snapshots ${RT_PROJECT_REPO}-virtual --repo-deploy-releases ${RT_PROJECT_REPO}-local --repo-deploy-snapshots ${RT_PROJECT_REPO}-dev-local
 
+
 ## Create Build
 echo "\n\n**** MVN: clean install ****"
 jf mvn clean install -DskipTests=true --build-name=${BUILD_NAME} --build-number=${BUILD_ID} --detailed-summary=true --scan=true
+
 
 ## Docker
 ### config
@@ -60,6 +62,7 @@ jf docker push psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_
 
 # docker builder prune --all --force
 
+
 ## bdc: build-docker-create, Adding Published Docker Images to the Build-Info 
 echo "\n\n**** Docker: build create ****"
 # export imageSha256=$(jf rt curl -XGET "/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-07-31-18-35/list.manifest.json" | jq -r '.originalChecksums.sha256')
@@ -82,6 +85,30 @@ echo "\n\n**** Docker: build publish ****"
 jf rt bce ${BUILD_NAME} ${BUILD_ID}
 jf rt bag ${BUILD_NAME} ${BUILD_ID}
 jf rt bp ${BUILD_NAME} ${BUILD_ID} --detailed-summary=true
+
+
+## RBv2: release bundle - create
+# ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-artifactory/release-lifecycle-management
+echo "\n\n**** RBv2: Create ****\n\n"
+echo " BUILD_NAME: $BUILD_NAME \n BUILD_ID: $BUILD_ID \n RT_PROJECT_REPO: $RT_PROJECT_REPO  \n RT_PROJECT_RB_SIGNING_KEY: $RT_PROJECT_RB_SIGNING_KEY  \n "
+
+  # create spec
+echo "{ \"files\": [ {\"build\": \"${BUILD_NAME}/${BUILD_ID}\", \"includeDeps\": \"false\" } ] }"  > ${SPEC_RBv2}
+#echo "{ \"files\": [ {\"build\": \"${BUILD_NAME}/${BUILD_ID}\", \"props\": \"build_name=${BUILD_NAME};build_id=${BUILD_ID};PACKAGE_CATEGORY=${PACKAGE_CATEGORY};state=new\" } ] }"  > RBv2-SPEC-${BUILD_ID}.json
+echo "\n" && cat ${SPEC_RBv2} && echo "\n"
+
+  # create RB to state=NEW
+jf rbc ${BUILD_NAME} ${BUILD_ID} --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --spec="${SPEC_RBv2} --server-id="psazuse" 
+
+## RBv2: release bundle - DEV promote
+echo "\n\n**** RBv2: Promoted to DEV ****\n\n"
+jf rbp ${BUILD_NAME} ${BUILD_ID} DEV --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" 
+
+
+## RBv2: release bundle - QA promote
+echo "\n\n**** RBv2: Promoted to DEV ****\n\n"
+# jf rt dpr ${BUILD_NAME} ${RT_REPO_DOCKER}-dev-local ${RT_REPO_DOCKER}-qa-local
+jf rbp ${BUILD_NAME} ${BUILD_ID} QA --sync="true" --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="krishnam" --server-id="psazuse" 
 
 
 echo "\n\n**** CLEAN UP ****\n\n"

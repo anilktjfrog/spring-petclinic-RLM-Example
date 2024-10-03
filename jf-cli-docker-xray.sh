@@ -33,9 +33,17 @@ echo " BUILD_NAME: $BUILD_NAME \n BUILD_ID: $BUILD_ID \n JFROG_CLI_LOG_LEVEL: $J
 
 jf mvnc --server-id-resolve ${JFROG_NAME} --server-id-deploy ${JFROG_NAME} --repo-resolve-releases ${RT_PROJECT_REPO}-virtual --repo-resolve-snapshots ${RT_PROJECT_REPO}-virtual --repo-deploy-releases ${RT_PROJECT_REPO}-local --repo-deploy-snapshots ${RT_PROJECT_REPO}-dev-local
 
+## Audit
+echo "\n\n**** MVN: Audit ****"
+jf audit --mvn --extended-table=true
+
 ## Create Build
 echo "\n\n**** MVN: clean install ****"
 jf mvn clean install -DskipTests=true --build-name=${BUILD_NAME} --build-number=${BUILD_ID} --detailed-summary=true --scan=true
+
+## scan packages
+echo "\n\n**** JF: scan ****"
+jf scan . --extended-table=true --format=simple-json --server-id=${JFROG_NAME}
 
 ## Docker
 ### config
@@ -60,6 +68,10 @@ jf docker push psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_
 
 # docker builder prune --all --force
 
+### Scan image
+echo "\n\n**** Docker: jf scan ****"
+jf docker scan psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_ID} --vuln
+
 ## bdc: build-docker-create, Adding Published Docker Images to the Build-Info 
 echo "\n\n**** Docker: build create ****"
 # export imageSha256=$(jf rt curl -XGET "/api/storage/krishnam-docker-virtual/spring-petclinic/cmd.2024-07-31-18-35/list.manifest.json" | jq -r '.originalChecksums.sha256')
@@ -82,6 +94,10 @@ echo "\n\n**** Docker: build publish ****"
 jf rt bce ${BUILD_NAME} ${BUILD_ID}
 jf rt bag ${BUILD_NAME} ${BUILD_ID}
 jf rt bp ${BUILD_NAME} ${BUILD_ID} --detailed-summary=true
+
+echo "\n\n**** Docker: build scan ****"
+jf bs ${BUILD_NAME} ${BUILD_ID} --rescan=true --format=table --extended-table=true --vuln=true --fail=false
+
 
 
 echo "\n\n**** CLEAN UP ****\n\n"
