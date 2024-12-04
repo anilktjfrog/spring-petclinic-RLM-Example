@@ -9,7 +9,7 @@ on:
     #  - nobuildonpush
       - main
     paths-ignore: # When the below folders are checked-in, the GitHub Actions job will not start.
-      - '.github/**'
+    #  - '.github/**'
       - 'target/**'
       - 'gradle/**'
       - '.mvn/**'
@@ -29,7 +29,7 @@ permissions:
   contents: read
   security-events: write # Required for uploading code scanning.
 jobs:
-  mvnpackage:
+  mvnPackage:
     name: MVN Package
     strategy:
       fail-fast: false
@@ -38,21 +38,19 @@ jobs:
         java: [17 ]
         include:
           - language: ['java-kotlin']
-            build-mode: none
+            build-mode: none 
     env:  
       JAVA_PROVIDER: 'corretto'
       JAVA_VERSION: '17'
       JF_RT_URL: https://${{ vars.JF_NAME }}.jfrog.io
-      RBv2_SIGNING_KEY: ${{ vars.RBV2_SIGNING_KEY }}
-      JF_GIT_TOKEN: ${{ vars.GITHUB_TOKEN }}
-      #JF_OIDC_PROVIDER_NAME: ${{ vars.JF_OIDC_PROVIDER_NAME }}
-      RT_MVN_REPO_VIRTUAL: ${{ vars.RT_MVN_REPO_VIRTUAL}}
-      PACKAGE_CATEGORY: ${{vars.PACKAGE_CATEGORY}}
+      RT_REPO_MVN_VIRTUAL: 'krishnam-mvn-virtual'
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: ${{vars.JFROG_CLI_LOG_LEVEL}} # DEBUG, INFO, WARN, ERROR
-      BUILD_NAME: 'spring-petclinic-ga'
-      BUILD_ID: ${{ github.run_number }} # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
+      BUILD_NAME: "spring-petclinic"
+      JAR_FINAL_NAME: "mvn-spring-petclinic"
+      BUILD_ID: "ga-mvn-${{ github.run_number }}" # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20   # ref  https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes
     steps:
       # Use the specific setup-cli branch. Ref https://github.com/marketplace/actions/setup-jfrog-cli
       - name: Setup JFrog CLI
@@ -60,10 +58,11 @@ jobs:
         id: setup-cli
         env:
           JF_URL: ${{env.JF_RT_URL}}
-          JFROG_CLI_RELEASES_REPO: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_MVN_REPO_VIRTUAL}}' 
-          JFROG_CLI_EXTRACTORS_REMOTE: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_MVN_REPO_VIRTUAL}}'
+          JFROG_CLI_RELEASES_REPO: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_REPO_MVN_VIRTUAL}}' 
+          JFROG_CLI_EXTRACTORS_REMOTE: '${{ env.JF_RT_URL }}/artifactory/${{ env.RT_REPO_MVN_VIRTUAL}}'
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          version: latest  #2.71.0
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           disable-job-summary: ${{env.JOB_SUMMARY}}
 
@@ -101,11 +100,20 @@ jobs:
           export JFROG_CLI_LOG_LEVEL=${{ env.JFROG_CLI_LOG_LEVEL }}
           export JFROG_CLI_LOG_TIMESTAMP=DATE_AND_TIME
 
-          jf mvnc --repo-resolve-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-releases ${{ env.RT_MVN_REPO_VIRTUAL}} --repo-deploy-snapshots ${{ env.RT_MVN_REPO_VIRTUAL}}
+          jf mvnc --global --repo-resolve-releases ${{ env.RT_REPO_MVN_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_REPO_MVN_VIRTUAL}}
 
+      - name: list folder
+        run: |
+          pwd
           ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
 
-          pwd
+          echo "OIDC_PROVIDER_NAME = ${{ vars.JF_OIDC_PROVIDER_NAME }}"
+          echo "GITHUB_REPOSITORY = $GITHUB_REPOSITORY"
+          echo "GITHUB_SHA = $GITHUB_SHA"
+          echo "GITHUB_REPOSITORY_ID = $GITHUB_REPOSITORY_ID"
+
+          cd /home/runner/work/spring-petclinic/spring-petclinic
+
       - name: prestep-summary
         run: |
           jfcliv=`jf --version`
@@ -115,25 +123,87 @@ jobs:
           echo " - Installed JFrog CLI [${jfcliv}](https://jfrog.com/getcli/) and Java [${{ env.JAVA_PROVIDER }}](https://github.com/actions/setup-java) v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
           echo " - Configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
 # Package
-      - name: Create Build
+      - name: Curation  # https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/cli-for-jfrog-curation
+        timeout-minutes: 15
         run: |
-          jf mvn clean install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
+          jf ca --format=table 
 
-      - name: set build vars
+      - name: Xray & JAS - Audit  # https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security
+        # scan for Xray: Source code dependencies and JAS: Secrets Detection, IaC, Vulnerabilities Contextual Analysis 'SAST'
+        timeout-minutes: 15    
         run: |
-          export PACKAGE_CATEGORY="${{env.PACKAGE_CATEGORY}}"
+          jf audit --mvn --extended-table --threads=100
+
+      - name: Package - Create Build
+        run: |
+          jf mvn clean install -DskipTests=true -Djar.finalName=${{ env.JAR_FINAL_NAME}} --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true 
+
+      - name: Set env vars for BuildInfo   # These properties were captured in Builds >> spring-petclinic >> version >> Environment tab
+        run: |
+          export job="github-action" org="ps" team="architecture" product="jfrog-saas" 
+      
+      - name: Evidence on artifact
+        run: |
+          echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
+          jf evd create --package-name ${{ env.BUILD_NAME}} --package-version ${{ env.BUILD_ID}} --package-repo-name ${{}} \
+            --key "${{ secrets.PRIVATE_KEY }}"   \
+            --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
+          echo '🔎 Evidence attached: `signature` 🔏 ' 
+
+      - name: Xray - Artifact scan
+        timeout-minutes: 15   # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
+        run: |
+          jf scan . --extended-table --threads=100
+
  # Build Info
+    # Executive Order: 
+    #       https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/
+    #       https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity
     # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
     # US Cyber Defence Agency: https://www.cisa.gov/sbom
-    #  NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
-      - name: Collect env
+    # NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
+    # NITA: https://www.ntia.gov/page/software-bill-materials 
+    # Centers for Medicare & Medicaid Services: https://security.cms.gov/learn/software-bill-materials-sbom
+      - name: BuildInfo - Collect env
         run: jf rt bce ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
  
-      - name: Add VCS info
+      - name: BuildInfo - Add VCS info
         run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
 
-      - name: Build Publish
+      - name: BuildInfo - Build Publish
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
+
+# curl -L 'https://psazuse.jfrog.io/xray/api/v1/binMgr/builds' -H 'Content-Type: application/json' -H 'Authorization: ••••••' -d '{  "names": ["spring-petclinic"] }'
+      - name: Add Builds to Indexing Configuration
+        run: |
+          jf xr curl "/api/v1/binMgr/builds" -H 'Content-Type: application/json' -d '{"names": ["${{ env.BUILD_NAME}}"] }'
+# Set properties      
+      - name: Set prop for Artifact # These properties were captured Artifacts >> repo path 'spring-petclinic.---.jar' >> Properties
+        run: |
+          ts="cmd.$(date '+%Y-%m-%d-%H-%M')" 
+          jf rt sp "job=github-action;env=demo;org=ps;team=arch;pack_cat=webapp;build=maven;product=artifactory;features=package,buildinfo;ts=ts-${BUILD_ID}" --build="${{ env.BUILD_NAME}}/${{ env.BUILD_ID}}"
+
+      - name: Query build info
+        env: 
+          BUILD_INFO_JSON: "BuildInfo-${{ env.BUILD_ID}}.json"
+        run: |
+           jf rt curl "/api/build/${{ env.BUILD_NAME}}/${{ env.BUILD_ID}}" -o $BUILD_INFO_JSON
+           cat $BUILD_INFO_JSON
+
+           sleep 20   # Sleeping for 20 seconds before executing the build publish seems to have resolved the build-scan issue. This delay might be helping with synchronization or resource availability, ensuring a smooth build process.
+
+      - name: Xray - scan status
+        run: |
+          jf xr curl "/api/v1/build/status" -H 'Content-Type: application/json' -d '{"name": "${{ env.BUILD_NAME}}", "number": "${{ env.BUILD_ID}}" }'
+ 
+      - name: Xray sbom-enrich # ref https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/enrich-your-sbom
+        run: |
+          jf se "target/classes/META-INF/sbom/application.cdx.json" 
+
+      - name: Xray - Build scan
+        timeout-minutes: 15    # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
+        run: |
+          jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --fail=false --format=table --extended-table 
 
 # Release Bundle v2
       - name: RBv2 spec - create
@@ -148,10 +218,7 @@ jobs:
       - name: RBv2 promote DEV
         run: |
           jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
-      - name: RBv2 promote QA
-        run: |
-          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync="true" --signing-key=${{env.RBv2_SIGNING_KEY}}  
-
+     
       - name: rbv2-summary
         run: |
           echo "# :frog: Release Bundle v2 Summary :rocket: " >> $GITHUB_STEP_SUMMARY
@@ -172,3 +239,10 @@ jobs:
           done
           echo " " >> $GITHUB_STEP_SUMMARY
 
+# Query build 
+      - name: Query build info
+        env: 
+          BUILD_INFO_JSON: "BuildInfo-${{ env.BUILD_ID}}.json"
+        run: |
+           jf rt curl "/api/build/${{ env.BUILD_NAME}}/${{ env.BUILD_ID}}" -o $BUILD_INFO_JSON
+           cat $BUILD_INFO_JSON

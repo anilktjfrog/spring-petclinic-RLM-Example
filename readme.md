@@ -1,161 +1,162 @@
-# Spring PetClinic Sample Application 
+# Spring PetClinic Sample Application [![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/maven-build.yml)[![Build Status](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml/badge.svg)](https://github.com/spring-projects/spring-petclinic/actions/workflows/gradle-build.yml)
 
-## Prerequisites
-- Read and understand the PetClinic application documentation: [ReadME.MD](readme-original.md)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/spring-projects/spring-petclinic) [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=7517918)
 
-## Objective
-Develop a DevOps pipeline to automate tasks such as code compile, unit testing, creation of container, and upload of artifacts to a repository. This will streamline the software development process.
+## Understanding the Spring Petclinic application with a few diagrams
 
-Note: This process with not deploy to the envionrmnet platform. 
+[See the presentation here](https://speakerdeck.com/michaelisvy/spring-petclinic-sample-application)
 
-### Changelog
-- The original 'readme.md' file has been renamed to 'readme-orignial.md'.
-- Add new files
-    - readme.md
-    - Dockerfile
-    - Jenkinsfile
+## Run Petclinic locally
 
-## DevOps steps
-### Video walkthrough
-[![Walk through demo](https://img.youtube.com/vi/zgiaPIp-ZZA/0.jpg)](https://www.youtube.com/watch?v=zgiaPIp-ZZA)
-### Assumption
-My assumption is that the user has the necessary infrastucture in place, including Java v17+, Maven v3.8+, Docker v25+, and a Jenkins v2.445+ server, to implement an automated pipeline for the PetClinic application.
-`````
-docker pull psazuse.jfrog.io/krishnam-docker-virtual/myjenkins:latest
+Spring Petclinic is a [Spring Boot](https://spring.io/guides/gs/spring-boot) application built using [Maven](https://spring.io/guides/gs/maven/) or [Gradle](https://spring.io/guides/gs/gradle/). You can build a jar file and run it from the command line (it should work just as well with Java 17 or newer):
 
-docker pull psazuse.jfrog.io/krishnam-docker-virtual/krishnamanchikalapudi/myjenkins:latest
-`````
+```bash
+git clone https://github.com/spring-projects/spring-petclinic.git
+cd spring-petclinic
+./mvnw package
+java -jar target/*.jar
+```
 
-### Pipeline
-<img src="./cipipeline.svg">
+You can then access the Petclinic at <http://localhost:8080/>.
 
-The Jenkins pipeline script performs the following stages:
-#### Stage: Code
-The stage 'Code' contains the following sequential sub-stages:
-##### clean
-This sub-stage remove any exisiting petclinc directory
-`````
-rm -rf spring-petclinic
-`````
-##### clone
-This sub-stage clones the GitHub repository
-`````
-git branch: 'main', url: 'https://github.com/krishnamanchikalapudi/spring-petclinic.git'
-`````
-##### compile
-This sub-stage compiles and skips tests the project using Apache Maven
-`````
-mvn clean install -DskipTests=true
-`````
-#### Stage: Tests
-The stage 'Tests' contains parallel sub-stages:
-##### unitTest
-This sub-stage runs unit tests using Apache Maven command and generates a surefire html report at the ${project}/${buildNumber}/target/site/surefire-report.html. Note: If the execution is not completed within ten (10) minutes, the stage is failed.
-`````
-mvn test surefire-report:report
-`````
-##### checkStyle
-This sub-stage runs the Checkstyle checks using Apache Maven command and generates a checkstyle html report at the ${project}/${buildNumber}/target/site/checkstyle.html. Note: If the execution is not completed within two (2) minutes, the stage is failed.
-`````
-mvn checkstyle:checkstyle
-`````
-##### codeCoverage
-This sub-stage generates Jacoco code coverage reports using Apache Maven command and generates a Jacoco html report at the ${project}/${buildNumber}/target/site/jacoco/index.html. Note: If the execution is not completed within two (2)  minutes, the stage is failed.
-`````
-mvn jacoco:report
-`````
-#### Stage: Container
-The stage 'Docker' contains the following sub-stages:
-##### build
-This sub-stage builds the Docker image using the Dockerfile. The image is tagged with the project name and the Jenkins build ID.
-`````
-docker image build -f Dockerfile -t mypetclinic:${env.BUILD_ID} .
-`````
-##### tag
-This sub-stage lists Docker containers and images, tags the built image with project name and latest tags, and tags the built image with the project name and build ID.
-`````
-docker tag mypetclinic:${env.BUILD_ID} krishnamanchikalapudi/mypetclinic:${env.BUILD_ID}
-docker tag mypetclinic:${env.BUILD_ID} krishnamanchikalapudi/mypetclinic:latest
-`````
-##### publish
-This sub-stage pushes the Docker images to the Docker registry using Docker login credentials stored in Jenkins credentials. It pushes both the latest and build ID tagged images.
-`````
-docker push krishnamanchikalapudi/mypetclinic:${env.BUILD_ID}
-docker push krishnamanchikalapudi/mypetclinic:latest
-`````
-##### clean
-This sub-stage performs cleanup tasks such as pruning unused Docker images and containers, and removing the built image from the local system.
-`````
-docker system prune -f --filter until=1h
-docker rmi -f mypetclinic
-`````
+<img width="1042" alt="petclinic-screenshot" src="https://cloud.githubusercontent.com/assets/838318/19727082/2aee6d6c-9b8e-11e6-81fe-e889a5ddfded.png">
 
-## Repository
-- The container images from the Jenkin pipeline was uploaded to the [Docker repository](https://hub.docker.com/orgs/krishnamanchikalapudi/repositories)
+Or you can run it from Maven directly using the Spring Boot Maven plugin. If you do this, it will pick up changes that you make in the project immediately (changes to Java source files require a compile as well - most people use an IDE for this):
 
-## Docker image execution
-A few options are available to execute the Docker image [krishnamanchikalapudi/mypetclinic:latest](https://hub.docker.com/r/krishnamanchikalapudi/mypetclinic/tags)
-### Option 1
-- Prerequisite
-    - Device operating system: Mac or Linux
-    - Docker version 25+
-- Download [mypetclinic.sh](https://github.com/krishnamanchikalapudi/spring-petclinic/blob/main/mypetclinic.sh) from the GitHub repo# [https://github.com/krishnamanchikalapudi/spring-petclinic](https://github.com/krishnamanchikalapudi/spring-petclinic)
-- Execute the script with argument
-`````
-./mypetclinic.sh start
-`````
-- Stop the image
-`````
-./mypetclinic.sh stop
-`````
-### Option 2
-- Prerequisite
-    - Device operating system: Mac, Linux, or Windows
-    - Docker version 25+
-- Download the docker image
-`````
-docker pull krishnamanchikalapudi/mypetclinic:latest
-`````
-`````
-docker pull psazuse.jfrog.io/krishnam-docker-virtual/krishnamanchikalapudi/mypetclinic:latest
-`````
+```bash
+./mvnw spring-boot:run
+```
 
-- Execute the container
-`````
-docker run -d --name mypetclinic -p 7080:8080 krishnamanchikalapudi/mypetclinic:latest
-`````
-    - NOTE: Update port '7080', if any other service is currently running.
-- Open browser with url: [http://localhost:7080](http://localhost:7080)
-- Stop the container
-`````
-docker stop $(docker ps -q --filter ancestor=mypetclinic)
-docker ps --filter name=mypetclinic --filter status=running -aq | xargs docker stop
-`````
+> NOTE: If you prefer to use Gradle, you can build the app using `./gradlew build` and look for the jar file in `build/libs`.
 
-## Jenkins Setup
-### Prerequisite
-- Follow instruction to secure [DockerHub token] at the [Jenkins credentials](https://www.jenkins.io/doc/book/using/using-credentials/) 
-### New project 
-- Follow instructions to setup new project using [Jenkinsfile with SCM](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/)
+## Building a Container
 
-## Learnings
-### Access issue on my device
-#### error
-The Jenkins pipeline stage docker/build throws an error when it tries to make mypetclinic image as below.
-`````
-ERROR: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied
-`````
-#### solution
-My device is running with user 'krishna' and Jenkins service is running with the user 'jenkins'. Therefore, I need to grant the user 'jenkins' access to docker.sock and command follows
-`````
-sudo setfacl -R -m user:jenkins:rwx /var/run/docker.sock
-`````
+There is no `Dockerfile` in this project. You can build a container image (if you have a docker daemon) using the Spring Boot build plugin:
 
-### LAST UMCOMMIT
-`````
-git reset --hard HEAD~1
-git push origin -f
-`````
+```bash
+./mvnw spring-boot:build-image
+```
+
+## In case you find a bug/suggested improvement for Spring Petclinic
+
+Our issue tracker is available [here](https://github.com/spring-projects/spring-petclinic/issues).
+
+## Database configuration
+
+In its default configuration, Petclinic uses an in-memory database (H2) which
+gets populated at startup with data. The h2 console is exposed at `http://localhost:8080/h2-console`,
+and it is possible to inspect the content of the database using the `jdbc:h2:mem:<uuid>` URL. The UUID is printed at startup to the console.
+
+A similar setup is provided for MySQL and PostgreSQL if a persistent database configuration is needed. Note that whenever the database type changes, the app needs to run with a different profile: `spring.profiles.active=mysql` for MySQL or `spring.profiles.active=postgres` for PostgreSQL. See the [Spring Boot documentation](https://docs.spring.io/spring-boot/how-to/properties-and-configuration.html#howto.properties-and-configuration.set-active-spring-profiles) for more detail on how to set the active profile.
+
+You can start MySQL or PostgreSQL locally with whatever installer works for your OS or use docker:
+
+```bash
+docker run -e MYSQL_USER=petclinic -e MYSQL_PASSWORD=petclinic -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=petclinic -p 3306:3306 mysql:9.1
+```
+
+or
+
+```bash
+docker run -e POSTGRES_USER=petclinic -e POSTGRES_PASSWORD=petclinic -e POSTGRES_DB=petclinic -p 5432:5432 postgres:17.0
+```
+
+Further documentation is provided for [MySQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/mysql/petclinic_db_setup_mysql.txt)
+and [PostgreSQL](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/postgres/petclinic_db_setup_postgres.txt).
+
+Instead of vanilla `docker` you can also use the provided `docker-compose.yml` file to start the database containers. Each one has a service named after the Spring profile:
+
+```bash
+docker compose up mysql
+```
+
+or
+
+```bash
+docker compose up postgres
+```
+
+## Test Applications
+
+At development time we recommend you use the test applications set up as `main()` methods in `PetClinicIntegrationTests` (using the default H2 database and also adding Spring Boot Devtools), `MySqlTestApplication` and `PostgresIntegrationTests`. These are set up so that you can run the apps in your IDE to get fast feedback and also run the same classes as integration tests against the respective database. The MySql integration tests use Testcontainers to start the database in a Docker container, and the Postgres tests use Docker Compose to do the same thing.
+
+## Compiling the CSS
+
+There is a `petclinic.css` in `src/main/resources/static/resources/css`. It was generated from the `petclinic.scss` source, combined with the [Bootstrap](https://getbootstrap.com/) library. If you make changes to the `scss`, or upgrade Bootstrap, you will need to re-compile the CSS resources using the Maven profile "css", i.e. `./mvnw package -P css`. There is no build profile for Gradle to compile the CSS.
+
+## Working with Petclinic in your IDE
+
+### Prerequisites
+
+The following items should be installed in your system:
+
+- Java 17 or newer (full JDK, not a JRE)
+- [Git command line tool](https://help.github.com/articles/set-up-git)
+- Your preferred IDE
+  - Eclipse with the m2e plugin. Note: when m2e is available, there is an m2 icon in `Help -> About` dialog. If m2e is
+  not there, follow the install process [here](https://www.eclipse.org/m2e/)
+  - [Spring Tools Suite](https://spring.io/tools) (STS)
+  - [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+  - [VS Code](https://code.visualstudio.com)
+
+### Steps
+
+1. On the command line run:
+
+    ```bash
+    git clone https://github.com/spring-projects/spring-petclinic.git
+    ```
+
+1. Inside Eclipse or STS:
+
+    Open the project via `File -> Import -> Maven -> Existing Maven project`, then select the root directory of the cloned repo.
+
+    Then either build on the command line `./mvnw generate-resources` or use the Eclipse launcher (right-click on project and `Run As -> Maven install`) to generate the CSS. Run the application's main method by right-clicking on it and choosing `Run As -> Java Application`.
+
+1. Inside IntelliJ IDEA:
+
+    In the main menu, choose `File -> Open` and select the Petclinic [pom.xml](pom.xml). Click on the `Open` button.
+
+    - CSS files are generated from the Maven build. You can build them on the command line `./mvnw generate-resources` or right-click on the `spring-petclinic` project then `Maven -> Generates sources and Update Folders`.
+
+    - A run configuration named `PetClinicApplication` should have been created for you if you're using a recent Ultimate version. Otherwise, run the application by right-clicking on the `PetClinicApplication` main class and choosing `Run 'PetClinicApplication'`.
+
+1. Navigate to the Petclinic
+
+    Visit [http://localhost:8080](http://localhost:8080) in your browser.
+
+## Looking for something in particular?
+
+|Spring Boot Configuration | Class or Java property files  |
+|--------------------------|---|
+|The Main Class | [PetClinicApplication](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java) |
+|Properties Files | [application.properties](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources) |
+|Caching | [CacheConfiguration](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/java/org/springframework/samples/petclinic/system/CacheConfiguration.java) |
+
+## Interesting Spring Petclinic branches and forks
+
+The Spring Petclinic "main" branch in the [spring-projects](https://github.com/spring-projects/spring-petclinic)
+GitHub org is the "canonical" implementation based on Spring Boot and Thymeleaf. There are
+[quite a few forks](https://spring-petclinic.github.io/docs/forks.html) in the GitHub org
+[spring-petclinic](https://github.com/spring-petclinic). If you are interested in using a different technology stack to implement the Pet Clinic, please join the community there.
+
+## Interaction with other open-source projects
+
+One of the best parts about working on the Spring Petclinic application is that we have the opportunity to work in direct contact with many Open Source projects. We found bugs/suggested improvements on various topics such as Spring, Spring Data, Bean Validation and even Eclipse! In many cases, they've been fixed/implemented in just a few days.
+Here is a list of them:
+
+| Name | Issue |
+|------|-------|
+| Spring JDBC: simplify usage of NamedParameterJdbcTemplate | [SPR-10256](https://jira.springsource.org/browse/SPR-10256) and [SPR-10257](https://jira.springsource.org/browse/SPR-10257) |
+| Bean Validation / Hibernate Validator: simplify Maven dependencies and backward compatibility |[HV-790](https://hibernate.atlassian.net/browse/HV-790) and [HV-792](https://hibernate.atlassian.net/browse/HV-792) |
+| Spring Data: provide more flexibility when working with JPQL queries | [DATAJPA-292](https://jira.springsource.org/browse/DATAJPA-292) |
+
+## Contributing
+
+The [issue tracker](https://github.com/spring-projects/spring-petclinic/issues) is the preferred channel for bug reports, feature requests and submitting pull requests.
+
+For pull requests, editor preferences are available in the [editor config](.editorconfig) for easy use in common text editors. Read more and download plugins at <https://editorconfig.org>. If you have not previously done so, please fill out and submit the [Contributor License Agreement](https://cla.pivotal.io/sign/spring).
 
 ## License
+
 The Spring PetClinic sample application is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).

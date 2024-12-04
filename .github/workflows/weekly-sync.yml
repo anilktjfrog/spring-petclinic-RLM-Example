@@ -1,0 +1,47 @@
+# This workflow will fecth code on weekly from and sync with my repo
+
+name: Sync from Forked repo
+on:
+  schedule: # cron time is UTC 
+    - cron: "0 0 * * SAT" #  Runs on Every Sat at 2pm PT. Refer https://crontab.guru/every-saturday
+permissions:
+  actions: read # for detecting the Github Actions environment.
+jobs:
+  syncRepo:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    env:
+      FORKED_REPO: "spring-projects/spring-petclinic" # https://github.com/spring-projects/spring-petclinic
+      MY_REPO: "krishnamanchikalapudi/spring-petclinic"
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20   # ref  https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes
+    steps:
+      - name: Clone Forked repo
+        uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
+        with:
+          repository: ${{ env.FORKED_REPO }}
+          token: ${{ github.token }}
+          ref: main
+      - name: Clone Forked repo
+        uses: actions/checkout@v4 
+        with:
+          repository: ${{ env.MY_REPO }}
+          path: my-spring-petclinic
+      - name: list folder
+        run: |
+          pwd
+          ls -lrta /home/runner/work/
+      - name: Clean my repo folders
+        run: |
+          cd my-spring-petclinic
+          # rm -rf src/ target/ k8s/ .gradle/ .mvn/
+      - name: summary
+        run: |
+          echo "# :copyright: Summary :adhesive_bandage:" >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " - Forked code from ${{ env.FORKED_REPO }} " >> $GITHUB_STEP_SUMMARY
+          echo " - My repo code ${{ env.MY_REPO }} " >> $GITHUB_STEP_SUMMARY
+          
