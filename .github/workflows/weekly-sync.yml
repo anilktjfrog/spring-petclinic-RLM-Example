@@ -4,6 +4,9 @@ name: Sync from Forked repo
 on:
   schedule: # cron time is UTC 
     - cron: "0 0 * * SAT" #  Runs on Every Sat at 2pm PT. Refer https://crontab.guru/every-saturday
+  push:
+    branches: 
+      - main
 permissions:
   actions: read # for detecting the Github Actions environment.
 jobs:
