@@ -72,7 +72,10 @@ jobs:
         run: |
           cd ${{ env.MY_REPO_PATH }}
           ls -lrta .
-          # git add . -v && git commit -m "Sync on $(date +'%Y-%m-%d') from parent repo" && git push -v
+          echo "\n\n * Commiting files, branch: main of my repo ${{ env.MY_REPO }} "
+          git add . -v 
+          git commit -m "Sync on $(date +'%Y-%m-%d') from parent repo"
+          git push -v
 
       - name: summary
         run: |
