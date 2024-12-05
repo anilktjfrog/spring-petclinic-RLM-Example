@@ -21,25 +21,32 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20   # ref  https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes
     steps:
-      - name: Clone Forked repo
+      - name: Checkout Forked-repo ${{ env.FORKED_REPO }}
         uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
         with:
           repository: ${{ env.FORKED_REPO }}
           token: ${{ github.token }}
           ref: main
-      - name: Clone Forked repo
+          path: forked-spring-petclinic
+
+      - name: Checkout my-repo ${{ env.MY_REPO }}
         uses: actions/checkout@v4 
         with:
           repository: ${{ env.MY_REPO }}
           path: my-spring-petclinic
-      - name: list folder
+
+      - name: list folders
         run: |
           pwd
           ls -lrta /home/runner/work/
-      - name: Clean my repo folders
+          pwd
+          ls -lrt .
+
+      - name: Clean my-repo folders
         run: |
           cd my-spring-petclinic
           # rm -rf src/ target/ k8s/ .gradle/ .mvn/
+
       - name: summary
         run: |
           echo "# :copyright: Summary :adhesive_bandage:" >> $GITHUB_STEP_SUMMARY
