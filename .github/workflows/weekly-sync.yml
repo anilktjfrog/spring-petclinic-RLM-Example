@@ -17,7 +17,9 @@ jobs:
         os: [ubuntu-latest]
     env:
       FORKED_REPO: "spring-projects/spring-petclinic" # https://github.com/spring-projects/spring-petclinic
+      FORKED_REPO_PATH: "forked-spring-petclinic"
       MY_REPO: "krishnamanchikalapudi/spring-petclinic"
+      MY_REPO_PATH: "my-spring-petclinic"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20   # ref  https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes
     steps:
@@ -27,25 +29,43 @@ jobs:
           repository: ${{ env.FORKED_REPO }}
           token: ${{ github.token }}
           ref: main
-          path: forked-spring-petclinic
+          path: ${{ env.FORKED_REPO_PATH }}
 
       - name: Checkout my-repo ${{ env.MY_REPO }}
         uses: actions/checkout@v4 
         with:
           repository: ${{ env.MY_REPO }}
-          path: my-spring-petclinic
+          path: ${{ env.MY_REPO_PATH }}
 
       - name: list folders
         run: |
           pwd
-          ls -lrta /home/runner/work/
-          pwd
           ls -lrt .
+          ls -lrt ${{ env.FORKED_REPO_PATH }} 
+          ls -lrt ${{ env.MY_REPO_PATH }}
 
       - name: Clean my-repo folders
         run: |
-          cd my-spring-petclinic
-          # rm -rf src/ target/ k8s/ .gradle/ .mvn/
+          cd ${{ env.MY_REPO_PATH }}
+          rm -rf src/ target/ k8s/ .gradle/ .mvn/
+          ls -lrt .
+
+      - name: Copy files from forked-repo to my-repo
+        run: |
+          cd ${{ env.MY_REPO_PATH }}
+          cp ../${{ env.FORKED_REPO_PATH }}/* .
+          ls -lrt .
+
+      - name: Copy files from forked-repo to my-repo
+        run: |
+          cd ${{ env.MY_REPO_PATH }}
+          cp -r -f ../${{ env.FORKED_REPO_PATH }}/* .
+          ls -lrt .
+
+      - name: Commit files to GitHub
+        run: |
+          cd ${{ env.MY_REPO_PATH }}
+          
 
       - name: summary
         run: |
