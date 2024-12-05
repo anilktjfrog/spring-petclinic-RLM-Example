@@ -65,7 +65,7 @@ jobs:
           JFROG_CLI_BUILD_NUMBER: "${{ env.BUILD_ID}}"
           JFROG_CLI_LOG_LEVEL: "${{ env.JFROG_CLI_LOG_LEVEL }}"
         with:
-          version: 2.71.2
+          version: latest  # version: 2.71.2
           oidc-provider-name: ${{ vars.JF_OIDC_PROVIDER_NAME }}
           disable-job-summary: ${{env.JOB_SUMMARY}}
           disable-auto-build-publish: ${{env.JOB_SUMMARY}}
@@ -113,13 +113,25 @@ jobs:
           echo "# :frog: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
-          echo " - Installed JFrog CLI [${jfcliv}](https://jfrog.com/getcli/) and Java [${{ env.JAVA_PROVIDER }}](https://github.com/actions/setup-java) v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
+          echo " - Installed JFrog CLI [${jfcliv}](https://jfrog.com/getcli/) " >> $GITHUB_STEP_SUMMARY
+          echo " - Java [${{ env.JAVA_PROVIDER }}](https://github.com/actions/setup-java) v${{ env.JAVA_VERSION }} " >> $GITHUB_STEP_SUMMARY
+          echo " - Apache Maven: ${mvn -version}  " >> $GITHUB_STEP_SUMMARY
+          echo " - Docker: ${docker -v}  " >> $GITHUB_STEP_SUMMARY
+          echo " - Python: ${python3 -V} and PIP: ${pip3 -V} " >> $GITHUB_STEP_SUMMARY
           echo " - Configured the JFrog Cli with SaaS Artifactory OIDC integration  " >> $GITHUB_STEP_SUMMARY
-
 
       - name: CURATION 
         run: |
-          jf ca 
+          jf ca . --threads=100 --extended-table
+ # Build Info
+    # Executive Order: 
+    #       https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/
+    #       https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity
+    # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
+    # US Cyber Defence Agency: https://www.cisa.gov/sbom
+    # NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
+    # NITA: https://www.ntia.gov/page/software-bill-materials 
+    # Centers for Medicare & Medicaid Services: https://security.cms.gov/learn/software-bill-materials-sbom
 
 # Security info: https://docs.jfrog-applications.jfrog.io/jfrog-security-features/sast
 # SAST: https://docs.jfrog-applications.jfrog.io/jfrog-security-features/sast
@@ -127,7 +139,7 @@ jobs:
 # The --extended-table argument returns 3 additional columns (CVSS V2, CVSS V3, ISSUE ID) alongside the standard set SEVERITY, DIRECT DEPENDENCY, DIRECT DEPENDENCY VERSION, IMPACTED DEPENDENCY NAME, IMPACTED DEPENDENCY VERSION, FIXED VERSIONS, TYPE, CVE
       - name: AUDIT - SAST
         run: |
-          jf audit --mvn --sast --extended-table
+          jf audit --mvn --sast --extended-table 
 
       - name: AUDIT - Secrets Detection
         run: |
@@ -184,7 +196,7 @@ jobs:
         run: |
           jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --extended-table --fail=false
 
-      # - name: Build Scan V2  # https://jfrog.com/help/r/xray-rest-apis/scan-build-v2
-      #   # jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "spring-petclinic", "build_number": "ga-gdl-xray-50","rescan":true }'
-      #   run: |
-      #     jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "${{ env.BUILD_NAME}}", "build_number": "${{ env.BUILD_ID}}", "rescan":true }'
+      - name: Build Scan V2  # https://jfrog.com/help/r/xray-rest-apis/scan-build-v2
+        # jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "spring-petclinic", "build_number": "ga-gdl-xray-50","rescan":true }'
+        run: |
+          jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "${{ env.BUILD_NAME}}", "build_number": "${{ env.BUILD_ID}}", "rescan":true }'
