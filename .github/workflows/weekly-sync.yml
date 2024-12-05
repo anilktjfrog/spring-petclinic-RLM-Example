@@ -53,6 +53,8 @@ jobs:
           cd ${{ env.MY_REPO_PATH }}
           pwd
           ls -lrta .
+
+          echo "\n\n * Deleting files \n"
           rm -rf src/ target/ k8s/ .gradle/ .mvn/
           ls -lrta .
 
@@ -63,14 +65,14 @@ jobs:
           ls -lrta .
 
           echo "\n\n * Copying files from ${{ env.FORKED_REPO_PATH }} to ${{ env.MY_REPO_PATH }} \n"
-          cp ../${{ env.FORKED_REPO_PATH }}/* .
+          cp -R -f ../${{ env.FORKED_REPO_PATH }}/* .
           ls -lrta .
 
       - name: Commit files to GitHub
         run: |
           cd ${{ env.MY_REPO_PATH }}
-          s -lrta .
-
+          ls -lrta .
+          # git add . -v && git commit -m "Sync on $(date +'%Y-%m-%d') from parent repo" && git push -v
 
       - name: summary
         run: |
