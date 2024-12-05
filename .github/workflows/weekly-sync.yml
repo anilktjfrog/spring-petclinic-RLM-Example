@@ -41,31 +41,36 @@ jobs:
         run: |
           pwd
           ls -lrt .
+
+          echo "\n\n * Repo: ${{ env.FORKED_REPO_PATH }} \n"
           ls -lrt ${{ env.FORKED_REPO_PATH }} 
+
+          echo "\n\n * Repo: ${{ env.MY_REPO_PATH }} \n"
           ls -lrt ${{ env.MY_REPO_PATH }}
 
       - name: Clean my-repo folders
         run: |
           cd ${{ env.MY_REPO_PATH }}
+          pwd
+          ls -lrta .
           rm -rf src/ target/ k8s/ .gradle/ .mvn/
-          ls -lrt .
+          ls -lrta .
 
-      - name: Copy files from forked-repo to my-repo
+      - name: Copy files from ${{ env.FORKED_REPO_PATH }} to ${{ env.MY_REPO_PATH }}
         run: |
           cd ${{ env.MY_REPO_PATH }}
+          pwd
+          ls -lrta .
+
+          echo "\n\n * Copying files from ${{ env.FORKED_REPO_PATH }} to ${{ env.MY_REPO_PATH }} \n"
           cp ../${{ env.FORKED_REPO_PATH }}/* .
-          ls -lrt .
-
-      - name: Copy files from forked-repo to my-repo
-        run: |
-          cd ${{ env.MY_REPO_PATH }}
-          cp -r -f ../${{ env.FORKED_REPO_PATH }}/* .
-          ls -lrt .
+          ls -lrta .
 
       - name: Commit files to GitHub
         run: |
           cd ${{ env.MY_REPO_PATH }}
-          
+          s -lrta .
+
 
       - name: summary
         run: |
