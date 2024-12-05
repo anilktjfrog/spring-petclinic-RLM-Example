@@ -76,8 +76,11 @@ jobs:
         run: |
           cd ${{ env.MY_REPO_PATH }}
           ls -lrta .
-          echo "\n\n * Commiting files, branch: main of my repo ${{ env.MY_REPO }} "
-          git config user.name "${GH_USER}"
+          echo "\n\n * Commiting files, branch: main of my repo ${{ env.MY_REPO }} with actor: ${GH_USER} "
+
+          git config --global user.email "${GH_USER}@gmail.com"
+          git config --global user.name "${GH_USER}"
+
           git add . -v 
           git commit -m "Sync on $(date +'%Y-%m-%d') from parent repo"
           git push -v https://${GH_USER}:${GH_TOKEN}@github.com/${{ env.MY_REPO }}.git ${{env.FORKED_REPO_BRANCH}}
