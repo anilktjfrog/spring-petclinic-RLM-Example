@@ -18,7 +18,7 @@ jobs:
     env:
       FORKED_REPO: "spring-projects/spring-petclinic" # https://github.com/spring-projects/spring-petclinic
       FORKED_REPO_PATH: "forked-spring-petclinic"
-      : "main"
+      FORKED_REPO_BRANCH : "main"
       MY_REPO: "krishnamanchikalapudi/spring-petclinic"
       MY_REPO_PATH: "my-spring-petclinic"
     runs-on: ${{ matrix.os }}
