@@ -187,15 +187,15 @@ jobs:
       #       --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
       #     echo '🔎 Evidence attached: `signature` 🔏 ' 
 
- # Build Info
-    # Executive Order: 
-    #       https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/
-    #       https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity
-    # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
-    # US Cyber Defence Agency: https://www.cisa.gov/sbom
-    # NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
-    # NITA: https://www.ntia.gov/page/software-bill-materials 
-    # Centers for Medicare & Medicaid Services: https://security.cms.gov/learn/software-bill-materials-sbom
+    # Build Info
+        # Executive Order: 
+        #       https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/
+        #       https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity
+        # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
+        # US Cyber Defence Agency: https://www.cisa.gov/sbom
+        # NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
+        # NITA: https://www.ntia.gov/page/software-bill-materials 
+        # Centers for Medicare & Medicaid Services: https://security.cms.gov/learn/software-bill-materials-sbom
       - name: "BuildInfo: Collect env"
         run: jf rt bce ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
  
@@ -205,11 +205,11 @@ jobs:
       - name: "BuildInfo: Build Publish"
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
 
-# curl -L 'https://psazuse.jfrog.io/xray/api/v1/binMgr/builds' -H 'Content-Type: application/json' -H 'Authorization: ••••••' -d '{  "names": ["spring-petclinic"] }'
+      # curl -L 'https://psazuse.jfrog.io/xray/api/v1/binMgr/builds' -H 'Content-Type: application/json' -H 'Authorization: ••••••' -d '{  "names": ["spring-petclinic"] }'
       - name: "Optional: Add Builds to Indexing Configuration"
         run: |
           jf xr curl "/api/v1/binMgr/builds" -H 'Content-Type: application/json' -d '{"names": ["${{ env.BUILD_NAME}}"] }'
-# Set properties      
+      # Set properties      
       - name: "Optional: Set prop for Artifact"  # These properties were captured Artifacts >> repo path 'spring-petclinic.---.jar' >> Properties
         run: |
           ts="cmd.$(date '+%Y-%m-%d-%H-%M')" 
@@ -333,7 +333,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}  # 17
 
       - name: Setup Gradle    # ref https://docs.github.com/en/enterprise-cloud@latest/actions/use-cases-and-examples/building-and-testing/building-and-testing-java-with-gradle
-        uses: gradle/actions/setup-gradle@@v4 # af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
         with:
           gradle-version: release-candidate
       - name: Software version
