@@ -1,6 +1,6 @@
 # This workflow will fecth code on weekly from and sync with my repo
 
-name: Sync from Forked repo
+name: "Sync from Forked repo"
 on:
   schedule: # cron time is UTC 
     - cron: "0 0 * * SAT" #  Runs on Every Sat at 2pm PT. Refer https://crontab.guru/every-saturday

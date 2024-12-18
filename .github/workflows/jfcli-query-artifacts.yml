@@ -1,4 +1,4 @@
-name: JF-CLI - Query Artifact properties
+name: "JF-CLI: Query Artifact properties"
 on:
 # TURN-OFF on every push 
   push:
