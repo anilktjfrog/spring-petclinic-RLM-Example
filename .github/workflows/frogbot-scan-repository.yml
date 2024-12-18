@@ -46,7 +46,7 @@ jobs:
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " - NodeJs Info: " >> $GITHUB_STEP_SUMMARY
           echo "     - node: ${{ env.NODE_VER }} " >> $GITHUB_STEP_SUMMARY
-          echo "     npm: ${{ env.NPM_VER }} " >> $GITHUB_STEP_SUMMARY
+          echo "     - npm: ${{ env.NPM_VER }} " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/checkout@v4
@@ -158,6 +158,7 @@ jobs:
           # If TRUE, Frogbot creates a single pull request with all the fixes.
           # If false, Frogbot creates a separate pull request for each fix.
           # JF_GIT_AGGREGATE_FIXES: "FALSE"
+          JF_GIT_AGGREGATE_FIXES: "TRUE"
 
           # [Optional, Default: "FALSE"]
           # Handle vulnerabilities with fix versions only

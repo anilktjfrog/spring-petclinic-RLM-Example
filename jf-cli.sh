@@ -31,7 +31,7 @@ jf mvnc --global --repo-resolve-releases ${RT_REPO_VIRTUAL} --repo-resolve-snaps
 ## Create Build
 echo "\n\n**** MVN: Package ****\n\n" # --scan=true  -Djar.finalName=${JAR_FINAL_NAME}
 # mvn dependency:purge-local-repository && mvn clean install -U
-jf mvn clean install -DskipTests --build-name=${BUILD_NAME} --build-number=${BUILD_ID} --detailed-summary
+jf mvn clean install -DskipTests -Denforcer.fail=true --build-name=${BUILD_NAME} --build-number=${BUILD_ID}
 
 # # setting build properties
 # export job="b_github-action" org="b_ps" team="b_architecture" product="b_jfrog-saas"  # These properties were captured in Builds >> spring-petclinic >> version >> Environment tab
