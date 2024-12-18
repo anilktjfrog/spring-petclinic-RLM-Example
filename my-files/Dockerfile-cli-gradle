@@ -3,7 +3,7 @@
 # https://hub.docker.com/_/amazoncorretto/
 FROM psazuse.jfrog.io/krishnam-docker-virtual/amazoncorretto:17-alpine-jdk
 
-ENV JAR_FILE spring-petclinic-3.4.0-plain.jar
+ENV JAR_FILE=spring-petclinic-3.4.0-plain.jar
 
 WORKDIR /app
 

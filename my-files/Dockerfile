@@ -1,7 +1,8 @@
 # base image https://hub.docker.com/layers/library/openjdk/17-jdk-alpine/
 FROM openjdk:17-jdk-alpine
 
-ENV JAR_FILE spring-petclinic-3.4.0-SNAPSHOT.jar
+# Set environment variables
+ENV JAR_FILE=spring-petclinic-3.4.0-SNAPSHOT.jar
 
 WORKDIR /app
 
