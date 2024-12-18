@@ -30,7 +30,7 @@ permissions:
   security-events: write # Required for uploading code scanning.
 jobs:
   mvnPackage:
-    name: MVN Package
+    name: MVN
     strategy:
       fail-fast: false
       matrix:
@@ -106,7 +106,7 @@ jobs:
 
       - name: Create ENV variables
         run: |
-          echo "RT_REPO_DOCKER_URL=${{ env.JF_RT_URL }}/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}" >> $GITHUB_ENV
+          echo "RT_REPO_DOCKER_URL=${{ vars.JF_NAME }}.jfrog.io/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}" >> $GITHUB_ENV
 
       - name: Docker authentication  # ref https://github.com/marketplace/actions/docker-login
         id: config-docker
@@ -320,7 +320,7 @@ jobs:
            cat $BUILD_INFO_JSON
 
   gradlePackage:
-    name: Gradle Package
+    name: Gradle
     strategy:
       fail-fast: false
       matrix:
@@ -414,7 +414,7 @@ jobs:
           echo "    - Build Name: ${{env.BUILD_NAME}} " >> $GITHUB_STEP_SUMMARY
           echo "    - Gradle Repo URL: ${{env.RT_REPO_GRADLE_VIRTUAL}}" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
-# Package
+      # Package
       - name: Create Build
         run: |
           jf gradle clean artifactoryPublish -x test -b ./build.gradle --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} 

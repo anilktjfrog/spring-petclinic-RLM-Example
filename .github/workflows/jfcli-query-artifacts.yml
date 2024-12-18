@@ -94,7 +94,7 @@ jobs:
         env:
           QUERY_VAR: "build.name=spring-petclinic"
           FILE_NAME: "QueryByJavaBuildName.json"
-          RT_REPO_VIRTUAL: 'krishnam-npm-virtual'
+          RT_REPO_VIRTUAL: 'krishnam-mvn-virtual'
         run: |
           jf rt curl "/api/search/prop?repos=$RT_REPO_VIRTUAL&$QUERY_VAR" -o $FILE_NAME
           cat $FILE_NAME
