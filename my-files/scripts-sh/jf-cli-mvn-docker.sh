@@ -41,7 +41,7 @@ docker login ${JF_HOST} -u krishnam -p ${DOCKER_PWD}
 
 ### Docker: Create image and push
 echo "\n\n**** Docker: build image ****"
-docker image build -f ../Dockerfile-mvn --platform 'linux/amd64,linux/arm64' -t ${JF_HOST}/${RT_REPO_DOCKER_VIRTUAL}/${BUILD_NAME}:${BUILD_ID} --output=type=image . 
+docker image build -f ../Dockerfile-cli-mvn --platform 'linux/amd64,linux/arm64' -t ${JF_HOST}/${RT_REPO_DOCKER_VIRTUAL}/${BUILD_NAME}:${BUILD_ID} --output=type=image . 
 
 docker image ls 
 

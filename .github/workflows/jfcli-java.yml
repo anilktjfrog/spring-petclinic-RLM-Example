@@ -46,6 +46,7 @@ jobs:
       RT_REPO_MVN_VIRTUAL: 'krishnam-mvn-virtual'
       RT_REPO_DOCKER_VIRTUAL: 'krishnam-docker-virtual'
       DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm64'
+      DOCKER_METADATA_JSON: 'metadata.json'
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: "spring-petclinic"
@@ -166,7 +167,11 @@ jobs:
 
       - name: "Package: Docker image"
         run: |
-          docker image build -f my-files/Dockerfile-cli-mvn -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file "${{env.DOCKER_METADATA_JSON}}" --push .
+          docker image build -f my-files/Dockerfile-cli-mvn -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file "${{env.DOCKER_METADATA_JSON}}" --output=type=image --push .
+
+      - name: "Optional: Docker inspect"  
+        run: |
+          docker inspect ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --format='{{.Id}}'
 
       - name: "Package: Docker image list"
         run: |
@@ -203,6 +208,15 @@ jobs:
  
       - name: "BuildInfo: Add VCS info"
         run: jf rt bag ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
+
+      - name: "BuildInfo: Docker build create"
+        run: |
+          imageDigest=$(cat "${{env.DOCKER_METADATA_JSON}}" | jq '.["containerimage.digest"]')
+          echo "${imageDigest}"
+
+          echo "${{ vars.JF_NAME }}.jfrog.io/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{env.BUILD_NAME }}:${{ env.BUILD_ID}}@${imageDigest}" > ${{env.DOCKER_METADATA_JSON}}
+
+          jf rt bdc ${{env.RT_REPO_DOCKER_VIRTUAL}} --image-file ${{env.DOCKER_METADATA_JSON}} --build-name=${{ env.BUILD_NAME }} --build-number=${{ env.BUILD_ID}}
 
       - name: "BuildInfo: Build Publish"
         run: jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true

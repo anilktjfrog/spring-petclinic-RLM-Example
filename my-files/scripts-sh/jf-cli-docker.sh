@@ -46,7 +46,7 @@ docker login psazuse.jfrog.io -u krishnam -p ${DOCKER_PWD}
 
 ### Create image and push
 echo "\n\n**** Docker: build image ****"
-docker image build -f my-files/Dockerfile-cli --platform linux/amd64,linux/arm64 -t psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_ID} --output=type=image .
+docker image build -f my-files/Dockerfile-cli-mvn --platform linux/amd64,linux/arm64 -t psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_ID} --output=type=image .
 
 docker inspect psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_ID} --format='{{.Id}}'
 
