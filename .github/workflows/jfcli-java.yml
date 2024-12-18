@@ -51,7 +51,7 @@ jobs:
       JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: "spring-petclinic"
       JAR_FINAL_NAME: "mvn-spring-petclinic"
-      BUILD_ID: "ga-mvn-${{ github.run_number }}" # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
+      BUILD_ID: "ga-mvn-km${{ github.run_number }}" # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30   # ref  https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes
     steps:
@@ -179,10 +179,6 @@ jobs:
       - name: "Package: Docker build and push"
         run: |
           docker image build -f my-files/Dockerfile-cli-mvn -t ${{env.RT_REPO_DOCKER_URL}} --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file "${{env.DOCKER_METADATA_JSON}}" --push .
-
-      - name: "Package: Docker image save"
-        run: |
-          docker save -o image.tar ${{env.RT_REPO_DOCKER_URL}}
 
       - name: "Package: Docker image list"
         run: |
@@ -333,7 +329,7 @@ jobs:
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: 'spring-petclinic'
-      BUILD_ID: "ga-gdl-${{ github.run_number }}" # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
+      BUILD_ID: "ga-gdl-km${{ github.run_number }}" # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20   # ref  https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes
     steps:
