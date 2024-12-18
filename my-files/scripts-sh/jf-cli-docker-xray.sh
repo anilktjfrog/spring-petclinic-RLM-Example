@@ -70,7 +70,7 @@ jf docker push psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_
 
 ### Scan image
 echo "\n\n**** Docker: jf scan ****"
-jf docker scan psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_ID} --vuln
+jf docker scan psazuse.jfrog.io/${RT_REPO_DOCKER}-virtual/${BUILD_NAME}:${BUILD_ID} --vuln=true --threads=100
 
 ## bdc: build-docker-create, Adding Published Docker Images to the Build-Info 
 echo "\n\n**** Docker: build create ****"
