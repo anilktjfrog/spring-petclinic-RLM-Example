@@ -52,7 +52,6 @@ jobs:
       BUILD_NAME: "spring-petclinic"
       JAR_FINAL_NAME: "mvn-spring-petclinic"
       BUILD_ID: "ga-mvn-${{ github.run_number }}" # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
-      RT_REPO_DOCKER_URL: "${{ vars.JF_NAME }}.jfrog.io/${RT_REPO_DOCKER_VIRTUAL}/${BUILD_NAME}:${BUILD_ID}"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30   # ref  https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes
     steps:
@@ -104,6 +103,10 @@ jobs:
           export JFROG_CLI_LOG_TIMESTAMP=DATE_AND_TIME
 
           jf mvnc --global --repo-resolve-releases ${{ env.RT_REPO_MVN_VIRTUAL}} --repo-resolve-snapshots ${{ env.RT_REPO_MVN_VIRTUAL}}
+
+      - name: Create ENV variables
+        run: |
+          echo "RT_REPO_DOCKER_URL=${{ env.JF_RT_URL }}/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}" >> $GITHUB_ENV
 
       - name: Docker authentication  # ref https://github.com/marketplace/actions/docker-login
         id: config-docker
@@ -175,7 +178,7 @@ jobs:
 
       - name: "Package: Docker image"
         run: |
-          docker build --build-arg REPO_URL=${REPO_URL} -f my-files/Dockerfile-cli-mvn . --tag ${{env.RT_REPO_DOCKER_URL}} --output=type=image --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file="${{env.DOCKER_METADATA_JSON}}" 
+          docker image build -f my-files/Dockerfile-cli-mvn . --tag ${{env.RT_REPO_DOCKER_URL}} --output=type=image --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file="${{env.DOCKER_METADATA_JSON}}" 
 
       - name: "Package: Docker push"
         run: |
