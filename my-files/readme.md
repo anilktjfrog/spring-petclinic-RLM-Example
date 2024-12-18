@@ -9,6 +9,7 @@ Develop a DevOps pipeline to automate tasks such as code compile, unit testing, 
 
 Note: This process with not deploy to the envionrmnet platform. 
 
+[Spring-Petclinic](https://github.com/krishnamanchikalapudi/spring-petclinic) using JF-CLI to Package, BuildInfo, & RBv2: [![JF-CLI: MVN & Gradle](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-java.yml/badge.svg)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-java.yml)
 
 ## Pipeline samples
 | CI/CD | Description | Code | [youtube.com/@DayOneDev](https://youtube.com/@DayOneDev) |

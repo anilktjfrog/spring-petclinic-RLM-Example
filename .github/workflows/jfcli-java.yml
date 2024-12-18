@@ -257,17 +257,17 @@ jobs:
  
       - name: "Optional: Xray sbom-enrich" # ref https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/enrich-your-sbom
         run: |
-          jf se "target/classes/META-INF/sbom/application.cdx.json" 
+          jf se "target/classes/META-INF/sbom/application.cdx.json" --threads=100
 
       - name: "BuildInfo: Xray - Build scan"
         timeout-minutes: 15    # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
         run: |
-          jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --fail=false --format=table --extended-table 
+          jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --fail=false --format=table --extended-table=true --rescan=false --vuln=true
 
       - name: "Optional: Build Scan V2"  # https://jfrog.com/help/r/xray-rest-apis/scan-build-v2
         # jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "spring-petclinic", "build_number": "ga-gdl-xray-50","rescan":true }'
         run: |
-          jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "${{ env.BUILD_NAME}}", "build_number": "${{ env.BUILD_ID}}" }'
+          jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "${{ env.BUILD_NAME}}", "build_number": "${{ env.BUILD_ID}}","rescan":false  }'
 
       # Release Bundle v2
       - name: "RLM: RBv2 spec - create"

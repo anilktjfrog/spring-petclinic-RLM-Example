@@ -1,5 +1,4 @@
 # SET meta-data to differentiate application category, such as application or internal-library
-# export PACKAGE_CATEGORIES=(WEBAPP, SERVICE, LIBRARY, BASEIMAGE)
 clear
 # TOKEN SETUP
 # jf c add --user=krishnam --interactive=true --url=https://psazuse.jfrog.io --overwrite=true 
@@ -20,16 +19,16 @@ export PROVIDER_NAME='krishnam-github-org-all-repos'
 
 # Get Config - ref: https://jfrog.com/help/r/jfrog-rest-apis/get-oidc-configuration
 echo "\n\n **** Get OIDC Config \n"
-curl -sLS -H "User-Agent: actions/oidc-client" -H "Authorization: Bearer ${JF_ACCESS_TOKEN=}" "${JF_RT_URL}/access/api/v1/oidc/${PROVIDER_NAME}"
+curl -sLS -H "User-Agent: actions/oidc-client" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" "${JF_RT_URL}/access/api/v1/oidc/${PROVIDER_NAME}"
 
 
 # Get identity mapping by provider - ref: https://jfrog.com/help/r/jfrog-rest-apis/get-all-identity-mappings-by-provider-name
 echo "\n\n **** Get OIDC Identity Mapping \n"
-curl -sLS -H "User-Agent: actions/oidc-client" -H "Authorization: Bearer ${JF_ACCESS_TOKEN=}" "${JF_RT_URL}/access/api/v1/oidc/${PROVIDER_NAME}/identity_mappings/"
+curl -sLS -H "User-Agent: actions/oidc-client" -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" "${JF_RT_URL}/access/api/v1/oidc/${PROVIDER_NAME}/identity_mappings/"
 
 # Get Token by ID - ref: https://jfrog.com/help/r/jfrog-rest-apis/create-token-api-examples
 echo "\n\n **** GET TOKEN by ID \n"
-export TOKEN_INFO=`curl -sLS -H "Authorization: Bearer ${JF_ACCESS_TOKEN=}" "${JF_RT_URL}/access/api/v1/tokens/me"`
+export TOKEN_INFO=`curl -sLS -H "Authorization: Bearer ${JF_ACCESS_TOKEN}" "${JF_RT_URL}/access/api/v1/tokens/me"`
 echo $TOKEN_INFO
 
 TOKEN_ID=`echo ${TOKEN_INFO} | jq -r '.token_id'`
