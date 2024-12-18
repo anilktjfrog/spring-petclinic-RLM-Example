@@ -46,7 +46,7 @@ jobs:
       RT_REPO_MVN_VIRTUAL: 'krishnam-mvn-virtual'
       RT_REPO_DOCKER_VIRTUAL: 'krishnam-docker-virtual'
       DOCKER_BUILDX_PLATFORMS: 'linux/amd64,linux/arm64'
-      DOCKER_METADATA_JSON: 'metadata.json'
+      DOCKER_METADATA_JSON: 'build-metadata.json'
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: "spring-petclinic"
@@ -166,7 +166,8 @@ jobs:
 
       - name: "Package: Docker image"
         run: |
-          docker image build -f my-files/Dockerfile-cli-mvn -t ${{ vars.JF_NAME }}.jfrog.io/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file "${{env.DOCKER_METADATA_JSON}}" --output=type=image --push .
+          REPO_URL="${{ vars.JF_NAME }}.jfrog.io/${{env.RT_REPO_DOCKER_VIRTUAL}}"
+          docker build --build-arg REPO_URL=${REPO_URL} -f my-files/Dockerfile-cli-mvn . --tag ${REPO_URL}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}} --output=type=image --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file="${{env.DOCKER_METADATA_JSON}}" --push
 
       - name: "Package: Docker image list"
         run: |
@@ -189,15 +190,15 @@ jobs:
       #       --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
       #     echo '🔎 Evidence attached: `signature` 🔏 ' 
 
-    # Build Info
-        # Executive Order: 
-        #       https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/
-        #       https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity
-        # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
-        # US Cyber Defence Agency: https://www.cisa.gov/sbom
-        # NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
-        # NITA: https://www.ntia.gov/page/software-bill-materials 
-        # Centers for Medicare & Medicaid Services: https://security.cms.gov/learn/software-bill-materials-sbom
+      # Build Info
+          # Executive Order: 
+          #       https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/
+          #       https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity
+          # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
+          # US Cyber Defence Agency: https://www.cisa.gov/sbom
+          # NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
+          # NITA: https://www.ntia.gov/page/software-bill-materials 
+          # Centers for Medicare & Medicaid Services: https://security.cms.gov/learn/software-bill-materials-sbom
       - name: "BuildInfo: Collect env"
         run: jf rt bce ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} 
  
