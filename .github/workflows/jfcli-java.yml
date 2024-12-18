@@ -180,6 +180,10 @@ jobs:
         run: |
           docker image build -f my-files/Dockerfile-cli-mvn -t ${{env.RT_REPO_DOCKER_URL}} --platform "${{env.DOCKER_BUILDX_PLATFORMS}}" --metadata-file "${{env.DOCKER_METADATA_JSON}}" --push .
 
+      - name: "Optional: Docker pull image"
+        run: |
+          docker pull ${{env.RT_REPO_DOCKER_URL}}
+
       - name: "Package: Docker image list"
         run: |
           docker image ls
