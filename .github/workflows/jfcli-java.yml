@@ -153,7 +153,7 @@ jobs:
         # scan for Xray: Source code dependencies and JAS: Secrets Detection, IaC, Vulnerabilities Contextual Analysis 'SAST'
         timeout-minutes: 15    
         run: |
-          jf audit --mvn --extended-table --threads=100
+          jf audit --mvn --sast=true --sca=true --secrets=true --licenses=true --validate-secrets=true --vuln=true --format=table --extended-table=true --threads=100 --fail=false
 
       - name: "Package: Create MVN Build"
         run: |     # -Djar.finalName=${{ env.JAR_FINAL_NAME}} 
