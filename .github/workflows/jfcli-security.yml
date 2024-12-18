@@ -122,7 +122,7 @@ jobs:
 
       - name: CURATION 
         run: |
-          jf ca . --threads=100 --extended-table
+          jf ca . --threads=100 --extended-table=true
  # Build Info
     # Executive Order: 
     #       https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/
@@ -139,64 +139,38 @@ jobs:
 # The --extended-table argument returns 3 additional columns (CVSS V2, CVSS V3, ISSUE ID) alongside the standard set SEVERITY, DIRECT DEPENDENCY, DIRECT DEPENDENCY VERSION, IMPACTED DEPENDENCY NAME, IMPACTED DEPENDENCY VERSION, FIXED VERSIONS, TYPE, CVE
       - name: AUDIT - SAST
         run: |
-          jf audit --mvn --sast --extended-table 
+          jf audit --mvn --sast=true --extended-table=true --fail=false --threads=100
 
       - name: AUDIT - Secrets Detection
         run: |
-          jf audit --mvn --secrets --extended-table
+          jf audit --mvn --secrets=true --extended-table=true --fail=false --threads=100
 
       - name: AUDIT - Multiple Secrets types such as tokens, generic password, ssh keys, etc
         run: |
-          jf audit --mvn --secrets --validate-secrets --extended-table
+          jf audit --mvn --secrets=true --validate-secrets --extended-table=true --fail=false --threads=100
 
       - name: AUDIT - Software Composition Analysis and Contextual Analysis 
         run: |
-          jf audit --mvn --sca --extended-table
+          jf audit --mvn --sca=true --extended-table=true --fail=false --threads=100
 
       - name: AUDIT - Licenses 
         run: |
-          jf audit --mvn --licenses --extended-table
+          jf audit --mvn --licenses=true --extended-table=true --fail=false --threads=100
 
       - name: AUDIT - Infrastructure as Code Vulnerabilities
         run: |
-          jf audit --iac --extended-table
+          jf audit --iac=true --extended-table=true --fail=false --threads=100
 
       - name: MVN - Create Build
         run: |
-          jf mvn install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary
+          jf mvn install -DskipTests=true --build-name=${{ env.BUILD_NAME}} --build-number=${{ env.BUILD_ID}} --detailed-summary=true --threads=100
 
 # Scan your Binaries: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/scan-your-binaries
       - name: SCAN - Licenses
         run: |
-          jf scan . --licenses --extended-table
+          jf scan . --licenses=true --extended-table=true --threads=100
 
       - name: SCAN - Vulnerabilities
         run: |
-          jf scan . --vuln --extended-table
+          jf scan . --vuln=true --extended-table=true --threads=100
 
-      - name: Build Publish
-        run: |
-          jf rt bp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --detailed-summary=true
-          
-          sleep 20   # Sleeping for 20 seconds before executing the build publish seems to have resolved the build-scan issue. 
-
-      - name: Query build info
-        env: 
-          BUILD_INFO_JSON: "BuildInfo-${{ env.BUILD_ID}}.json"
-        run: |
-           jf rt curl "/api/build/${{ env.BUILD_NAME}}/${{ env.BUILD_ID}}" -o $BUILD_INFO_JSON
-           cat $BUILD_INFO_JSON
-
-      - name: Build Scan status # https://jfrog.com/help/r/xray-rest-apis/build-scan-status
-        # jf xr curl /api/v1/build/status -H 'Content-Type: application/json' -d '{"name": "spring-petclinic", "number": "ga-gdl-xray-50" }'
-        run: |
-          jf xr curl /api/v1/build/status -H 'Content-Type: application/json' -d '{"name": "${{ env.BUILD_NAME}}", "number": "${{ env.BUILD_ID}}" }'
-
-      - name: Build Scan
-        run: |
-          jf bs ${{ env.BUILD_NAME}} ${{ env.BUILD_ID}} --extended-table --fail=false
-
-      - name: Build Scan V2  # https://jfrog.com/help/r/xray-rest-apis/scan-build-v2
-        # jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "spring-petclinic", "build_number": "ga-gdl-xray-50","rescan":true }'
-        run: |
-          jf xr curl /api/v2/ci/build -H 'Content-Type: application/json' -d '{"build_name": "${{ env.BUILD_NAME}}", "build_number": "${{ env.BUILD_ID}}", "rescan":true }'

@@ -1,4 +1,4 @@
-name: "Frogbot Scan and Fix"
+name: "Frogbot: Scan and Fix"
 # refer https://docs.jfrog-applications.jfrog.io/jfrog-applications/frogbot/setup-frogbot/setup-frogbot-using-github-actions
 on:
   push:

@@ -156,7 +156,6 @@
 
   <build>
     <plugins>
-    <!-- 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -179,7 +178,6 @@
           </execution>
         </executions>
       </plugin>
-      -->
       <plugin>
         <groupId>io.spring.javaformat</groupId>
         <artifactId>spring-javaformat-maven-plugin</artifactId>
@@ -297,7 +295,7 @@
       <url>https://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
-<!-- 
+
   <repositories>
     <repository>
       <snapshots>
@@ -334,7 +332,7 @@
       <url>https://repo.spring.io/milestone</url>
     </pluginRepository>
   </pluginRepositories>
--->
+
   <profiles>
     <profile>
       <id>css</id>
