@@ -107,6 +107,7 @@ jobs:
       - name: Create ENV variables
         run: |
           echo "RT_REPO_DOCKER_URL=${{ vars.JF_NAME }}.jfrog.io/${{env.RT_REPO_DOCKER_VIRTUAL}}/${{ env.BUILD_NAME }}:${{ env.BUILD_ID}}" >> $GITHUB_ENV
+          echo "RBv2_SPEC_JSON=RBv2-SPEC-${{ env.BUILD_ID }}.json" >> $GITHUB_ENV
 
       - name: Docker authentication  # ref https://github.com/marketplace/actions/docker-login
         id: config-docker
@@ -197,13 +198,16 @@ jobs:
         run: |
           export job="github-action" org="ps" team="architecture" product="jfrog-saas" 
       
-      # - name: Evidence on artifact
-      #   run: |
-      #     echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
-      #     jf evd create --package-name ${{ env.BUILD_NAME}} --package-version ${{ env.BUILD_ID}} --package-repo-name ${{}} \
-      #       --key "${{ secrets.PRIVATE_KEY }}"   \
-      #       --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
-      #     echo '🔎 Evidence attached: `signature` 🔏 ' 
+      - name: "Evidence on Build"
+        env: 
+          EVIDENCE_SIGN_JSON: "evd-sign.json"
+        run: |  
+          echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > $EVIDENCE_SIGN  
+          cat ./${EVIDENCE_SIGN}
+
+          jf evd create --build-name ${{ env.BUILD_NAME}} --build-number ${{ env.BUILD_ID}} --predicate "./$EVIDENCE_SIGN_JSON" --predicate-type "https://dayone.dev/signature" --key "${{vars.RBv2_SIGNING_KEY}}"
+
+          echo '🔎 Evidence attached on Build: `signature` 🔏 '
 
       # Build Info
           # Executive Order: 
@@ -272,20 +276,37 @@ jobs:
       # Release Bundle v2
       - name: "RLM: RBv2 spec - create"
         run: |
-          echo "{ \"files\": [ {\"build\": \"${{ env.BUILD_NAME}}/${{ env.BUILD_ID }}\" } ] }"  > RBv2-SPEC-${{ env.BUILD_ID }}.json
-          cat RBv2-SPEC-${{ env.BUILD_ID }}.json
+          echo "{ \"files\": [ {\"build\": \"${{ env.BUILD_NAME}}/${{ env.BUILD_ID }}\" } ] }"  > ${{ env.RBv2_SPEC_JSON }}
+          cat ${{ env.RBv2_SPEC_JSON }}
 
       - name: "RLM: RBv2 Create NEW"
         run: |
-          jf rbc ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} --sync=true --signing-key=${{env.RBv2_SIGNING_KEY}} --spec=RBv2-SPEC-${{ env.BUILD_ID }}.json
+          jf rbc ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} --sync=true --signing-key=${{vars.RBv2_SIGNING_KEY}} --spec=${{ env.RBv2_SPEC_JSON }}
+
+      - name: "Evidence on RBv2"
+        env: 
+          EVIDENCE_RBv2_JSON: "evd-rbv2.json"
+        run: |
+          echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > $EVIDENCE_RBv2_JSON
+          cat ./${EVIDENCE_RBv2_JSON}
+
+          JF_LINK=${{ env.JF_RT_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ env.BUILD_NAME}}'&bundleToFlash='${{ env.BUILD_NAME}}'&releaseBundleVersion='${{ env.BUILD_ID }}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
+          
+          echo 'Test on Release bundle ['${{ vars.BUNDLE_NAME }}':'${{ github.run_number }}']('${JF_LINK}') success' >> $GITHUB_STEP_SUMMARY
+          
+          jf evd create --release-bundle ${{ env.BUILD_NAME}} --release-bundle-version ${{ env.BUILD_ID }} 
+            --predicate ./${EVIDENCE_RBv2_JSON} --predicate-type "https://dayone.dev/signature" --key "${{vars.RBv2_SIGNING_KEY}}"
+
+          echo '🔎 Evidence attached to RBv2: integration-test 🧪 ' >> $GITHUB_STEP_SUMMARY
+
 
       - name: "RLM: RBv2 promote DEV"
         run: |
-          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync=true --signing-key=${{env.RBv2_SIGNING_KEY}}  
+          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} DEV --sync=true --signing-key=${{vars.RBv2_SIGNING_KEY}}  
 
       - name: "RLM: RBv2 promote QA"
         run: |
-          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync=true --signing-key=${{env.RBv2_SIGNING_KEY}}  
+          jf rbp ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} QA --sync=true --signing-key=${{vars.RBv2_SIGNING_KEY}}  
      
       - name: "Optional: rbv2-summary"
         run: |
