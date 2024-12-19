@@ -198,16 +198,16 @@ jobs:
         run: |
           export job="github-action" org="ps" team="architecture" product="jfrog-saas" 
       
-      - name: "Evidence on Build"
-        env: 
-          EVIDENCE_SIGN_JSON: "evd-sign.json"
-        run: |  
-          echo "{ \"actor\": \"${{ github.actor }}\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME}}\", \"build_name\": \"${{ env.BUILD_ID}}\", \"Job\":\"GitHub Actions\", \"Evd\":\"Build\" }" > ${EVIDENCE_SIGN_JSON}
-          cat ./${EVIDENCE_SIGN_JSON}
+      # - name: "Evidence on Build"
+      #   env: 
+      #     EVIDENCE_SIGN_JSON: "evd-sign.json"
+      #   run: |  
+      #     echo "{ \"actor\": \"${{ github.actor }}\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME}}\", \"build_name\": \"${{ env.BUILD_ID}}\", \"Job\":\"GitHub Actions\", \"Evd\":\"Build\" }" > ${EVIDENCE_SIGN_JSON}
+      #     cat ./${EVIDENCE_SIGN_JSON}
 
-          jf evd create --build-name ${{ env.BUILD_NAME}} --build-number ${{ env.BUILD_ID}} --predicate "./${EVIDENCE_SIGN_JSON}" --predicate-type "https://dayone.dev/signature" --key "${{vars.RBv2_SIGNING_KEY}}"
+      #     jf evd create --build-name ${{ env.BUILD_NAME}} --build-number ${{ env.BUILD_ID}} --predicate "./${EVIDENCE_SIGN_JSON}" --predicate-type "https://dayone.dev/signature" --key "${{vars.RBv2_SIGNING_KEY}}"
 
-          echo '🔎 Evidence attached on Build: `signature` 🔏 '
+      #     echo '🔎 Evidence attached on Build: `signature` 🔏 '
 
       # Build Info
           # Executive Order: 
@@ -283,21 +283,21 @@ jobs:
         run: |
           jf rbc ${{ env.BUILD_NAME}} ${{ env.BUILD_ID }} --sync=true --signing-key=${{vars.RBv2_SIGNING_KEY}} --spec=${{ env.RBv2_SPEC_JSON }}
 
-      - name: "Evidence on RBv2"
-        env: 
-          EVIDENCE_RBv2_JSON: "evd-rbv2.json"
-        run: |
-          echo "{ \"actor\": \"${{ github.actor }}\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME}}\", \"build_name\": \"${{ env.BUILD_ID}}\", \"Job\":\"GitHub Actions\", \"Evd\":\"RBv2\" }" > ${EVIDENCE_RBv2_JSON}
-          cat ./${EVIDENCE_RBv2_JSON}
+      # - name: "Evidence on RBv2"
+      #   env: 
+      #     EVIDENCE_RBv2_JSON: "evd-rbv2.json"
+      #   run: |
+      #     echo "{ \"actor\": \"${{ github.actor }}\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME}}\", \"build_name\": \"${{ env.BUILD_ID}}\", \"Job\":\"GitHub Actions\", \"Evd\":\"RBv2\" }" > ${EVIDENCE_RBv2_JSON}
+      #     cat ./${EVIDENCE_RBv2_JSON}
 
-          JF_LINK=${{ env.JF_RT_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ env.BUILD_NAME}}'&bundleToFlash='${{ env.BUILD_NAME}}'&releaseBundleVersion='${{ env.BUILD_ID }}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
+      #     JF_LINK=${{ env.JF_RT_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ env.BUILD_NAME}}'&bundleToFlash='${{ env.BUILD_NAME}}'&releaseBundleVersion='${{ env.BUILD_ID }}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
           
-          echo 'Test on Release bundle ['${{ vars.BUNDLE_NAME }}':'${{ github.run_number }}']('${JF_LINK}') success' >> $GITHUB_STEP_SUMMARY
+      #     echo 'Test on Release bundle ['${{ vars.BUNDLE_NAME }}':'${{ github.run_number }}']('${JF_LINK}') success' >> $GITHUB_STEP_SUMMARY
           
-          jf evd create --release-bundle ${{ env.BUILD_NAME}} --release-bundle-version ${{ env.BUILD_ID }} 
-            --predicate ./${EVIDENCE_RBv2_JSON} --predicate-type "https://dayone.dev/signature" --key "${{vars.RBv2_SIGNING_KEY}}"
+      #     jf evd create --release-bundle ${{ env.BUILD_NAME}} --release-bundle-version ${{ env.BUILD_ID }} 
+      #       --predicate ./${EVIDENCE_RBv2_JSON} --predicate-type "https://dayone.dev/signature" --key "${{vars.RBv2_SIGNING_KEY}}"
 
-          echo '🔎 Evidence attached to RBv2: integration-test 🧪 ' >> $GITHUB_STEP_SUMMARY
+      #     echo '🔎 Evidence attached to RBv2: integration-test 🧪 ' >> $GITHUB_STEP_SUMMARY
 
 
       - name: "RLM: RBv2 promote DEV"
