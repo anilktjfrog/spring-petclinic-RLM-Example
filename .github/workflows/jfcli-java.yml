@@ -202,7 +202,7 @@ jobs:
         env: 
           EVIDENCE_SIGN_JSON: "evd-sign.json"
         run: |  
-          echo "{ \"actor\": \"${{ github.actor }}\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME}}\", \"build_name\": \"${{ env.BUILD_ID}}\", \"Job\":\"GitHub Actions\", \"Evd\":\"Build\" }' > ${EVIDENCE_SIGN_JSON}
+          echo "{ \"actor\": \"${{ github.actor }}\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME}}\", \"build_name\": \"${{ env.BUILD_ID}}\", \"Job\":\"GitHub Actions\", \"Evd\":\"Build\" }" > ${EVIDENCE_SIGN_JSON}
           cat ./${EVIDENCE_SIGN_JSON}
 
           jf evd create --build-name ${{ env.BUILD_NAME}} --build-number ${{ env.BUILD_ID}} --predicate "./${EVIDENCE_SIGN_JSON}" --predicate-type "https://dayone.dev/signature" --key "${{vars.RBv2_SIGNING_KEY}}"
@@ -287,7 +287,7 @@ jobs:
         env: 
           EVIDENCE_RBv2_JSON: "evd-rbv2.json"
         run: |
-          echo "{ \"actor\": \"${{ github.actor }}\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME}}\", \"build_name\": \"${{ env.BUILD_ID}}\", \"Job\":\"GitHub Actions\", \"Evd\":\"RBv2\" }' > ${EVIDENCE_RBv2_JSON}
+          echo "{ \"actor\": \"${{ github.actor }}\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME}}\", \"build_name\": \"${{ env.BUILD_ID}}\", \"Job\":\"GitHub Actions\", \"Evd\":\"RBv2\" }" > ${EVIDENCE_RBv2_JSON}
           cat ./${EVIDENCE_RBv2_JSON}
 
           JF_LINK=${{ env.JF_RT_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ env.BUILD_NAME}}'&bundleToFlash='${{ env.BUILD_NAME}}'&releaseBundleVersion='${{ env.BUILD_ID }}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
