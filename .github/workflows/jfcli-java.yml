@@ -351,7 +351,7 @@ jobs:
       JAVA_VERSION: '17'
       JF_RT_URL: https://${{ vars.JF_NAME }}.jfrog.io
       RT_REPO_GRADLE_VIRTUAL: 'krishnam-gradle-virtual'
-      JOB_SUMMARY: false
+      JOB_SUMMARY: true # default is false, true - turn of publish Gradle buildinfo
       JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: 'spring-petclinic'
       BUILD_ID: "ga-gdl-km${{ github.run_number }}" # ref: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#github-context
