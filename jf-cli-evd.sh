@@ -46,20 +46,22 @@ jf rt bp ${BUILD_NAME} ${BUILD_ID} --detailed-summary
 
 # Evidence on build. Reference https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-management
 echo "\n\n**** Evidence: for Build ****\n\n"
+ls -lrt ~/.ssh/jfrog_evd_*
 export KRISHNAM_JFROG_EVD_PRIVATEKEY="$(cat ~/.ssh/jfrog_evd_private.pem)" # ref: Create an RSA Key Pair https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-setup
 export KRISHNAM_JFROG_EVD_PUBLICKEY="$(cat ~/.ssh/jfrog_evd_public.pem)"
-ls -lrt ~/.ssh/jfrog_evd_*
-export VAR_EVD_JSON="evd-sign-${BUILD_ID}.json" 
-echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${BUILD_NAME}\", \"build_id\": \"${BUILD_ID}\", \"Job\":\"CMD SH Script\", \"Evd\":\"Build\" }" > ${VAR_EVD_JSON}
-cat ./${VAR_EVD_JSON}
+export VAR_EVD_ARTIFACT_JSON="evd-artfact-${BUILD_ID}.json" 
+echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${BUILD_NAME}\", \"build_id\": \"${BUILD_ID}\", \"Job\":\"CMD SH Script\", \"Evd\":\"Build\" }" > ${VAR_EVD_ARTIFACT_JSON}
+cat ./${VAR_EVD_ARTIFACT_JSON}
 
-jf evd create --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --server-id="psazuse" --build-name ${BUILD_NAME} --build-number ${BUILD_ID} --predicate "./${VAR_EVD_JSON}" --predicate-type "https://dayone.dev/signature" --key ${KRISHNAM_JFROG_EVD_PRIVATEKEY}
+# jf evd create --build-name spring-petclinic --build-number cmd.evd.2025-01-28-16-28 --predicate="$(cat ./evd-artfact-cmd.evd.2025-01-28-16-28.json)" --predicate-type="https://dayone.dev/signature" --key "$(cat ~/.ssh/jfrog_evd_private.pem)"
+jf evd create --build-name="${BUILD_NAME}" --build-number="${BUILD_ID}" --predicate="$(cat ./VAR_EVD_ARTIFACT_JSON)" --predicate-type="https://dayone.dev/signature" --key ${KRISHNAM_JFROG_EVD_PRIVATEKEY} key-name="KRISHNAM_JFROG_EVD_PUBLICKEY"
 echo "🔎 Evidence attached on Build: signature 🔏 "
 
 
 sleep 3
 echo "\n\n**** CLEAN UP ****\n\n"
-rm -rf ${VAR_EVD_JSON}
+ls evd-*.json
+# rm -rf ${VAR_EVD_ARTIFACT_JSON}
 
 set +x # stop debugging from here
 echo "\n\n**** JF-CLI-EVD-RBV2.SH - DONE at $(date '+%Y-%m-%d-%H-%M') ****\n\n"

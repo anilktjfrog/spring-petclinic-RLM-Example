@@ -2,26 +2,22 @@ stages:
   - build_with_oidc_token
 
 default:
-  image: maven:3-amazoncorretto-17-debian #3-eclipse-temurin-17  # https://hub.docker.com/_/maven/tags?name=3.8-eclipse-temurin-17
+  image: maven:3-amazoncorretto-17-debian  # https://hub.docker.com/_/maven/
 
 include: # files at https://releases.jfrog.io/artifactory/jfrog-cli/gitlab/v2/ 
   - remote: "https://releases.jfrog.io/artifactory/jfrog-cli/gitlab/v2/.setup-jfrog-unix.yml"
-  # For Windows agents:
-  #- remote: "https://releases.jfrog.io/artifactory/jfrog-cli/gitlab/v2/.setup-jfrog-windows.yml"
+#     # refer Artifactory setup screenshot: https://github.com/krishnamanchikalapudi/spring-petclinic/tree/main/my-files/images/integrations/oidc-gitlab.png
+#     # For Windows agents:
+#     #- remote: "https://releases.jfrog.io/artifactory/jfrog-cli/gitlab/v2/.setup-jfrog-windows.yml"
 
-# refer Artifactory setup screenshot: https://github.com/krishnamanchikalapudi/spring-petclinic/tree/main/my-files/images/integrations/oidc-gitlab.png
-build_with_exchange_token:
+build:
   stage: build_with_oidc_token
   variables:
-    JFROG_CLI_BUILD_NAME: $CI_PROJECT_NAME.$CI_BUILD_REF_NAME
-    JFROG_CLI_BUILD_NUMBER: $CI_PIPELINE_ID
-    JFROG_CLI_BUILD_URL: $CI_JOB_URL
-    JFROG_CLI_TEMP_DIR: $CI_PROJECT_DIR/build-info
     BUILD_NAME: "spring-petclinic"
     BUILD_ID: "gl-${CI_PIPELINE_ID}"
     RT_REPO_MVN_VIRTUAL: "krishnam-mvn-virtual"
-    JF_URL: "psazuse.jfrog.io"
-    JF_HOST_URL: "https://psazuse.jfrog.io"
+    JF_URL: "https://psazuse.jfrog.io"
+    JF_CLI_RELEASES_REPO: "https://psazuse.jfrog.io/artifactory/krishnam-mvn-virtual"
     JFROG_CLI_LOG_LEVEL: "DEBUG"
   id_tokens:
     FIRST_ID_TOKEN:
@@ -31,40 +27,28 @@ build_with_exchange_token:
     - apt-get install -y jq
     - apt-get install -y curl
     - apt-get install -y git wget gpg
-    - mkdir -p /usr/share/keyrings; wget -qO - https://releases.jfrog.io/artifactory/api/v2/repositories/jfrog-debs/keyPairs/primary/public | gpg --dearmor -o /usr/share/keyrings/jfrog.gpg; echo "deb [signed-by=/usr/share/keyrings/jfrog.gpg] https://releases.jfrog.io/artifactory/jfrog-debs focal contrib" | tee /etc/apt/sources.list.d/jfrog.list
-    - cat /etc/apt/sources.list.d/jfrog.list
-    - curl -fL https://install-cli.jfrog.io | sh
-    - echo "CI_JOB_ID=$CI_JOB_ID"
-    - echo "JF_URL=${JF_URL}"
-    - java -version
-    - mvn -version
-    - jf --version
     - |
-      ACCESS_TOKEN=$(curl -XPOST "${JF_HOST_URL}/access/api/v1/oidc/token" -H "Content-Type: application/json" -d "{\"grant_type\": \"urn:ietf:params:oauth:grant-type:token-exchange\", \"subject_token_type\":\"urn:ietf:params:oauth:token-type:id_token\", \"subject_token\": \"$FIRST_ID_TOKEN\", \"provider_name\": \"krishnam-gitlab\"}")
+      ACCESS_TOKEN=$(curl -XPOST "${JF_URL}/access/api/v1/oidc/token" -H "Content-Type: application/json" -d "{\"grant_type\": \"urn:ietf:params:oauth:grant-type:token-exchange\", \"subject_token_type\":\"urn:ietf:params:oauth:token-type:id_token\", \"subject_token\": \"$FIRST_ID_TOKEN\", \"provider_name\": \"gitlab-krishnamanchikalapudi\"}")
       echo ${ACCESS_TOKEN}
       ACCESS_TOKEN=$(echo $ACCESS_TOKEN | jq -r '.access_token')
       export JF_ACCESS_TOKEN=${ACCESS_TOKEN}
     # JFrog config show
-    - export JFROG_CLI_RELEASES_REPO="${JF_HOST_URL}/artifactory/${RT_REPO_MVN_VIRTUAL}"
-    - export JFROG_CLI_EXTRACTORS_REMOTE="${JF_HOST_URL}/artifactory/${RT_REPO_MVN_VIRTUAL}"
+    - !reference [.setup_jfrog, script] # install JF-CLI v2
+    - echo "JF_URL=${JF_URL}"
+    - java -version
+    - mvn -version
+    - jf --version
+    - echo "JF_CLI_RELEASES_REPO= ${JF_CLI_RELEASES_REPO}"
+    - export JFROG_CLI_RELEASES_REPO="${JF_CLI_RELEASES_REPO}"
+    - export JFROG_CLI_EXTRACTORS_REMOTE="${JF_CLI_RELEASES_REPO}"
     - export JFROG_CLI_LOG_LEVEL=${JFROG_CLI_LOG_LEVEL}
-    - jf c add --url=${JF_HOST_URL} --overwrite=true --access-token=${JF_ACCESS_TOKEN}
+    - jf c add --url=${JF_URL} --overwrite=true --access-token=${JF_ACCESS_TOKEN}
     - jf c show
+    - jf rt ping 
     - echo "repo= $RT_REPO_MVN_VIRTUAL"
     - echo "Build_name= $BUILD_NAME"
     - echo "Build_id= $BUILD_ID"
-    - jf rt ping 
-    # Configure JFrog Artifactory repositories
+    # MVN package
     - jf mvnc --global --repo-resolve-releases ${RT_REPO_MVN_VIRTUAL} --repo-resolve-snapshots ${RT_REPO_MVN_VIRTUAL}
-    # Build Maven project and publish artifacts to JFrog Artifactory
-    - jf mvn clean install -DskipTests=true -Denforcer.skip=true --build-name=${BUILD_NAME} --build-number=${BUILD_ID}  
-    # Add enviroment variables to build-info
-    - jf rt bce ${BUILD_NAME} ${BUILD_ID}
-    # Add information from git to build-info
-    - jf rt bag ${BUILD_NAME} ${BUILD_ID}
-    # Publish build-info to JFrog Artifactory
-    - jf rt bp ${BUILD_NAME} ${BUILD_ID} --detailed-summary=true --access-token=${JF_ACCESS_TOKEN} --url=${JF_URL}
+    
 
-after_script:
-    # Cleanup
-    - !reference [.cleanup_jfrog, script]
