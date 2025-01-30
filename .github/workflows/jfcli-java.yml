@@ -193,7 +193,19 @@ jobs:
         timeout-minutes: 15    # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
         run: |
           jf docker scan ${{env.RT_REPO_DOCKER_URL}} --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}} --format=table --extended-table=true --threads=100 --fail=false  --detailed-summary=true  --vuln=true --licenses=true
-
+      
+      # Evidence - Package references
+      #     Docs# https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-management
+      #     CLI# https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/evidence-service
+      # jf evd create --predicate ./evd-package-cmd.evd.2025-01-29-16-32.json --predicate-type https://jfrog.com/evidence/build-signature/v1 --package-name spring-petclinic --package-version 1.0.0 --package-repo-name "krishnam-mvn-virtual" --key ~/.ssh/jfrog_evd_public.pem --key-alias "KRISHNAM_JFROG_EVD_PUBLICKEY" 
+      - name: "Evidence: Package  "
+        run: |
+          export VAR_EVD_PACKAGE_JSON="evd-package-${{ env.BUILD_ID}}.json" 
+          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"job\":\"CMD SH Script\", \"evd\":\"Package Evidence\", \"artifact\":\"target/spring-petclinic-3.4.0-SNAPSHOT.jar\" }" > ${VAR_EVD_PACKAGE_JSON}
+          cat ./${VAR_EVD_PACKAGE_JSON}
+          jf evd create --predicate ./${VAR_EVD_PACKAGE_JSON} --predicate-type https://jfrog.com/evidence/build-signature/v1 --package-name ${{ env.BUILD_NAME }} --package-version ${{ env.BUILD_ID}} --package-repo-name ${{env.RT_REPO_DOCKER_VIRTUAL}} --key ${{ vars.KRISHNAM_JFROG_EVD_PRIVATEKEY}} --key-alias ${{ env.EVD_SIGNING_KEY}}
+          echo "🔎 Evidence attached on Package: signature 🔏 "
+      
       - name: "Optional: Set env vars for BuildInfo"   # These properties were captured in Builds >> spring-petclinic >> version >> Environment tab
         run: |
           export job="github-action" org="ps" team="architecture" product="jfrog-saas" 
