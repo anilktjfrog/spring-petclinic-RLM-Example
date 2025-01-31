@@ -178,7 +178,7 @@ jobs:
       - name: "Evidence: Artifact"
         run: |
           export VAR_EVD_ARTIFACT_JSON="evd-artifact-${{ env.BUILD_ID}}.json" 
-          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"job\":\"CMD SH Script\", \"evd\":\"Package Evidence\", \"artifact\":\"target/spring-petclinic-3.4.0-SNAPSHOT.jar\" }" > ${VAR_EVD_PACKAGE_JSON}
+          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"job\":\"CMD SH Script\", \"evd\":\"Package Evidence\", \"artifact\":\"target/spring-petclinic-3.4.0-SNAPSHOT.jar\" }" > ${VAR_EVD_ARTIFACT_JSON}
           cat ./${VAR_EVD_ARTIFACT_JSON}
             
           echo "🔎 Evidence attached on ARTIFACT: signature 🔏 "
@@ -253,7 +253,7 @@ jobs:
       - name: "Evidence: Build"
         run: |
           export VAR_EVD_BUILD_JSON="evd-build-${{ env.BUILD_ID}}.json" 
-          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"job\":\"CMD SH Script\", \"evd\":\"Package Evidence\", \"artifact\":\"target/spring-petclinic-3.4.0-SNAPSHOT.jar\" }" > ${VAR_EVD_PACKAGE_JSON}
+          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"job\":\"CMD SH Script\", \"evd\":\"Package Evidence\", \"artifact\":\"target/spring-petclinic-3.4.0-SNAPSHOT.jar\" }" > ${VAR_EVD_BUILD_JSON}
           cat ./${VAR_EVD_BUILD_JSON}
 
           echo "🔎 Evidence attached on BUILD: signature 🔏 "
@@ -311,8 +311,8 @@ jobs:
       - name: "Evidence: RBv2"
         run: |
           export VAR_EVD_RBv2C_JSON="evd-rbv2c-${{ env.BUILD_ID}}.json" 
-          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"job\":\"CMD SH Script\", \"evd\":\"Package Evidence\", \"artifact\":\"target/spring-petclinic-3.4.0-SNAPSHOT.jar\" }" > ${VAR_EVD_PACKAGE_JSON}
-          cat ./${VAR_EVD_BUILD_JSON}
+          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"job\":\"CMD SH Script\", \"evd\":\"Package Evidence\", \"artifact\":\"target/spring-petclinic-3.4.0-SNAPSHOT.jar\" }" > ${VAR_EVD_RBv2C_JSON}
+          cat ./${VAR_EVD_RBv2C_JSON}
 
           echo "🔎 Evidence attached on RBv2 create: signature 🔏 "
 
