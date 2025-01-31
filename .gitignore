@@ -35,3 +35,4 @@ rb2-spec-cmd.*
 
 my-files/scripts-sh/oauth-github.sh
 jf-cli.sh
+evd-*.json
