@@ -52,6 +52,7 @@ jobs:
       EVIDENCE_PACKAGE_JSON: 'evd-package.json'
       EVIDENCE_BUILD_JSON: 'evd-build.json'
       EVIDENCE_RBv2C_JSON: 'evd-rbv2c.json'
+      EVIDENCE_KEY_ALIAS: 'KRISHNAM_JFROG_EVD_PUBLICKEY'
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: "spring-petclinic"
@@ -190,7 +191,7 @@ jobs:
           echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"evd\":\"Evidence-Artifact\", \"artifact\":\"target/spring-petclinic-3.4.0-SNAPSHOT.jar\" }" > ./${{env.EVIDENCE_ARTIFACT_JSON}}
           cat ./${{env.EVIDENCE_ARTIFACT_JSON}}
             
-          echo "🔎 Evidence attached on ARTIFACT: signature 🔏 "
+          echo "🔎 TODO - Evidence attached on ARTIFACT: signature 🔏 " >> $GITHUB_STEP_SUMMARY
 
       - name: "Package: Xray - mvn Artifact scan"
         timeout-minutes: 15   # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
@@ -217,9 +218,9 @@ jobs:
         run: |
           echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"evd\":\"Evidence-Package\", \"package\":\"${{env.RT_REPO_DOCKER_URL}}\" }" > ./${{env.EVIDENCE_PACKAGE_JSON}}
           cat ./${{env.EVIDENCE_PACKAGE_JSON}}
-          jf evd create --package-name ${{env.BUILD_NAME}} --package-version ${{env.BUILD_ID}} --package-repo-name ${{env.RT_REPO_DOCKER_DEV_LOCAL}} --key "${{vars.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --predicate ./${{env.EVIDENCE_PACKAGE_JSON}} --predicate-type https://jfrog.com/evidence/signature/v1 
+          jf evd create --package-name ${{env.BUILD_NAME}} --package-version ${{env.BUILD_ID}} --package-repo-name ${{env.RT_REPO_DOCKER_VIRTUAL}} --key "${{vars.KRISHNAM_JFROG_EVD_PRIVATEKEY}}"  --key-alias ${{env.EVIDENCE_KEY_ALIAS}} --predicate ./${{env.EVIDENCE_PACKAGE_JSON}} --predicate-type https://jfrog.com/evidence/signature/v1 
 
-          echo "🔎 Evidence attached on PACKAGE: signature 🔏 "
+          echo "🔎 Evidence attached on PACKAGE: signature 🔏 " >> $GITHUB_STEP_SUMMARY
 
       - name: "Package: Xray - docker Artifact scan"
         timeout-minutes: 15    # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
@@ -260,12 +261,12 @@ jobs:
       # Evidence - Build references
       #     Docs# https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-management
       #     CLI# https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/evidence-service
-      - name: "Evidence: Build"
+      - name: "Evidence: Build Publish"
         run: |
-          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"evd\":\"Build Evidence\" }" > ./${{env.EVIDENCE_BUILD_JSON}}
+          echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${{ env.BUILD_NAME }}\", \"build_id\": \"${{ env.BUILD_ID}}\", \"evd\":\"Evidence-BuildPublish\" }" > ./${{env.EVIDENCE_BUILD_JSON}}
           cat ./${{env.EVIDENCE_BUILD_JSON}}
-
-          echo "🔎 Evidence attached on BUILD: signature 🔏 "
+          jf evd create --build-name ${{ env.BUILD_NAME }} --build-number ${{ env.BUILD_ID}} --predicate ./${{env.EVIDENCE_BUILD_JSON}} --predicate-type https://jfrog.com/evidence/build-signature/v1 --key "${{vars.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{env.EVIDENCE_KEY_ALIAS}}
+          echo "🔎 Evidence attached on BUILD Publish: signature 🔏 " >> $GITHUB_STEP_SUMMARY
 
       # curl -L 'https://psazuse.jfrog.io/xray/api/v1/binMgr/builds' -H 'Content-Type: application/json' -H 'Authorization: ••••••' -d '{  "names": ["spring-petclinic"] }'
       - name: "Optional: Add Builds to Indexing Configuration"

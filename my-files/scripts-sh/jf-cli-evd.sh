@@ -7,10 +7,10 @@ clear
 # Config - Artifactory info
 export JF_HOST="psazuse.jfrog.io"  JFROG_RT_USER="krishnam" JFROG_CLI_LOG_LEVEL="DEBUG" # JF_ACCESS_TOKEN="<GET_YOUR_OWN_KEY>"
 export JF_RT_URL="https://${JF_HOST}"
-export RT_REPO_MVN_VIRTUAL="krishnam-mvn-virtual" RT_REPO_DOCKER_VIRTUAL="krishnam-docker-virtual" EVD_SIGNING_KEY="KRISHNAM_JFROG_EVD_PUBLICKEY" 
+export RT_REPO_MVN_VIRTUAL="krishnam-mvn-virtual" RT_REPO_DOCKER_VIRTUAL="krishnam-docker-virtual" RT_REPO_DOCKER_DEV_LOCAL="krishnam-docker-dev-local" EVIDENCE_KEY_ALIAS="KRISHNAM_JFROG_EVD_PUBLICKEY" 
 
 echo "JF_RT_URL: $JF_RT_URL \n JFROG_RT_USER: $JFROG_RT_USER \n JFROG_CLI_LOG_LEVEL: $JFROG_CLI_LOG_LEVEL \n "
-echo "\n\n**** JF-CLI-EVD-PACKAGE.SH - BEGIN at $(date '+%Y-%m-%d-%H-%M') ****\n\n"
+echo "\n\n**** JF-CLI-EVD.SH - BEGIN at $(date '+%Y-%m-%d-%H-%M') ****\n\n"
 # EVIDENCE: KEYS ref: Create an RSA Key Pair https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-setup
 ls -lrt ~/.ssh/jfrog_evd_*
 export KRISHNAM_JFROG_EVD_PRIVATEKEY="$(cat ~/.ssh/jfrog_evd_private.pem)"
@@ -23,7 +23,7 @@ jf rt ping --url=${JF_RT_URL}/artifactory
 set -x # activate debugging from here
 ## Config - project
 ### CLI
-export BUILD_NAME="spring-petclinic" BUILD_ID="cmd.mvn.dkr.$(date '+%Y-%m-%d-%H-%M')" 
+export BUILD_NAME="spring-petclinic" BUILD_ID="cmd.evd.$(date '+%Y-%m-%d-%H-%M')" 
 export DOCKER_MANIFEST="list.manifest-${BUILD_ID}.json"  DOCKER_SPEC_BUILD_PUBLISH="dockerimage-file-details-${BUILD_ID}"
 
 ### Jenkins
@@ -69,11 +69,10 @@ jf rt bdc ${RT_REPO_DOCKER_VIRTUAL} --image-file ${DOCKER_SPEC_BUILD_PUBLISH} --
 
 ## Evidence: Package
 echo "\n\n**** Evidence: Package ****\n\n"
-export VAR_EVD_PACKAGE_JSON="evd-package.json"
-echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${BUILD_NAME}\", \"build_id\": \"${BUILD_ID}\", \"evd\":\"Evidence-Package\", \"package\":\"${JF_HOST}/${RT_REPO_DOCKER_VIRTUAL}/${BUILD_NAME}:${BUILD_ID}\" }" > ${VAR_EVD_PACKAGE_JSON}
-cat ./${VAR_EVD_PACKAGE_JSON}
-# jf evd create --predicate ./evd-package.json --predicate-type https://jfrog.com/evidence/build-signature/v1 --package-name DockerPackage --package-version 1.0.0 --package-repo-name "krishnam-docker-virtual" --key ~/.ssh/jfrog_evd_public.pem --key-alias "KRISHNAM_JFROG_EVD_PUBLICKEY"
-jf evd create --predicate ./${VAR_EVD_PACKAGE_JSON} --predicate-type https://jfrog.com/evidence/build-signature/v1 --package-name ${BUILD_NAME} --package-version ${BUILD_ID}--package-repo-name ${RT_REPO_DOCKER_VIRTUAL} --key ${KRISHNAM_JFROG_EVD_PRIVATEKEY} --key-alias  ${EVD_SIGNING_KEY} 
+export VAR_EVIDENCE_PACKAGE_JSON="evd-package.json"
+echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${BUILD_NAME}\", \"build_id\": \"${BUILD_ID}\", \"evd\":\"Evidence-Package\", \"package\":\"${JF_HOST}/${RT_REPO_DOCKER_VIRTUAL}/${BUILD_NAME}:${BUILD_ID}\" }" > ${VAR_EVIDENCE_PACKAGE_JSON}
+cat ./${VAR_EVIDENCE_PACKAGE_JSON}
+jf evd create --package-name ${BUILD_NAME} --package-version ${BUILD_ID} --package-repo-name ${RT_REPO_DOCKER_VIRTUAL} --key "${KRISHNAM_JFROG_EVD_PRIVATEKEY}" --predicate ./${VAR_EVIDENCE_PACKAGE_JSON} --predicate-type https://jfrog.com/evidence/signature/v1 --key-alias ${EVIDENCE_KEY_ALIAS}
 echo "🔎 Evidence attached on Package: signature 🔏 "
 
 ## bce:build-collect-env - Collect environment variables. Environment variables can be excluded using the build-publish command.
@@ -86,7 +85,12 @@ jf rt bag ${BUILD_NAME} ${BUILD_ID}
 echo "\n\n**** Build Info: Publish ****\n\n"
 jf rt bp ${BUILD_NAME} ${BUILD_ID} --detailed-summary=true
 
-
+# Evidence: Build Publish
+echo "\n\n**** Evidence: Build Publish ****\n\n"
+export VAR_EVIDENCE_BUILD_JSON="evd-package.json"
+echo "{ \"actor\": \"krishnamanchikalapudi\", \"date\": \"$(date '+%Y-%m-%dT%H:%M:%SZ')\", \"build_name\": \"${BUILD_NAME}\", \"build_id\": \"${BUILD_ID}\", \"evd\":\"Evidence-BuildPublish\" }" > ./${VAR_EVIDENCE_BUILD_JSON}
+cat ./${VAR_EVIDENCE_BUILD_JSON}
+jf evd create --build-name ${BUILD_NAME} --build-number ${BUILD_ID} --predicate cat ./${VAR_EVIDENCE_BUILD_JSON} --predicate-type https://jfrog.com/evidence/build-signature/v1 --key "${{vars.KRISHNAM_JFROG_EVD_PRIVATEKEY}}"
 
 echo "\n\n**** CLEAN UP ****\n\n"
 docker image prune --all --force && docker system prune --all --force
@@ -95,4 +99,4 @@ rm -rf ${DOCKER_SPEC_BUILD_PUBLISH}
 # rm -rf ${VAR_EVD_PACKAGE_JSON}
 
 set +x # stop debugging from here
-echo "\n\n**** JF-CLI-EVD-PACKAGE.SH - DONE at $(date '+%Y-%m-%d-%H-%M') ****\n\n"
+echo "\n\n**** JF-CLI-EVD.SH - DONE at $(date '+%Y-%m-%d-%H-%M') ****\n\n"
