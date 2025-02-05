@@ -51,6 +51,9 @@ Note: This process with not deploy to the envionrmnet platform.
 -->
 
 ## Pipeline: Flow Diagrams
+### DevOps pipeline using JFrog Products
+<img src="./images/pipeline.svg">
+
 ### JF-CLI Docker pipeline
 <img src="./images/DevSecOps-Docker.svg">
 
@@ -87,3 +90,4 @@ git push origin -f
 The Spring PetClinic sample application is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
 
 <img src="./images/DayOne.png">
+
