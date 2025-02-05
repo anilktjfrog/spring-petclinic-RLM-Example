@@ -331,7 +331,7 @@ jobs:
           cat ./${{env.EVIDENCE_RBv2C_JSON}}
           jf evd create --release-bundle ${{env.BUILD_NAME}} --release-bundle-version ${{env.BUILD_ID}} --predicate ./${{env.EVIDENCE_RBv2C_JSON}} --predicate-type https://jfrog.com/evidence/rbv2-new/v1 --key "${{vars.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{env.EVIDENCE_KEY_ALIAS}}
           echo "    - 🔎 Evidence attached on RBv2: signature 🔏 "
-          echo "      - ${{env.JF_LINK}}""
+          echo "      - ${{env.JF_LINK}}"
 
       - name: "RLM: RBv2 promote DEV"
         run: |
