@@ -331,7 +331,7 @@ jobs:
           cat ./${{env.EVIDENCE_RBv2C_JSON}}
           jf evd create --release-bundle ${{env.BUILD_NAME}} --release-bundle-version ${{env.BUILD_ID}} --predicate ./${{env.EVIDENCE_RBv2C_JSON}} --predicate-type https://jfrog.com/evidence/rbv2-new/v1 --key "${{vars.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{env.EVIDENCE_KEY_ALIAS}}
           echo "    - 🔎 Evidence attached on RBv2: signature 🔏 "
-          echo "      - ${{env.JF_LINK}}
+          echo "      - ${{env.JF_LINK}}""
 
       - name: "RLM: RBv2 promote DEV"
         run: |
@@ -362,8 +362,7 @@ jobs:
             crtVal=$(echo $item | jq -r '.created')
             echo " - ${envVal} on ${crtVal} " >> $GITHUB_STEP_SUMMARY
           done
-         
-          echo "  - Release bundle ['${{env.BUILD_NAME}}']('${NAME_LINK}'):['${{env.BUILD_NAME}}']('${VER_LINK}') " >> $GITHUB_STEP_SUMMARY
+          echo "  - Release bundle [${{env.BUILD_NAME}}](${{env.NAME_LINK}}):[${{env.BUILD_NAME}}](${{env.VER_LINK}}) " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 
       # Query build 
