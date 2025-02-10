@@ -96,7 +96,7 @@ echo "\n\n**** CLEAN UP ****\n\n"
 docker image prune --all --force && docker system prune --all --force
 rm -rf ${DOCKER_MANIFEST}
 rm -rf ${DOCKER_SPEC_BUILD_PUBLISH}
-# rm -rf ${VAR_EVD_PACKAGE_JSON}
+rm -rf ${VAR_EVD_PACKAGE_JSON}
 
 set +x # stop debugging from here
 echo "\n\n**** JF-CLI-EVD.SH - DONE at $(date '+%Y-%m-%d-%H-%M') ****\n\n"

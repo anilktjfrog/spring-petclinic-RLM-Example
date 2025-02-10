@@ -18,7 +18,7 @@ jf rt ping --url=${JF_RT_URL}/artifactory
 set -x # activate debugging from here
 ## Config - project
 ### CLI
-export BUILD_NAME="spring-petclinic" BUILD_ID="cmd.mvn.rbv2.$(date '+%Y-%m-%d-%H-%M')" 
+export BUILD_NAME="spring-petclinic" BUILD_ID="cmd.$(date '+%Y-%m-%d-%H-%M')" 
 
 ### Jenkins
 # export BUILD_NAME=${env.JOB_NAME} BUILD_ID=${env.BUILD_ID} 
@@ -33,10 +33,6 @@ jf mvnc --global --repo-resolve-releases ${RT_REPO_VIRTUAL} --repo-resolve-snaps
 ## Create Build
 echo "\n\n**** MVN: Package ****\n\n" # --scan=true
 jf mvn clean install -DskipTests=true --build-name=${BUILD_NAME} --build-number=${BUILD_ID} --detailed-summary=true 
-
-# setting build properties
-export e_env="e_demo" e_org="e_ps" e_team="e_arch" e_build="maven" e_job="cmd" # These properties were captured in Builds >> spring-petclinic >> version >> Environment tab
-
 
 ## bce:build-collect-env - Collect environment variables. Environment variables can be excluded using the build-publish command.
 jf rt bce ${BUILD_NAME} ${BUILD_ID}
@@ -71,6 +67,17 @@ jf rbp --sync --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing
 ## RBv2: release bundle - QA promote
 echo "\n\n**** RBv2: Promoted to DEV --> QA ****\n\n"
 jf rbp --sync --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RBv2_SIGNING_KEY}" --server-id="psazuse" --props="status=promoted;env=QA;team=archi;org=ps" --comment "Promoting to DEV" ${BUILD_NAME} ${BUILD_ID} QA  
+
+## RBv2: release bundle - PROD promote
+echo "\n\n**** RBv2: Promoted to DEV --> PROD ****\n\n"
+jf rbp --sync --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RBv2_SIGNING_KEY}" --server-id="psazuse" --props="status=promoted;env=QA;team=archi;org=ps" --comment "Promoting to DEV" ${BUILD_NAME} ${BUILD_ID} PROD  
+
+sleep 5
+
+ # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
+echo "\n\n**** RLM: RBv2 Distribute ****\n\n"
+jf rbd ${BUILD_NAME} ${BUILD_ID} --sync=true --access-token="${JF_ACCESS_TOKEN}" --url="${JF_RT_URL}" --signing-key="${RBv2_SIGNING_KEY}"
+
 
 sleep 20
 
