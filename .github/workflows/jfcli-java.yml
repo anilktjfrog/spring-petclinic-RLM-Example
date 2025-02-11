@@ -53,7 +53,8 @@ jobs:
       EVIDENCE_PACKAGE_JSON: 'evd-package.json'
       EVIDENCE_BUILD_JSON: 'evd-build.json'
       EVIDENCE_RBv2C_JSON: 'evd-rbv2c.json'
-      EVIDENCE_KEY_ALIAS: 'KRISHNAM_JFROG_EVD_PUBLICKEY'
+      EVIDENCE_KEY_ALIAS: "${{secrets.EVIDENCE_KEY_ALIAS}}" # ref https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-setup
+      RBV2_SIGNING_KEY: "${{secrets.RBV2_SIGNING_KEY}}" # ref https://jfrog.com/help/r/jfrog-artifactory-documentation/create-signing-keys-for-release-bundles-v2
       JOB_SUMMARY: false
       JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
       BUILD_NAME: "spring-petclinic"
@@ -318,7 +319,7 @@ jobs:
 
       - name: "RLM: RBv2 Create NEW"
         run: |
-          jf rbc ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=true --signing-key=${{vars.RBv2_SIGNING_KEY}} --spec=${{env.RBv2_SPEC_JSON}}
+          jf rbc ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}} --spec=${{env.RBv2_SPEC_JSON}}
 
       # Evidence - RBv2 new references
       #     Docs# https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-management
@@ -335,15 +336,15 @@ jobs:
 
       - name: "RLM: RBv2 promote DEV"
         run: |
-          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} DEV --sync=true --signing-key=${{vars.RBv2_SIGNING_KEY}}  
+          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} DEV --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
 
       - name: "RLM: RBv2 promote QA"
         run: |
-          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} QA --sync=true --signing-key=${{vars.RBv2_SIGNING_KEY}}  
+          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} QA --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
 
       - name: "RLM: RBv2 promote PROD"
         run: |
-          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} PROD --sync=true --signing-key=${{vars.RBv2_SIGNING_KEY}}  
+          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} PROD --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
 
       # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
       - name: "RLM: RBv2 Distribute"
