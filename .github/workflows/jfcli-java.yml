@@ -349,11 +349,6 @@ jobs:
         run: |
           jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} PROD --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
 
-      # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
-      - name: "RLM: RBv2 Distribute to SaaS edges"
-        run: |
-          jf rbd ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=true --create-repo=true
-
       - name: "Optional: rbv2-summary"
         env:
           NAME_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
@@ -388,7 +383,7 @@ jobs:
 
           
   saasArtifactory:
-    name: SaaS Artifactory
+    name: Download RBv2 from SaaS Artifactory
     needs: mvnPackage
     runs-on: ubuntu-latest
     env:
@@ -412,6 +407,12 @@ jobs:
       - name: Config jf-cli
         run: |
           export JFROG_CLI_LOG_LEVEL=${{env.JFROG_CLI_LOG_LEVEL}}
+      
+      # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
+      - name: "RLM: RBv2 Distribute to SaaS edges"
+        run: |
+          jf rbd ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=false --create-repo=true
+
       # refer: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#download-release-bundle-v2-content
       - name: "Download RBv2 from SaaS Artifactory"
         run: |
@@ -424,8 +425,8 @@ jobs:
      
           
   saasEdge:
-    name: SaaS Edge
-    needs: mvnPackage
+    name: Download RBv2 from SaaS Edge
+    needs: saasArtifactory
     runs-on: ubuntu-latest
     env:
       JF_EDGE_URL: https://${{vars.JF_EDGE_NAME}}.jfrog.io
@@ -505,7 +506,7 @@ jobs:
           java-version: ${{env.JAVA_VERSION}}  # 17
 
       - name: Setup Gradle    # ref https://docs.github.com/en/enterprise-cloud@latest/actions/use-cases-and-examples/building-and-testing/building-and-testing-java-with-gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+        uses: gradle/actions/setup-gradle@v4 # v4.0.0
         with:
           gradle-version: release-candidate
       - name: Software version

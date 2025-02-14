@@ -27,6 +27,9 @@ list.manifest-cmd.*
 list-manifest-cmd*
 rb2-spec-cmd*
 rb2-spec-cmd.*
+my-files/scripts-sh/.jfrog/*
+my-files/scripts-sh/org/*
+my-files/scripts-sh/spring-petclinic/*
 *.env
 .github/workflows/*.env
 .github/workflows/my-custom.env
