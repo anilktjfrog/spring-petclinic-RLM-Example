@@ -238,14 +238,17 @@ jobs:
           export job="github-action" org="ps" team="architecture" product="jfrog-saas" 
 
       # Build Info
-          # Executive Order: 
+          # US 
+          #     Executive Order: 
           #       https://www.whitehouse.gov/briefing-room/presidential-actions/2021/05/12/executive-order-on-improving-the-nations-cybersecurity/
           #       https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity
-          # US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
-          # US Cyber Defence Agency: https://www.cisa.gov/sbom
-          # NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
-          # NITA: https://www.ntia.gov/page/software-bill-materials 
-          # Centers for Medicare & Medicaid Services: https://security.cms.gov/learn/software-bill-materials-sbom
+          #    US Dept of Commerce: https://www.ntia.gov/page/software-bill-materials
+          #    US Cyber Defence Agency: https://www.cisa.gov/sbom
+          #    NIST: https://www.nist.gov/itl/executive-order-14028-improving-nations-cybersecurity/software-security-supply-chains-software-1
+          #    NITA: https://www.ntia.gov/page/software-bill-materials 
+          #    Centers for Medicare & Medicaid Services: https://security.cms.gov/learn/software-bill-materials-sbom
+          # India
+          #    CERT-IN: https://www.cert-in.org.in/sbom/
       - name: "BuildInfo: Collect env"
         run: jf rt bce ${{env.BUILD_NAME}} ${{env.BUILD_ID}} 
  
@@ -347,7 +350,7 @@ jobs:
           jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} PROD --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
 
       # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
-      - name: "RLM: RBv2 Distribute"
+      - name: "RLM: RBv2 Distribute to SaaS edges"
         run: |
           jf rbd ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=true --create-repo=true
 
@@ -383,6 +386,79 @@ jobs:
            jf rt curl "/api/build/${{env.BUILD_NAME}}/${{env.BUILD_ID}}" -o $BUILD_INFO_JSON
            cat $BUILD_INFO_JSON
 
+          
+  saasArtifactory:
+    name: SaaS Artifactory
+    needs: mvnPackage
+    runs-on: ubuntu-latest
+    env:
+      JF_RT_URL: https://${{vars.JF_NAME}}.jfrog.io
+      BUILD_NAME: 'spring-petclinic'
+      BUILD_ID: "ga-${{github.run_number}}" 
+      JOB_SUMMARY: true # default is false, true - turn of publish Gradle buildinfo
+      JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
+    steps:
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        id: setup-cli
+        env:
+          JF_URL: ${{env.JF_RT_URL}}
+          JF_GIT_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          version: latest 
+          oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
+          disable-job-summary: ${{env.JOB_SUMMARY}}
+
+      - name: Config jf-cli
+        run: |
+          export JFROG_CLI_LOG_LEVEL=${{env.JFROG_CLI_LOG_LEVEL}}
+      # refer: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#download-release-bundle-v2-content
+      - name: "Download RBv2 from SaaS Artifactory"
+        run: |
+          jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}}} --detailed-summary=true --threads=10 
+      
+      - name: "Info list"
+        run: |
+          ls -l
+          docker image ls
+     
+          
+  saasEdge:
+    name: SaaS Edge
+    needs: mvnPackage
+    runs-on: ubuntu-latest
+    env:
+      JF_EDGE_URL: https://${{vars.JF_EDGE_NAME}}.jfrog.io
+      BUILD_NAME: 'spring-petclinic'
+      BUILD_ID: "ga-${{github.run_number}}" 
+      JOB_SUMMARY: true # default is false, true - turn of publish Gradle buildinfo
+      JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
+    steps:
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        id: setup-cli
+        env:
+          JF_URL: ${{env.JF_EDGE_URL}}
+          JF_GIT_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          version: latest 
+          oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
+          disable-job-summary: ${{env.JOB_SUMMARY}}
+
+      - name: Config jf-cli
+        run: |
+          export JFROG_CLI_LOG_LEVEL=${{env.JFROG_CLI_LOG_LEVEL}}
+
+      # refer: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#download-release-bundle-v2-content
+      - name: "Download RBv2 from SaaS Edge"
+        run: |
+          jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}}} --detailed-summary=true --threads=10 
+
+      - name: "Info list"
+        run: |
+          ls -l
+          docker image ls
+        
   gradlePackage:
     name: Gradle
     strategy:
@@ -415,6 +491,7 @@ jobs:
           JFROG_CLI_EXTRACTORS_REMOTE: '${{env.JF_RT_URL}}/artifactory/${{env.RT_REPO_GRADLE_VIRTUAL}}'
           JF_GIT_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
+          version: latest 
           oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
           disable-job-summary: ${{env.JOB_SUMMARY}}
 
