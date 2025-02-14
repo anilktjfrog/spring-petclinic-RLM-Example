@@ -383,7 +383,7 @@ jobs:
 
           
   saasArtifactory:
-    name: Download RBv2 from SaaS Artifactory
+    name: "Download RLM:RBv2 from SaaS Artifactory"
     needs: mvnPackage
     runs-on: ubuntu-latest
     env:
@@ -398,7 +398,6 @@ jobs:
         id: setup-cli
         env:
           JF_URL: ${{env.JF_RT_URL}}
-          JF_GIT_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           version: latest 
           oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
@@ -411,12 +410,12 @@ jobs:
       # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
       - name: "RLM: RBv2 Distribute to SaaS edges"
         run: |
-          jf rbd ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=false --create-repo=true
+          jf rbd ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=true --create-repo=true
 
       # refer: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#download-release-bundle-v2-content
       - name: "Download RBv2 from SaaS Artifactory"
         run: |
-          jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}}} --detailed-summary=true --threads=10 
+          jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}} --detailed-summary=true --threads=100
       
       - name: "Info list"
         run: |
@@ -440,7 +439,6 @@ jobs:
         id: setup-cli
         env:
           JF_URL: ${{env.JF_EDGE_URL}}
-          JF_GIT_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
           version: latest 
           oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
@@ -453,7 +451,7 @@ jobs:
       # refer: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#download-release-bundle-v2-content
       - name: "Download RBv2 from SaaS Edge"
         run: |
-          jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}}} --detailed-summary=true --threads=10 
+          jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}} --detailed-summary=true --threads=100
 
       - name: "Info list"
         run: |

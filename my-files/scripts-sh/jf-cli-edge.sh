@@ -16,6 +16,7 @@ jf rt ping --url=${JF_EDGE_URL}/artifactory
 #  
 set -x # activate debugging from here
 
+# jf rt dl --bundle spring-petclinic/ga-41 --detailed-summary=true --url=$https://psazeuwedge.jfrog.io/artifactory
 jf rt dl --bundle ${BUILD_NAME}/${BUILD_ID} --detailed-summary=true --url=${JF_EDGE_URL}/artifactory --access-token=${JF_ACCESS_TOKEN}
 
 set +x # stop debugging from here
