@@ -419,8 +419,7 @@ jobs:
       
       - name: "Info list"
         run: |
-          ls -l
-          docker image ls
+          ls -lR .
      
           
   saasEdge:
@@ -439,14 +438,17 @@ jobs:
         id: setup-cli
         env:
           JF_URL: ${{env.JF_EDGE_URL}}
+          JF_ACCESS_TOKEN: ${{secrets.EDGE_ACCESS_TOKEN}}
         with:
           version: latest 
-          oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
-          disable-job-summary: ${{env.JOB_SUMMARY}}
 
       - name: Config jf-cli
         run: |
           export JFROG_CLI_LOG_LEVEL=${{env.JFROG_CLI_LOG_LEVEL}}
+      
+      - name: Edge config show
+        run: |
+          jf config show
 
       # refer: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#download-release-bundle-v2-content
       - name: "Download RBv2 from SaaS Edge"
@@ -455,8 +457,7 @@ jobs:
 
       - name: "Info list"
         run: |
-          ls -l
-          docker image ls
+          ls -lR .
         
   gradlePackage:
     name: Gradle
