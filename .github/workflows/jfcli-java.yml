@@ -198,8 +198,8 @@ jobs:
         run: |
           echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-Artifact", "artifact": "${{env.JAR_REPO_PATH}}/spring-petclinic-3.4.0-SNAPSHOT.jar" }' > ./${{env.EVIDENCE_ARTIFACT_JSON}}
           cat ./${{env.EVIDENCE_ARTIFACT_JSON}}
-          
-          echo "    - 🔎 TODO - Evidence attached on ARTIFACT: signature 🔏 " >> $GITHUB_STEP_SUMMARY
+
+          echo "    - TODO: Evidence for ARTIFACT attached " >> $GITHUB_STEP_SUMMARY
 
       - name: "Package: Xray - mvn Artifact scan"
         timeout-minutes: 15  # ref: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
@@ -228,8 +228,7 @@ jobs:
           echo '{ "actor": "${{github.actor}}", "pipeline": "github actions","build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd":"Evidence-Package", "package":"${{env.RT_REPO_DOCKER_URL}}" }' > ./${{env.EVIDENCE_PACKAGE_JSON}}
           cat ./${{env.EVIDENCE_PACKAGE_JSON}}
           jf evd create --package-name ${{env.BUILD_NAME}} --package-version ${{env.BUILD_ID}} --package-repo-name ${{env.RT_REPO_DOCKER_VIRTUAL}} --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}"  --key-alias ${{env.EVIDENCE_KEY_ALIAS}} --predicate ./${{env.EVIDENCE_PACKAGE_JSON}} --predicate-type https://jfrog.com/evidence/signature/v1 
-
-          echo "    - 🔎 Evidence attached on PACKAGE: signature 🔏 " >> $GITHUB_STEP_SUMMARY
+          echo "    - Evidence for PACKAGE attached. Info available SaaS >> tab: Application >> left menu: Artifactory >> Packages >> ${{env.BUILD_NAME}} " >> $GITHUB_STEP_SUMMARY
 
       - name: "Package: Xray - docker Artifact scan"
         timeout-minutes: 15    # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
@@ -279,7 +278,7 @@ jobs:
           echo '{ "actor": "${{github.actor}}", "pipeline": "github actions","build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-BuildPublish"}' > ./${{env.EVIDENCE_BUILD_JSON}}
           cat ./${{env.EVIDENCE_BUILD_JSON}}
           jf evd create --build-name ${{env.BUILD_NAME}} --build-number ${{env.BUILD_ID}} --predicate ./${{env.EVIDENCE_BUILD_JSON}} --predicate-type https://jfrog.com/evidence/build-signature/v1 --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{env.EVIDENCE_KEY_ALIAS}}
-          echo "    - 🔎 Evidence attached on BUILD Publish: signature 🔏 " >> $GITHUB_STEP_SUMMARY
+          echo "    - Evidence for BUILD Publish attached. >> $GITHUB_STEP_SUMMARY
 
       # curl -L 'https://psazuse.jfrog.io/xray/api/v1/binMgr/builds' -H 'Content-Type: application/json' -H 'Authorization: ••••••' -d '{  "names": ["spring-petclinic"] }'
       - name: "Optional: Add Builds to Indexing Configuration"
@@ -334,13 +333,14 @@ jobs:
       #     CLI# https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/evidence-service
       - name: "Evidence: RBv2"
         env:
-          JF_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&releaseBundleVersion='${{env.BUILD_ID}}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
+          # https://psazuse.jfrog.io/ui/artifactory/lifecycle/?bundleName=spring-petclinic&bundleToFlash=spring-petclinic&repositoryKey=release-bundles-v2&activeKanbanTab=promotion
+          NAME_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName=${{env.BUILD_NAME}}&bundleToFlash=${{env.BUILD_NAME}}&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
+          VER_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&releaseBundleVersion='${{env.BUILD_ID}}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
         run: |
           echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-RBv2", "rbv2_stage": "NEW" }' > ./${{env.EVIDENCE_RBv2C_JSON}}
           cat ./${{env.EVIDENCE_RBv2C_JSON}}
           jf evd create --release-bundle ${{env.BUILD_NAME}} --release-bundle-version ${{env.BUILD_ID}} --predicate ./${{env.EVIDENCE_RBv2C_JSON}} --predicate-type https://jfrog.com/evidence/rbv2-new/v1 --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{env.EVIDENCE_KEY_ALIAS}}
-          echo "    - 🔎 Evidence attached on RBv2: signature 🔏 "
-          echo "      - ${{env.JF_LINK}}"
+          echo "    - Evidence for RBv2 attached at [${{env.BUILD_NAME}}](${{env.VER_LINK}}) >> $GITHUB_STEP_SUMMARY
 
       - name: "RLM: RBv2 promote DEV"
         run: |
@@ -356,7 +356,7 @@ jobs:
 
       - name: "Optional: rbv2-summary"
         env:
-          NAME_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
+          NAME_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName=${{env.BUILD_NAME}}&bundleToFlash=${{env.BUILD_NAME}}&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
           VER_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&releaseBundleVersion='${{env.BUILD_ID}}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
         run: |
           echo "# :frog:📦 Release Bundle v2 Summary :rocket: " >> $GITHUB_STEP_SUMMARY
@@ -426,6 +426,11 @@ jobs:
         run: |
           pwd 
           ls -lR .
+      - name: "Optional: Saas Artifactory summary"
+        run: |
+          echo "# :frog:📦 Download package from SaaS " >> $GITHUB_STEP_SUMMARY
+          echo "  - Download RBv2 from Artifactory [${{env.JF_RT_URL}}](${{env.JF_RT_URL}}) " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
           
   saasEdge:
     name: Download RBv2 from SaaS Edge
@@ -464,7 +469,14 @@ jobs:
         run: |
           pwd
           ls -lR .
-        
+
+      - name: "Optional: Saas Edge summary"
+        run: |
+          echo "# :frog:📦 Download package from SaaS " >> $GITHUB_STEP_SUMMARY
+          echo "  - Download RBv2 from Edge [${{env.JF_EDGE_URL}}](${{env.JF_EDGE_URL}}) " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          
+          
   gradlePackage:
     name: Gradle
     strategy:
