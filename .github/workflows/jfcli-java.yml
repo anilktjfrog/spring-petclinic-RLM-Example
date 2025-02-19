@@ -303,7 +303,10 @@ jobs:
         run: |
           jf xr curl "/api/v1/build/status" -H 'Content-Type: application/json' -d '{"name": "${{env.BUILD_NAME}}", "number": "${{env.BUILD_ID}}" }'
  
-      - name: "Optional: Xray sbom-enrich" # ref https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/enrich-your-sbom
+      # ref https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/enrich-your-sbom
+      # MVN plugin '<artifactId>cyclonedx-maven-plugin</artifactId>' is used to generate SBOM information in the CycloneDX format# target/classes/META-INF/sbom/application.cdx.json
+      # ref https://spring.io/blog/2024/05/24/sbom-support-in-spring-boot-3-3
+      - name: "Optional: Xray sbom-enrich" 
         run: |
           jf se "target/classes/META-INF/sbom/application.cdx.json" --threads=100
 
