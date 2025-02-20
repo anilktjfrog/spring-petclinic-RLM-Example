@@ -59,86 +59,150 @@ jobs:
           jf config show
           pwd
 
-      - name: NPM - Query properties by '$QUERY_VAR'
+      - name: "Artifact Search by name: '$QUERY_VAR' in repo: $RT_REPO_VIRTUAL" # reference: https://jfrog.com/help/r/jfrog-rest-apis/artifact-search-quick-search
+        env:
+          QUERY_VAR: "spring-petclinic"
+          FILE_NAME: "QueryByTeam.json"
+          RT_REPO_VIRTUAL: 'krishnam-mvn-virtual'
+        # jf rt curl "/api/search/artifact?name=spring-petclinic"
+        run: |
+          jf rt curl "/api/search/artifact?name=${{env.QUERY_VAR}}" -o $FILE_NAME
+
+          cat $FILE_NAME
+
+          echo "# :frog: Artifact Search by name: ${{env.QUERY_VAR}} in repo ${{env.RT_REPO_VIRTUAL}} :mag:" >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          cat $FILE_NAME >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+
+      - name: "Artifact Search by name: '$QUERY_VAR' in repo: $RT_REPO_VIRTUAL" # reference: https://jfrog.com/help/r/jfrog-rest-apis/artifact-search-quick-search
+        env:
+          QUERY_VAR: "spring-petclinic"
+          FILE_NAME: "QueryByTeam.json"
+          RT_REPO_VIRTUAL: 'krishnam-gradle-virtual'
+        # jf rt curl "/api/search/artifact?name=spring-petclinic"
+        run: |
+          jf rt curl "/api/search/artifact?name=${{env.QUERY_VAR}}&repos=${{env.RT_REPO_VIRTUAL}}" -o $FILE_NAME
+
+          cat $FILE_NAME
+
+          echo "# :frog: Artifact Search by name: ${{env.QUERY_VAR}} in repo ${{env.RT_REPO_VIRTUAL}} :mag:" >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+          cat $FILE_NAME >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+
+
+      - name: "Property Search by '$QUERY_VAR' in repo $RT_REPO_VIRTUAL" # reference: https://jfrog.com/help/r/jfrog-rest-apis/property-search
         env:
           QUERY_VAR: "team=arch"
           FILE_NAME: "QueryByTeam.json"
-          RT_REPO_VIRTUAL: 'krishnam-npm-virtual'
+          RT_REPO_VIRTUAL: 'krishnam-mvn-virtual'
+        # jf rt curl "/api/search/prop?repos=krishnam-mvn-virtual&team=arch"
         run: |
-          jf rt curl "/api/search/prop?repos=$RT_REPO_VIRTUAL&$QUERY_VAR" -o $FILE_NAME
+          jf rt curl "/api/search/prop?repos=${{env.RT_REPO_VIRTUAL}}&${{env.QUERY_VAR}}" -o $FILE_NAME
 
           cat $FILE_NAME
 
-          echo "# :frog: Query properties by 'team=arch' :mag:" >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Property Search by ${{env.QUERY_VAR}} in repo ${{env.RT_REPO_VIRTUAL}} :mag:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           cat $FILE_NAME >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 
-      - name: NPM - Query properties by '$QUERY_VAR'
+      - name: "Property Search by '$QUERY_VAR' in repo $RT_REPO_VIRTUAL" # reference: https://jfrog.com/help/r/jfrog-rest-apis/property-search
         env:
           QUERY_VAR: "team=arch&env=demo"
           FILE_NAME: "QueryByTeamEnv.json"
-          RT_REPO_VIRTUAL: 'krishnam-npm-virtual'
+          RT_REPO_VIRTUAL: 'krishnam-mvn-qa-local'
+        # jf rt curl "/api/search/prop?repos=krishnam-mvn-virtual&team=arch&env=demo"
         run: |
-          jf rt curl "/api/search/prop?repos=$RT_REPO_VIRTUAL&$QUERY_VAR" -o $FILE_NAME
+          jf rt curl "/api/search/prop?repos=${{env.RT_REPO_VIRTUAL}}&${{env.QUERY_VAR}}" -o $FILE_NAME
           cat $FILE_NAME
 
-          echo "# :frog: Query property by '$QUERY_VAR' :mag:" >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Property Search by ${{env.QUERY_VAR}} in repo ${{env.RT_REPO_VIRTUAL}} :mag:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           cat $FILE_NAME >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 
-      - name: NPM - Query properties by '$QUERY_VAR'
+      - name: "Property Search by build.name '$QUERY_VAR' in repo $RT_REPO_VIRTUAL" # reference: https://jfrog.com/help/r/jfrog-rest-apis/property-search 
         env:
           QUERY_VAR: "build.name=spring-petclinic"
           FILE_NAME: "QueryByJavaBuildName.json"
-          RT_REPO_VIRTUAL: 'krishnam-mvn-virtual'
+          RT_REPO_VIRTUAL: 'krishnam-mvn-prod-local'
+        # jf rt curl "/api/search/prop?repos=krishnam-mvn-prod-local&build.name=spring-petclinic"
         run: |
-          jf rt curl "/api/search/prop?repos=$RT_REPO_VIRTUAL&$QUERY_VAR" -o $FILE_NAME
+          jf rt curl "/api/search/prop?repos=${{env.RT_REPO_VIRTUAL}}&${{env.QUERY_VAR}}" -o $FILE_NAME
           cat $FILE_NAME
 
-          echo "# :frog: Query property by '$QUERY_VAR' :mag:" >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Property Search by build.name ${{env.QUERY_VAR}} in repo ${{env.RT_REPO_VIRTUAL}} :mag:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           cat $FILE_NAME >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 
-      - name: Gradle - Query properties by "$QUERY_VAR"
+      - name: "Search by Maven coordinates: GroupId, ArtifactId, Version & Classifier" # ref: https://jfrog.com/help/r/jfrog-rest-apis/gavc-search
         env:
-          QUERY_VAR: "build.name=spring-petclinic&build.id=ga-gdl-*"
+          GROUP_ID: "org.springframework.samples"
+          ARTIFACT_ID: "spring-petclinic"
           FILE_NAME: "QueryByMvnBuildNameAndBuildId.json"
-          RT_REPO_VIRTUAL: 'krishnam-gradle-virtual'
         run: |
-          jf rt curl "/api/search/prop?repos=$RT_REPO_VIRTUAL&$QUERY_VAR" -o $FILE_NAME
+          jf rt curl "/api/search/gavc?g=${{env.GROUP_ID}}&a=${{env.ARTIFACT_ID}}" -o $FILE_NAME
           cat $FILE_NAME
 
-          echo "# :frog: Query property by '$QUERY_VAR' :mag:" >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Search by Maven GAVC coordinates :mag:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           cat $FILE_NAME >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 
-      - name: MVN - Query properties by "$QUERY_VAR"
+      - name: "Checksum Search query"   # ref: https://jfrog.com/help/r/jfrog-rest-apis/checksum-search
         env:
-          QUERY_VAR: "build.name=spring-petclinic&build.id=ga-mvn-*"
+          SHA256: "5542cf891d8914ac79d79203fa55497eaeaddde3c31b94673200ade6a4751e37"
           FILE_NAME: "QueryByMvnBuildNameAndBuildId.json"
           RT_REPO_VIRTUAL: 'krishnam-mvn-virtual'
+          # jf rt curl "/api/search/checksum?sha256=5542cf891d8914ac79d79203fa55497eaeaddde3c31b94673200ade6a4751e37"
         run: |
-          jf rt curl "/api/search/prop?repos=$RT_REPO_VIRTUAL&$QUERY_VAR" -o $FILE_NAME
+          jf rt curl "/api/search/checksum?sha256=${{env.SHA256}}" -o $FILE_NAME
           cat $FILE_NAME
 
-          echo "# :frog: Query property by '$QUERY_VAR' :mag:" >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Checksum Search query :mag:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           cat $FILE_NAME >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
 
-      - name: Xray Query "$QUERY_VAR"
-        env:
-          QUERY_VAR: "build.name=spring-petclinic&build.id=ga-mvn-*"
-          FILE_NAME: "QueryByMvnBuildNameAndBuildId.json"
-          RT_REPO_VIRTUAL: 'krishnam-mvn-virtual'
+      - name: "Xray - Get Repos Indexing Configuration" # ref: https://jfrog.com/help/r/xray-rest-apis/get-repos-indexing-configuration
+        run: |
+          jf xr curl 'api/v1/binMgr/{id}/repos'
+
+      - name: "Xray - Get Builds Indexing Configuration" # ref: https://jfrog.com/help/r/xray-rest-apis/get-builds-indexing-configuration
         run: |
           jf xr curl 'api/v1/binMgr/{id}/builds'
+      
+      - name: "Xray - Get RBv2 Indexing Configuration" # ref: https://jfrog.com/help/r/xray-rest-apis/get-release-bundles-v2-indexing-configuration
+        run: |
+          jf xr curl 'api/v1/binMgr/{id}/release_bundle_v2'
+
+      - name: "Xray - Get RBv2 Indexing Configuration" # ref: https://jfrog.com/help/r/xray-rest-apis/get-repositories-configurations
+        env:
+          REPO_NAME: "krishnam-mvn-dev-local"
+        run: |
+          jf xr curl 'api/v1/repos_config/${{env.REPO_NAME}}'
+
+      - name: "Xray - Get RBv2 Indexing Configuration"  # ref: https://jfrog.com/help/r/xray-rest-apis/scans-list-get-builds
+        env:
+          REPO_NAME: "spring-petclinic"
+        run: |
+          jf xr curl 'api/v1/builds?name=${{env.REPO_NAME}}' 
+
+
+      - name: "Xray - Get RBv2 Indexing Configuration"  # ref: https://jfrog.com/help/r/xray-rest-apis/scans-list-get-build-versions
+        env:
+          REPO_NAME: "spring-petclinic"
+        run: |
+          jf xr curl 'pi/v1/builds/{buildName}/versions?search=${{env.REPO_NAME}}&num_of_rows=100' 
+
+      

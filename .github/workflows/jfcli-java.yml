@@ -391,7 +391,7 @@ jobs:
 
           
   saasArtifactory:
-    name: "Download RLM:RBv2 from SaaS Artifactory"
+    name: "Distribute & Download RLM from SaaS Artifactory"
     needs: mvnPackage
     runs-on: ubuntu-latest
     env:
@@ -416,7 +416,7 @@ jobs:
           export JFROG_CLI_LOG_LEVEL=${{env.JFROG_CLI_LOG_LEVEL}}
       
       # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
-      - name: "RLM: RBv2 Distribute to SaaS edges"
+      - name: "RLM: RBv2 Distribute to SaaS Artifactory and edges"
         run: |
           jf rbd ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=true --create-repo=true
 
@@ -424,7 +424,12 @@ jobs:
       - name: "Download RBv2 from SaaS Artifactory"
         run: |
           jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}} --detailed-summary=true --threads=100
-      
+
+      - name: "Query Distribution status"
+      # https://psazuse.jfrog.io/lifecycle/api/v2/distribution/trackers/spring-petclinic/ga-49
+        run: |
+            jf rt curl "/lifecycle/api/v2/distribution/trackers/${{env.BUILD_NAME}}/${{env.BUILD_ID}}
+
       - name: "Info list"
         run: |
           pwd 
@@ -479,7 +484,7 @@ jobs:
           echo "  - Download RBv2 from Edge [${{env.JF_EDGE_URL}}](${{env.JF_EDGE_URL}}) " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           
-          
+  # Gradle using Federated repositories        
   gradlePackage:
     name: Gradle
     strategy:
