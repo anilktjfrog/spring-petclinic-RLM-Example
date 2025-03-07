@@ -148,7 +148,7 @@ jobs:
 
           cd /home/runner/work/spring-petclinic/spring-petclinic
 
-      - name: "MVN: prestep-summary"
+      - name: "Docker: prestep-summary"
         run: |
           echo "# :frog: MVN: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
@@ -186,20 +186,6 @@ jobs:
       - name: "Package: Create MVN Build"
         run: |     # -Djar.finalName=${{env.JAR_FINAL_NAME}} 
           jf mvn clean install -DskipTests=true -Denforcer.skip=true --build-name=${{env.BUILD_NAME}} --build-number=${{env.BUILD_ID}}
-
-      # Evidence - Artifact references
-      #     Docs# https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-management
-      #     CLI# https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/evidence-service
-      # jf evd create --subject-repo-path ${{env.JAR_REPO_PATH}}/spring-petclinic-3.4.0-SNAPSHOT.jar --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}"  --key-alias ${{secrets.EVIDENCE_KEY_ALIAS}} --predicate ./${{env.EVIDENCE_ARTIFACT_JSON}} --predicate-type https://jfrog.com/evidence/signature/v1
-      - name: "Evidence: Artifact"
-        continue-on-error: true 
-        env:
-          JAR_REPO_PATH: "${{env.RT_REPO_MVN_DEV_LOCAL}}/org/springframework/samples/${{env.BUILD_NAME}}/3.4.0-SNAPSHOT"
-        run: |
-          echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-Artifact", "artifact": "${{env.JAR_REPO_PATH}}/spring-petclinic-3.4.0-SNAPSHOT.jar" }' > ./${{env.EVIDENCE_ARTIFACT_JSON}}
-          cat ./${{env.EVIDENCE_ARTIFACT_JSON}}
-
-          echo "    - TODO: Evidence for ARTIFACT attached " >> $GITHUB_STEP_SUMMARY
 
       - name: "Package: Xray - mvn Artifact scan"
         timeout-minutes: 15  # ref: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
@@ -609,21 +595,6 @@ jobs:
       - name: "Package: Create MVN Build"
         run: |     # -Djar.finalName=${{env.JAR_FINAL_NAME}} 
           jf mvn clean install -DskipTests=true -Denforcer.skip=true --build-name=${{env.BUILD_NAME}} --build-number=${{env.BUILD_ID}}
-
-      # Evidence - Artifact references
-      #     Docs# https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-management
-      #     CLI# https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/evidence-service
-      # jf evd create --subject-repo-path ${{env.JAR_REPO_PATH}}/spring-petclinic-3.4.0-SNAPSHOT.jar --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}"  --key-alias ${{secrets.EVIDENCE_KEY_ALIAS}} --predicate ./${{env.EVIDENCE_ARTIFACT_JSON}} --predicate-type https://jfrog.com/evidence/signature/v1
-      - name: "Evidence: Artifact"
-        continue-on-error: true 
-        env:
-          JAR_REPO_PATH: "${{env.RT_REPO_MVN_DEV_LOCAL}}/org/springframework/samples/${{env.BUILD_NAME}}/3.4.0-SNAPSHOT"
-        run: |
-          echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-Artifact", "artifact": "${{env.JAR_REPO_PATH}}/spring-petclinic-3.4.0-SNAPSHOT.jar" }' > ./${{env.EVIDENCE_ARTIFACT_JSON}}
-          cat ./${{env.EVIDENCE_ARTIFACT_JSON}}
-
-
-          echo "    - TODO: Evidence for ARTIFACT attached " >> $GITHUB_STEP_SUMMARY
 
       # Build Info
           # US 
