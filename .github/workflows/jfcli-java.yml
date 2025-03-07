@@ -597,7 +597,7 @@ jobs:
       - name: "Evidence: Artifact"
         continue-on-error: true 
         env:
-          REPO_JAR: "${{env.RT_REPO_GRADLE_VIRTUAL}}/org/springframework/samples/${{env.BUILD_NAME}}/3.4.0/${{env.BUILD_NAME}}-3.4.0-plain.jar"  # /krishnam-gdl-dev-fed/org/springframework/samples/spring-petclinic/3.4.0/
+          REPO_JAR: "${{env.RT_REPO_GRADLE_LOCAL}}/org/springframework/samples/${{env.BUILD_NAME}}/3.4.0/${{env.BUILD_NAME}}-3.4.0-plain.jar"  # /krishnam-gdl-dev-fed/org/springframework/samples/spring-petclinic/3.4.0/
           # REPO_JAR: "${{env.RT_REPO_GRADLE_VIRTUAL}}/org/springframework/samples/${{env.BUILD_NAME}}/3.4.0/${{env.BUILD_NAME}}-3.4.0-plain.jar"  # krishnam-gradle-virtual/org/springframework/samples/spring-petclinic/3.4.0/spring-petclinic-3.4.0-plain.jar
         run: |
           echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-Artifact", "artifact": "${{env.REPO_JAR}}" }' > ./${{env.EVIDENCE_ARTIFACT_JSON}}
