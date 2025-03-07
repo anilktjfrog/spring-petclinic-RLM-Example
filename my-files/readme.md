@@ -72,10 +72,37 @@ Rancher desktop
 ``````
 limactl start default
 ``````
+or
+``````
+    docker context ls
+    docker context inspect --format '{{ .Endpoints.docker.Host }}
+    DOCKER_HOST=unix:///Users/krishnam/.rd/docker.sock docker ps
+``````
 </details>
 - <details><summary>Error: ould not transfer artifact org.apache.maven.plugins:maven-enforcer-plugin:jar:3.5.0 from/to artifactory-release: status code: 403, reason phrase:  (403)</summary>
 Update repo 
 </details>
+
+
+## Validate Github Actions workflow locally
+- Pre install: [https://github.com/nektos/act](https://github.com/nektos/act)
+<img src="https://raw.githubusercontent.com/wiki/nektos/act/quickstart/act-quickstart-2.gif">
+- Start image=psazuse.jfrog.io/krishnam-docker-remote/ubuntu:latest -s mysecret=foo
+- 
+- 
+
+
+### Errors
+
+- <details><summary>Error: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?</summary>
+    brew install --cask docker 
+    docker context ls
+    docker context inspect --format '{{ .Endpoints.docker.Host }}
+    DOCKER_HOST=unix:///Users/krishnam/.rd/docker.sock docker ps # test that it works using linked socket file    
+</details>
+
+
+
 
 
 
