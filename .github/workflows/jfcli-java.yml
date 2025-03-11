@@ -186,7 +186,7 @@ jobs:
       - name: "Package: Create MVN Build"
           # jf mvn clean install -DskipTests=true -Denforcer.skip=true --build-name=${{env.BUILD_NAME}} --build-number=${{env.BUILD_ID}}
         run: |     # -Djar.finalName=${{env.JAR_FINAL_NAME}} 
-          mvn clean install -DskipTests=true -Denforcer.skip=true --build-name=${{env.BUILD_NAME}} --build-number=${{env.BUILD_ID}}
+          mvn clean install -DskipTests=true -Denforcer.skip=true
 
       - name: "Package: Xray - mvn Artifact scan"
         timeout-minutes: 15  # ref: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
