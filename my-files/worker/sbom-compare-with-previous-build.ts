@@ -4,10 +4,10 @@ export default async (context: PlatformContext, data: AfterBuildInfoSaveRequest)
         //To call an external endpoint, use 'await context.clients.axios.get("https://foo.com")'
         const buildName: String = "spring-petclinic"; // context.secrets.get("buildName"); // "spring-petclinic"
         const slackOauthToken = context.secrets.get('slackOauthToken');  // https://api.slack.com/apps/A08C4PHE8DP/oauth?
-        // const slackChannel = 'D06U027Q2AU'; // krishnam
-        const slackMessageTo = context.secrets.get('slackMessageTo');;
-        const slackChannel = "C08A18RARTL";   // ansys-ps-internal
+        const slackMessageTo = context.secrets.get('slackMessageTo');; // email@DayOne.dev
 
+        var dateDisplay = new Date(Date.now() - (new Date().getTimezoneOffset() * 1000 * 60)).toJSON().slice(0, 19).replace("T", " ");
+        console.log("dateDisplay: " + dateDisplay);
         // console.log("buildName: "+ buildName );
         // console.log("slackToken: "+ slackToken);
         const buildsJson = await context.clients.platformHttp.get("/artifactory/api/build/" + buildName);
@@ -31,6 +31,7 @@ export default async (context: PlatformContext, data: AfterBuildInfoSaveRequest)
             console.log("lastBuild Build: " + lastBuild + "   is empty: " + !isEmpty(lastBuild));
 
             if (!isEmpty(recentBuild) && !isEmpty(lastBuild)) {
+                // https://jfrog.com/help/r/jfrog-rest-apis/builds-diff
                 let diffPathUrl: String = ("/artifactory/api/build/" + buildName + "/" + recentBuild + "?diff=" + lastBuild);
                 console.log("Diff Path: " + diffPathUrl);
                 const buildDiffJson = await context.clients.platformHttp.get(`${diffPathUrl}`);
@@ -45,7 +46,7 @@ export default async (context: PlatformContext, data: AfterBuildInfoSaveRequest)
                         sendSlackMessage(context, rawMessageData, slackOauthToken, id).catch(console.error);
                     });
 
-                    // console.log("sent slack msg");
+                    console.log("sent slack msg");
                 } // if (buildDiffJson.status === 200)
 
                 console.log("    ");
@@ -113,15 +114,13 @@ async function sendSlackMessage(context: PlatformContext,
 
 function extractMessageDataFromPayload(payload, recentBuild, lastBuild): MessageData | null {
     // console.log(JSON.stringify(payload))
-    let msgtext: string = "| count | New | Updated | Unchanged | Removed | <br />";
-    msgtext += ("| :--- | :--- |  :--- |  :--- |  :--- | <br />");
-    msgtext += ("| Artifacts | " + payload.artifacts.new.length + " | " + payload.artifacts.updated.length + " | " + payload.artifacts.unchanged.length + "  | " + payload.artifacts.removed.length + " | <br />");
-    msgtext += ("| Dependencies | " + payload.dependencies.new.length + " | " + payload.dependencies.updated.length + " | " + payload.dependencies.unchanged.length + " | " + payload.dependencies.removed.length + "<br />");
+    let msgtext: string = (" * Artifacts count:: New= " + payload.artifacts.new.length + ", Updated= " + payload.artifacts.updated.length + ", Unchanged= " + payload.artifacts.unchanged.length + ", Removed= " + payload.artifacts.removed.length);
+    msgtext += (" * Dependencies count:: New= " + payload.dependencies.new.length + ", Updated=" + payload.dependencies.updated.length + ", Unchanged= " + payload.dependencies.unchanged.length + ", Removed= " + payload.dependencies.removed.length);
 
     console.log(msgtext);
 
     return {
-        title: ('SBOM Compare between builds: ' + recentBuild + ' and ' + lastBuild),
+        title: ('spring-petclinic SBOM Compare between builds: ' + recentBuild + ' and ' + lastBuild),
         message: msgtext,
         // message: "TEXT Sample ",
         botName: 'JFrog Worker Ansys bot',
