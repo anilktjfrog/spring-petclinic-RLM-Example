@@ -10,6 +10,8 @@ on:
       - main
     paths-ignore: # When the below folders are checked-in, the GitHub Actions job will not start.
     #  - '.github/**'
+      - 'my-files/**'
+      - 'docs/**'
       - 'target/**'
       - 'gradle/**'
       - '.mvn/**'
@@ -147,10 +149,12 @@ jobs:
           echo "REPO_NAME = $REPO_NAME" 
 
           cd /home/runner/work/spring-petclinic/spring-petclinic
+          pwd
+          tree .
 
       - name: "Docker: prestep-summary"
         run: |
-          echo "# :frog: MVN: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
+          echo "# :frog: Docker: Prestep Summary :pushpin:" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " - Installed JFrog CLI [$(jf --version)](https://jfrog.com/getcli/) and Java [${{env.JAVA_PROVIDER}}](https://github.com/actions/setup-java) v${{env.JAVA_VERSION}} " >> $GITHUB_STEP_SUMMARY
@@ -378,8 +382,6 @@ jobs:
         run: |
            jf rt curl "/api/build/${{env.BUILD_NAME}}/${{env.BUILD_ID}}" -o $BUILD_INFO_JSON
            cat $BUILD_INFO_JSON
-
-
           
   saasArtifactory:
     name: "Distribute & Download RLM from SaaS Artifactory"
@@ -416,8 +418,7 @@ jobs:
         run: |
           jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}} --detailed-summary=true --threads=100
 
-      - name: "Query Distribution status"
-      # https://psazuse.jfrog.io/lifecycle/api/v2/distribution/trackers/spring-petclinic/ga-49
+      - name: "Query Distribution status"  # https://psazuse.jfrog.io/lifecycle/api/v2/distribution/trackers/spring-petclinic/ga-49
         run: |
             jf rt curl "/lifecycle/api/v2/distribution/trackers/${{env.BUILD_NAME}}/${{env.BUILD_ID}}"
 
@@ -566,6 +567,8 @@ jobs:
           echo "REPO_NAME = $REPO_NAME" 
 
           cd /home/runner/work/spring-petclinic/spring-petclinic
+          pwd
+          tree .
 
       - name: "MVN: prestep-summary"
         run: |
@@ -632,7 +635,6 @@ jobs:
           jf evd create --build-name ${{env.BUILD_NAME}} --build-number ${{env.BUILD_ID}} --predicate ./${{env.EVIDENCE_BUILD_JSON}} --predicate-type https://jfrog.com/evidence/build-signature/v1 --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{secrets.EVIDENCE_KEY_ALIAS}}
           echo "    - Evidence for BUILD Publish attached. " >> $GITHUB_STEP_SUMMARY
 
-  
   # Gradle using Federated repositories        
   gradlePackage:
     name: Gradle
@@ -715,6 +717,8 @@ jobs:
           echo "GITHUB_REPOSITORY_ID = $GITHUB_REPOSITORY_ID"
 
           cd /home/runner/work/spring-petclinic/spring-petclinic
+          pwd
+          tree .
 
       - name: "Gradle: prestep-summary"
         run: |
@@ -778,4 +782,35 @@ jobs:
       - name: "BuildInfo: Build Publish"
         run: jf rt bp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --detailed-summary=true
 
-     
+  # Generate GH-Pages  
+  secReport:
+    name: "Generate SEC Report"
+    needs: dockerPackage
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.13"]
+    env:
+      JF_RT_URL: https://${{vars.JF_NAME}}.jfrog.io
+      JOB_SUMMARY: true # default is false, true - turn of publish Gradle buildinfo
+      JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
+    permissions:
+      id-token: write # for creating OIDC tokens for signing.
+      pages: write  # deploy to GitHub Pages 'gh-pages' branch
+    steps:
+      - name: Clone VCS
+        uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
+
+      - name: Generate Report  # https://github.com/actions/deploy-pages
+          # GenerateSBOMreport.py
+        run: | 
+          cd my-files/sec-reports/scripts
+          python3 Test.py
+          pwd
+          tree .
+        
+          git add . -v
+          git commit -m "SEC Report "
+          git push -v
+      

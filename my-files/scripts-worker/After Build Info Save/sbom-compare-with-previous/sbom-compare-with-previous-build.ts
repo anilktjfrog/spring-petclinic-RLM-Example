@@ -2,7 +2,9 @@ export default async (context: PlatformContext, data: AfterBuildInfoSaveRequest)
     try {
         // The HTTP client facilitates calls to the JFrog Platform REST APIs
         //To call an external endpoint, use 'await context.clients.axios.get("https://foo.com")'
-        const buildName: String = "spring-petclinic"; // context.secrets.get("buildName"); // "spring-petclinic"
+        console.log("context: " + context);
+        console.log("data: " + data);
+        const buildName: String = data.build.name // context.secrets.get("buildName"); // "spring-petclinic"
         const slackOauthToken = context.secrets.get('slackOauthToken');  // https://api.slack.com/apps/A08C4PHE8DP/oauth?
         const slackMessageTo = context.secrets.get('slackMessageTo');; // email@DayOne.dev
 
