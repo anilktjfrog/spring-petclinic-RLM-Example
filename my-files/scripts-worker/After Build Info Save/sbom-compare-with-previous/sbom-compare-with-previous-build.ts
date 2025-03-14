@@ -2,12 +2,13 @@ export default async (context: PlatformContext, data: AfterBuildInfoSaveRequest)
     try {
         // The HTTP client facilitates calls to the JFrog Platform REST APIs
         //To call an external endpoint, use 'await context.clients.axios.get("https://foo.com")'
-        console.log("context: " + context);
-        console.log("data: " + data);
-        const buildName: String = data.build.name // context.secrets.get("buildName"); // "spring-petclinic"
+        const buildName: String = data.build.name; // "spring-petclinic"; // context.secrets.get("buildName"); // "spring-petclinic"
         const slackOauthToken = context.secrets.get('slackOauthToken');  // https://api.slack.com/apps/A08C4PHE8DP/oauth?
-        const slackMessageTo = context.secrets.get('slackMessageTo');; // email@DayOne.dev
+        const slackChannel = 'D06U027Q2AU'; // krishnam
+        const slackMessageTo = context.secrets.get('slackMessageTo');;
 
+        console.log("buildName: " + JSON.stringify(data));
+        // const slackChannel = "C08A18RARTL";   // ansys-ps-internal
         var dateDisplay = new Date(Date.now() - (new Date().getTimezoneOffset() * 1000 * 60)).toJSON().slice(0, 19).replace("T", " ");
         console.log("dateDisplay: " + dateDisplay);
         // console.log("buildName: "+ buildName );
@@ -40,7 +41,7 @@ export default async (context: PlatformContext, data: AfterBuildInfoSaveRequest)
                 if (buildDiffJson.status === 200) {
                     console.log(buildDiffJson);
                     // Send Slack message to krishna
-                    const rawMessageData = buildDiffJson.data == null ? null : extractMessageDataFromPayload(buildDiffJson.data, recentBuild, lastBuild);
+                    const rawMessageData = buildDiffJson.data == null ? null : extractMessageDataFromPayload(buildDiffJson.data, recentBuild, lastBuild, data);
                     console.log("rawMessageData: " + rawMessageData);
 
                     await getMemberIdByEmail(context, slackMessageTo, slackOauthToken).then(id => {
@@ -79,6 +80,23 @@ interface MessageData {
     url: string;
 }
 
+function extractMessageDataFromPayload(payload, recentBuild, lastBuild, data): MessageData | null {
+    // console.log(JSON.stringify(payload))
+    let msgtext: string = (" * Artifacts count:: New= " + payload.artifacts.new.length + ", Updated= " + payload.artifacts.updated.length + ", Unchanged= " + payload.artifacts.unchanged.length + ", Removed= " + payload.artifacts.removed.length);
+    msgtext += (" * Dependencies count:: New= " + payload.dependencies.new.length + ", Updated=" + payload.dependencies.updated.length + ", Unchanged= " + payload.dependencies.unchanged.length + ", Removed= " + payload.dependencies.removed.length);
+    msgtext += (" Payload: " + JSON.stringify(data) );
+    console.log(msgtext);
+
+    return {
+        title: (data.build.name + ' - SBOM Compare between builds: ' + recentBuild + ' and ' + lastBuild),
+        message: msgtext,
+        // message: "TEXT Sample ",
+        botName: 'JFrog Worker Ansys bot',
+        url: 'https://psazuse.jfrog.io/ui/login/'
+    };
+}
+
+
 async function sendSlackMessage(context: PlatformContext,
     rawMessageData: MessageData, slackToken: string, slackChannel: string): Promise<void> {
     const slackUrl = 'https://slack.com/api/chat.postMessage';
@@ -112,22 +130,6 @@ async function sendSlackMessage(context: PlatformContext,
     } catch (error) {
         console.error('Slack: Error sending message:', error);
     } // TRY - CATCH
-}
-
-function extractMessageDataFromPayload(payload, recentBuild, lastBuild): MessageData | null {
-    // console.log(JSON.stringify(payload))
-    let msgtext: string = (" * Artifacts count:: New= " + payload.artifacts.new.length + ", Updated= " + payload.artifacts.updated.length + ", Unchanged= " + payload.artifacts.unchanged.length + ", Removed= " + payload.artifacts.removed.length);
-    msgtext += (" * Dependencies count:: New= " + payload.dependencies.new.length + ", Updated=" + payload.dependencies.updated.length + ", Unchanged= " + payload.dependencies.unchanged.length + ", Removed= " + payload.dependencies.removed.length);
-
-    console.log(msgtext);
-
-    return {
-        title: ('spring-petclinic SBOM Compare between builds: ' + recentBuild + ' and ' + lastBuild),
-        message: msgtext,
-        // message: "TEXT Sample ",
-        botName: 'JFrog Worker Ansys bot',
-        url: 'https://psazuse.jfrog.io/ui/login/'
-    };
 }
 
 function replaceTokens(messageTemplate: any, rawMessageData: MessageData) {

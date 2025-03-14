@@ -839,6 +839,10 @@ jobs:
       - name: Clone VCS
         uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
 
+      - name: List folder
+        run: |
+          tree .
+
       - name: Generate Report  # https://github.com/actions/deploy-pages
           # GenerateSBOMreport.py
         run: | 
