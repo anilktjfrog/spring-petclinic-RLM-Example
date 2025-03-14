@@ -842,11 +842,13 @@ jobs:
       - name: List folder
         run: |
           tree .
+          cd /home/runner/work/spring-petclinic/spring-petclinic
+          tree .
 
       - name: Generate Report  # https://github.com/actions/deploy-pages
           # GenerateSBOMreport.py
         run: | 
-          cd my-files/sec-reports/scripts
+          cd my-files/sec-report/scripts
           tree .
           pwd
           python3 Test.py
@@ -857,7 +859,7 @@ jobs:
         run: | 
           export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
           pwd
-          cd my-files/sec-reports/scripts
+          cd my-files/sec-report/scripts
           
           cp -u index.html ../../docs/index.html
           cd ../../
