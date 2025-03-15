@@ -837,13 +837,26 @@ jobs:
       pages: write  # deploy to GitHub Pages 'gh-pages' branch
     steps:
       - name: Clone VCS
-        uses: actions/checkout@v4 # ref: https://github.com/actions/checkout
+        uses: actions/checkout@v4 
+      - name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        id: setup-cli
+        env:
+          JF_URL: ${{env.JF_RT_URL}}
+          JF_GIT_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          version: latest 
+          oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
 
       - name: List folder
         run: |
           tree .
           cd /home/runner/work/spring-petclinic/spring-petclinic
           tree .
+
+          echo "OIDC user: ${{steps.setup-cli.outputs.oidc-user}}"
+          password: ${{steps.setup-cli.outputs.oidc-token}}
+
 
       - name: Generate Report  # https://github.com/actions/deploy-pages
           # GenerateSBOMreport.py
@@ -861,7 +874,12 @@ jobs:
           pwd
           cd my-files/sec-report/scripts
           
-          mv -f index.html ../../docs/index.html
+          cd ../
+          pwd
+          cd ../
+          pwd
+          mkdir -p docs
+          mv -f sec-report/scripts/index.html .
           cd ../../
           tree .
 
