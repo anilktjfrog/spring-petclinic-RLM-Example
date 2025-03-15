@@ -857,7 +857,7 @@ jobs:
           echo "REPO_HOME:: ${{env.REPO_HOME}}"
           export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
           echo "REPORT_DATE=${REPORT_DATE}" >> $GITHUB_ENV
-          
+
           cd ${{env.REPO_HOME}}
           mkdir -p docs
 
@@ -877,6 +877,8 @@ jobs:
           tree .
           pwd
 
+          python3 -r requirements.txt
+          
           python3 scripts/Test.py
           tree .
 
