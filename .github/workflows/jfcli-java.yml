@@ -853,11 +853,17 @@ jobs:
 
       - name: List folder
         run: |
-          cd /home/runner/work/spring-petclinic/spring-petclinic
+          echo "REPO_HOME=/home/runner/work/spring-petclinic/spring-petclinic" >> $GITHUB_ENV
+          echo "REPO_HOME:: ${{env.REPO_HOME}}"
+          export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
+          echo "REPORT_DATE=${REPORT_DATE}" >> $GITHUB_ENV
+          
+          cd ${{env.REPO_HOME}}
+          mkdir -p docs
 
           jf -v
           jf config show
-
+          
           echo "OIDC_PROVIDER_NAME = ${{vars.JF_OIDC_PROVIDER_NAME}}"
           echo "OIDC user: ${{steps.setup-cli.outputs.oidc-user}}"
           echo "password: ${{steps.setup-cli.outputs.oidc-token}}"
@@ -867,34 +873,27 @@ jobs:
       - name: Generate Report  
           # GenerateSBOMreport.py
         run: | 
-          cd my-files/sec-report/scripts
+          cd ${{env.REPO_HOME}}/my-files/scripts-report/
           tree .
           pwd
 
-          python3 Test.py
+          python3 scripts/Test.py
           tree .
 
       - name: Copy Report  
         run: | 
-          export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
-          echo "REPORT_DATE=${REPORT_DATE}" >> $GITHUB_ENV
+          
+          pwd
 
-          pwd
-          cd my-files/sec-report/scripts
-          pwd
-          cd ..
-          pwd
-          cd ../
-          pwd
-          mkdir -p docs
-          mv -f sec-report/scripts/index.html ./docs/.
+          mv -f ${{env.REPO_HOME}}/my-files/scripts-report/index.html ${{env.REPO_HOME}}/docs/.
           tree .
-      # - name: Commit & Push changes  # ref: https://github.com/marketplace/actions/github-commit-push
-      #   uses: actions-js/push@master
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     message: "SEC Report generated on ${{env.REPORT_DATE}}"
-      #     branch: "main"
-      #     author_name: "github-actions[bot]"
-      #     rebase: true
-      #     force: true
+
+      - name: Commit & Push changes  # ref: https://github.com/marketplace/actions/github-commit-push
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          message: "SEC Report generated on ${{env.REPORT_DATE}}"
+          branch: "gh-pages"
+          author_name: "github-actions[bot]"
+          rebase: true
+          force: true
