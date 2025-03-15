@@ -855,7 +855,9 @@ jobs:
           tree .
 
           echo "OIDC user: ${{steps.setup-cli.outputs.oidc-user}}"
-          password: ${{steps.setup-cli.outputs.oidc-token}}
+          echo "password: ${{steps.setup-cli.outputs.oidc-token}}"
+
+          jf curl -XGET "${JF_RT_URL}artifactory/api/search/artifact?name=*log4j*&repos=mvn-remote-cache" -H "Content-Type: application/json" -H "Authorization: Bearer ${{steps.setup-cli.outputs.oidc-token}}"
 
 
       - name: Generate Report  # https://github.com/actions/deploy-pages
