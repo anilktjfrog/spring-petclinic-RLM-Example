@@ -836,8 +836,6 @@ jobs:
       id-token: write # for creating OIDC tokens for signing.
       pages: write  # deploy to GitHub Pages 'gh-pages' branch
     steps:
-      - name: Clone VCS
-        uses: actions/checkout@v4 
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         id: setup-cli
@@ -848,12 +846,16 @@ jobs:
           version: latest 
           oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
 
+      - name: Clone VCS
+        uses: actions/checkout@v4 
+
       - name: List folder
         run: |
           tree .
           cd /home/runner/work/spring-petclinic/spring-petclinic
           tree .
 
+           echo "OIDC_PROVIDER_NAME = ${{vars.JF_OIDC_PROVIDER_NAME}}"
           echo "OIDC user: ${{steps.setup-cli.outputs.oidc-user}}"
           echo "password: ${{steps.setup-cli.outputs.oidc-token}}"
 
