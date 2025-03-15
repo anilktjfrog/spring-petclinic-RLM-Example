@@ -851,27 +851,36 @@ jobs:
       - name: Clone VCS
         uses: actions/checkout@v4 
 
-      - name: List folder
+      - name: "Software Info"
         run: |
           python3 --version
           pip3 --version
+          jf -v
+          jf config show
+
+      - name: "set env"
+        run: |
           echo "REPO_HOME=/home/runner/work/spring-petclinic/spring-petclinic" >> $GITHUB_ENV
           echo "REPO_HOME:: ${{env.REPO_HOME}}"
           export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
           echo "REPORT_DATE=${REPORT_DATE}" >> $GITHUB_ENV
 
+      - name: "Create Docs folder if doesn't exist"
+        run: |
           cd ${{env.REPO_HOME}}
           mkdir -p docs
+          tree .
 
-          jf -v
-          jf config show
-          
+      - name: List folder
+        run: |
+          echo "REPO_HOME = ${{env.REPO_HOME}}"
+          echo "REPORT_DATE = ${{env.REPORT_DATE}}"
           echo "OIDC_PROVIDER_NAME = ${{vars.JF_OIDC_PROVIDER_NAME}}"
           echo "OIDC user: ${{steps.setup-cli.outputs.oidc-user}}"
           echo "password: ${{steps.setup-cli.outputs.oidc-token}}"
 
-#  jf curl -XGET "${{env.JF_RT_URL}}/artifactory/api/search/artifact?name=*log4j*&repos=mvn-remote-cache" -H "Content-Type: application/json" -H "Authorization: Bearer ${{steps.setup-cli.outputs.oidc-token}}"
 
+#  jf curl -XGET "${{env.JF_RT_URL}}/artifactory/api/search/artifact?name=*log4j*&repos=mvn-remote-cache" -H "Content-Type: application/json" -H "Authorization: Bearer ${{steps.setup-cli.outputs.oidc-token}}"
       - name: Generate Report  
           # GenerateSBOMreport.py
         run: | 
@@ -886,10 +895,11 @@ jobs:
 
       - name: Copy Report  
         run: | 
-          
           pwd
-
-          mv -f ${{env.REPO_HOME}}/my-files/scripts-report/index.html ${{env.REPO_HOME}}/docs/.
+          cp -r index.html ${{env.REPO_HOME}}/docs/report-${{env.REPORT_DATE}}.html
+          mv -f index.html ${{env.REPO_HOME}}/docs/index.html
+          
+          cd ${{env.REPO_HOME}}
           tree .
 
       - name: Commit & Push changes  # ref: https://github.com/marketplace/actions/github-commit-push
