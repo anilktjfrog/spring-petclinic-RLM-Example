@@ -893,7 +893,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           message: "SEC Report generated on ${{env.REPORT_DATE}}"
           branch: "main"
-          directory: "docs"
           author_name: "github-actions[bot]"
           rebase: true
           force: true
