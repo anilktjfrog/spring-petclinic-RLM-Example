@@ -862,7 +862,7 @@ jobs:
 
 #  jf curl -XGET "${{env.JF_RT_URL}}/artifactory/api/search/artifact?name=*log4j*&repos=mvn-remote-cache" -H "Content-Type: application/json" -H "Authorization: Bearer ${{steps.setup-cli.outputs.oidc-token}}"
 
-      - name: Generate Report  # https://github.com/actions/deploy-pages
+      - name: Generate Report  
           # GenerateSBOMreport.py
         run: | 
           cd my-files/sec-report/scripts
@@ -872,10 +872,11 @@ jobs:
           python3 Test.py
           tree .
 
-      - name: Commit Report  # https://github.com/actions/deploy-pages
-          # GenerateSBOMreport.py  # cp -u index.html ../../docs/index.html
+      - name: Copy Report  
         run: | 
           export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
+          echo "REPORT_DATE=${REPORT_DATE}" >> $GITHUB_ENV
+
           pwd
           cd my-files/sec-report/scripts
           
@@ -885,7 +886,14 @@ jobs:
           pwd
           mkdir -p docs
           mv -f sec-report/scripts/index.html .
-          cd ../
+          tree .
+      - name: Commit Report  
+          # cp -u index.html ../../docs/index.html
+        run: | 
+          pwd
           tree .
 
+          git add . -v
+          git commit -m "SEC Report generated on ${{env.REPORT_DATE}}" -v
+          git push -v
       
