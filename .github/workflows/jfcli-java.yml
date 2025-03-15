@@ -855,13 +855,13 @@ jobs:
           tree .
 
       - name: Commit Report  # https://github.com/actions/deploy-pages
-          # GenerateSBOMreport.py
+          # GenerateSBOMreport.py  # cp -u index.html ../../docs/index.html
         run: | 
           export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
           pwd
           cd my-files/sec-report/scripts
           
-          cp -u index.html ../../docs/index.html
+          mv -f index.html ../../docs/index.html
           cd ../../
           tree .
 
