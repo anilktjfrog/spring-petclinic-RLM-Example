@@ -887,13 +887,13 @@ jobs:
           mkdir -p docs
           mv -f sec-report/scripts/index.html .
           tree .
-      - name: Commit Report  
-          # cp -u index.html ../../docs/index.html
-        run: | 
-          pwd
-          tree .
-
-          git add . -v
-          git commit -m "SEC Report generated on ${{env.REPORT_DATE}}" -v
-          git push -v
-      
+      - name: Commit & Push changes  # ref: https://github.com/marketplace/actions/github-commit-push
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          message: "SEC Report generated on ${{env.REPORT_DATE}}"
+          branch: "main"
+          directory: "docs"
+          author_name: "github-actions[bot]"
+          rebase: true
+          force: true
