@@ -853,6 +853,8 @@ jobs:
 
       - name: List folder
         run: |
+          python3 --version
+          pip3 --version
           echo "REPO_HOME=/home/runner/work/spring-petclinic/spring-petclinic" >> $GITHUB_ENV
           echo "REPO_HOME:: ${{env.REPO_HOME}}"
           export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
@@ -877,8 +879,8 @@ jobs:
           tree .
           pwd
 
-          python3 -r requirements.txt
-          
+          pip3 install -r requirements.txt
+
           python3 scripts/Test.py
           tree .
 
