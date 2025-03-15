@@ -835,6 +835,7 @@ jobs:
     permissions:
       id-token: write # for creating OIDC tokens for signing.
       pages: write  # deploy to GitHub Pages 'gh-pages' branch
+      contents: write
     steps:
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
