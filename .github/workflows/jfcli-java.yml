@@ -895,10 +895,11 @@ jobs:
 
       - name: Copy Report  
         run: | 
+          cd ${{env.REPO_HOME}}/my-files/scripts-report/
           pwd
           cp -r index.html ${{env.REPO_HOME}}/docs/report-${{env.REPORT_DATE}}.html
           mv -f index.html ${{env.REPO_HOME}}/docs/index.html
-          
+
           cd ${{env.REPO_HOME}}
           tree .
 
