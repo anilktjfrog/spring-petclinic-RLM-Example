@@ -1,7 +1,8 @@
+import inspect, logging, time, datetime
+
 import argparse
 import requests
 import json
-import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import quote
@@ -16,25 +17,57 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 class GenerateSBOMreport:
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+
     def __init__(self, base_url: str, token: str, max_workers: int = 3, debug_level: int = 0):
-        self.base_url = base_url.rstrip('/')
-        self.headers = {"Authorization": f"Bearer {token}"}
-        self.max_workers = max_workers
-        self.debug_level = debug_level
-        self.token = token  # Store token for debug curl commands
+        """ 
+        Initialize the class with base URL, token, and other parameters 
+        """
+        method_name= f"{inspect.stack()[0][3]}"
+        startTime = time.perf_counter()
+        logging.debug(f"[BEGIN] CLASS: {self.class_name} "
+                     f"METHOD: {method_name} at {datetime.datetime.now()}")
+        try:
+            self.base_url = base_url.rstrip('/')
+            self.headers = {"Authorization": f"Bearer {token}"}
+            self.max_workers = max_workers
+            self.debug_level = debug_level
+            self.token = token  # Store token for debug curl commands
+        finally:
+            totalTime = (time.perf_counter() - startTime)
+            logging.debug(f"[END] CLASS: {self.class_name} METHOD: {method_name} completed in {format(totalTime, '6.3f')} seconds or {format(totalTime / 60, '6.3f')} minutes ")
+
 
     def log_curl_request(self, method: str, url: str, params: Dict = None, payload: Dict = None):
-        """Log curl command for API requests"""
-        if self.debug_level >= 2:  # Log all requests in verbose mode
-            if params:
-                param_str = '&'.join(f"{k}={quote(str(v))}" for k, v in params.items())
-                url = f"{url}?{param_str}"
-            
-            logger.debug("Curl command for API request:")
-            logger.debug(self.get_curl_command(url, method, payload))
+       """ 
+        Log curl command for API requests
+        """
+        method_name= f"{inspect.stack()[0][3]}"
+        startTime = time.perf_counter()
+        logging.debug(f"[BEGIN] CLASS: {self.class_name} "
+                     f"METHOD: {method_name} at {datetime.datetime.now()}")
+        try:
+            if self.debug_level >= 2:  # Log all requests in verbose mode
+                if params:
+                    param_str = '&'.join(f"{k}={quote(str(v))}" for k, v in params.items())
+                    url = f"{url}?{param_str}"
+                
+                logger.debug("Curl command for API request:")
+                logger.debug(self.get_curl_command(url, method, payload))
+        finally:
+            totalTime = (time.perf_counter() - startTime)
+            logging.debug(f"[END] CLASS: {self.class_name} METHOD: {method_name} completed in {format(totalTime, '6.3f')} seconds or {format(totalTime / 60, '6.3f')} minutes ")
+
 
     def get_repository_info(self, repo_name: str) -> Tuple[str, str, str]:
-        """Get package type and repository class using Repository Configuration API"""
+        """
+        Get package type and repository class using Repository Configuration API
+        """
+        method_name= f"{inspect.stack()[0][3]}"
+        startTime = time.perf_counter()
+        logging.debug(f"[BEGIN] CLASS: {self.class_name} "
+                     f"METHOD: {method_name} at {datetime.datetime.now()}")
+        
         url = f"{self.base_url}/artifactory/api/repositories/{repo_name}"
         
         self.log_curl_request("GET", url)
@@ -61,9 +94,20 @@ class GenerateSBOMreport:
                 logger.debug("Curl command for troubleshooting:")
                 logger.debug(self.get_curl_command(url))
             return "", "", repo_name
+        finally:
+            totalTime = (time.perf_counter() - startTime)
+            logging.debug(f"[END] CLASS: {self.class_name} METHOD: {method_name} completed in {format(totalTime, '6.3f')} seconds or {format(totalTime / 60, '6.3f')} minutes ")
+
 
     def get_scanned_artifacts(self, repo_name: str) -> List[Dict]:
-        """Get list of scanned artifacts using Scans List API"""
+        """
+        Get list of scanned artifacts using Scans List API
+        """
+        method_name= f"{inspect.stack()[0][3]}"
+        startTime = time.perf_counter()
+        logging.debug(f"[BEGIN] CLASS: {self.class_name} "
+                     f"METHOD: {method_name} at {datetime.datetime.now()}")
+        
         url = f"{self.base_url}/xray/api/v1/artifacts"
         params = {"repo": repo_name}
         
@@ -90,24 +134,38 @@ class GenerateSBOMreport:
                 logger.debug("Curl command for troubleshooting:")
                 logger.debug(self.get_curl_command(full_url))
             return []
+        finally:
+            totalTime = (time.perf_counter() - startTime)
+            logging.debug(f"[END] CLASS: {self.class_name} METHOD: {method_name} completed in {format(totalTime, '6.3f')} seconds or {format(totalTime / 60, '6.3f')} minutes ")
+
 
     def get_component_name(self, artifact: Dict) -> str:
-        """Construct component name based on package_id and version"""
+        """
+        Construct component name based on package_id and version
+        """
+        method_name= f"{inspect.stack()[0][3]}"
+        startTime = time.perf_counter()
+        logging.debug(f"[BEGIN] CLASS: {self.class_name} "
+                     f"METHOD: {method_name} at {datetime.datetime.now()}")
         package_id = artifact.get("package_id", "")
         version = artifact.get("version", "")
-        
-        if package_id.startswith("generic://"):
-            # For generic packages, extract the filename from the last part of the path
-            return package_id.split("/")[-1]
-        
-        if "://" in package_id:
-            package_id = package_id.split("://", 1)[1]
-        
-        if "gav://" in package_id:
-            # For Maven packages
-            return f"{package_id}:{version}"
-        else:
-            return f"{package_id}:{version}" if version else package_id
+        try:
+            if package_id.startswith("generic://"):
+                # For generic packages, extract the filename from the last part of the path
+                return package_id.split("/")[-1]
+            
+            if "://" in package_id:
+                package_id = package_id.split("://", 1)[1]
+            
+            if "gav://" in package_id:
+                # For Maven packages
+                return f"{package_id}:{version}"
+            else:
+                return f"{package_id}:{version}" if version else package_id
+        finally:
+            totalTime = (time.perf_counter() - startTime)
+            logging.debug(f"[END] CLASS: {self.class_name} METHOD: {method_name} completed in {format(totalTime, '6.3f')} seconds or {format(totalTime / 60, '6.3f')} minutes ")
+
 
     def get_curl_command(self, url: str, method: str = "GET", payload: Dict = None) -> str:
         """Generate curl command for debugging"""
@@ -514,6 +572,8 @@ def main():
     
     logger.info(f"HTML report generated: {output_file}")
     logger.info(f"Log file generated: {log_file}")
+
+
 
 if __name__ == "__main__":
     main()

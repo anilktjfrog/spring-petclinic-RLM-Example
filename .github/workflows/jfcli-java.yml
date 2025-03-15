@@ -836,6 +836,7 @@ jobs:
       id-token: write # for creating OIDC tokens for signing.
       pages: write  # deploy to GitHub Pages 'gh-pages' branch
       contents: write
+
     steps:
       - name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
@@ -880,20 +881,20 @@ jobs:
 
           pwd
           cd my-files/sec-report/scripts
-          
-          cd ../
+          pwd
+          cd ..
           pwd
           cd ../
           pwd
           mkdir -p docs
-          mv -f sec-report/scripts/index.html .
+          mv -f sec-report/scripts/index.html ./docs/.
           tree .
-      - name: Commit & Push changes  # ref: https://github.com/marketplace/actions/github-commit-push
-        uses: actions-js/push@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          message: "SEC Report generated on ${{env.REPORT_DATE}}"
-          branch: "main"
-          author_name: "github-actions[bot]"
-          rebase: true
-          force: true
+      # - name: Commit & Push changes  # ref: https://github.com/marketplace/actions/github-commit-push
+      #   uses: actions-js/push@master
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     message: "SEC Report generated on ${{env.REPORT_DATE}}"
+      #     branch: "main"
+      #     author_name: "github-actions[bot]"
+      #     rebase: true
+      #     force: true
