@@ -821,7 +821,7 @@ jobs:
   # Generate GH-Pages  
   secReport:
     name: "Generate SEC Report"
-    needs: mvnPackage
+    # needs: mvnPackage
     # needs: dockerPackage
     runs-on: ubuntu-latest
     strategy:
@@ -851,16 +851,16 @@ jobs:
 
       - name: List folder
         run: |
-          tree .
           cd /home/runner/work/spring-petclinic/spring-petclinic
-          tree .
 
-           echo "OIDC_PROVIDER_NAME = ${{vars.JF_OIDC_PROVIDER_NAME}}"
+          jf -v
+          jf config show
+
+          echo "OIDC_PROVIDER_NAME = ${{vars.JF_OIDC_PROVIDER_NAME}}"
           echo "OIDC user: ${{steps.setup-cli.outputs.oidc-user}}"
           echo "password: ${{steps.setup-cli.outputs.oidc-token}}"
 
-          jf curl -XGET "${JF_RT_URL}artifactory/api/search/artifact?name=*log4j*&repos=mvn-remote-cache" -H "Content-Type: application/json" -H "Authorization: Bearer ${{steps.setup-cli.outputs.oidc-token}}"
-
+#  jf curl -XGET "${{env.JF_RT_URL}}/artifactory/api/search/artifact?name=*log4j*&repos=mvn-remote-cache" -H "Content-Type: application/json" -H "Authorization: Bearer ${{steps.setup-cli.outputs.oidc-token}}"
 
       - name: Generate Report  # https://github.com/actions/deploy-pages
           # GenerateSBOMreport.py
@@ -868,6 +868,7 @@ jobs:
           cd my-files/sec-report/scripts
           tree .
           pwd
+
           python3 Test.py
           tree .
 
@@ -884,7 +885,7 @@ jobs:
           pwd
           mkdir -p docs
           mv -f sec-report/scripts/index.html .
-          cd ../../
+          cd ../
           tree .
 
       
