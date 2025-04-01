@@ -7,7 +7,10 @@
 ## Objective
 Develop a DevOps pipeline to automate tasks such as code compile, unit testing, creation of container, and upload of artifacts to a repository. This will streamline the software development process using JFrog CLI.
 
+
 Note: This process with not deploy to the envionrmnet platform. 
+
+:lady_beetle: Vulnerability report at [https://krishnamanchikalapudi.github.io/spring-petclinic/](https://krishnamanchikalapudi.github.io/spring-petclinic/) :lady_beetle:
 
 [Spring-Petclinic](https://github.com/krishnamanchikalapudi/spring-petclinic) using JF-CLI to Package, BuildInfo, & RBv2: [![JF-CLI: MVN & Gradle](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-java.yml/badge.svg)](https://github.com/krishnamanchikalapudi/spring-petclinic/actions/workflows/jfcli-java.yml)
 
