@@ -8,22 +8,18 @@ trigger:
 
 pool:
   vmImage: ubuntu-latest
+  
+variables:
+  JF_HOST: "psazuse.jfrog.io"
+  JFROG_RT_USER: "${env:USER_NAME}"
+  JFROG_CLI_LOG_LEVEL: "DEBUG"
+  JF_ACCESS_TOKEN: "${env:ACCESS_TOKEN}"
+  JF_RT_URL: "https://${JF_HOST}"
+  RT_REPO_VIRTUAL: "krishnam-mvn-virtual"
 
 steps:
-
 - task: JfrogCliV2@1
   inputs:
     jfrogPlatformConnection: 'jfrog-ps'
     command: 'jf rt ping'
-
-- task: Maven@3
-  inputs:
-    mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.17'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'clean install -DskipTests=true'
 
