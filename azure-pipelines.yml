@@ -10,6 +10,12 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+
+- task: JfrogCliV2@1
+  inputs:
+    jfrogPlatformConnection: 'jfrog-ps'
+    command: 'jf rt ping'
+
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
@@ -20,3 +26,4 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'clean install -DskipTests=true'
+
