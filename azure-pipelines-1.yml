@@ -8,7 +8,8 @@ trigger:
 
 pool:
   vmImage: ubuntu-latest
-  
+  # name: varunm-azuredevops-piplines
+
 variables:
   JFROG_PLATFORM_URL: "https://psazuse.jfrog.io"
   JFROG_USERNAME: ""
@@ -18,7 +19,7 @@ variables:
   RT_REPO_DOCKER_VIRTUAL: "krishnam-docker-virtual"
   RT_REPO_DOCKER_DEV_LOCAL: "krishnam-docker-dev-local"
   BUILD_NAME: "spring-petclinic"
-  BUILD_ID: "ado-${Build.BuildNumber}"
+  BUILD_ID: "ado-$(Build.BuildNumber)"
 steps:
 - script: |
     java -version
