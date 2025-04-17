@@ -8,12 +8,27 @@ trigger:
 
 pool:
   vmImage: ubuntu-latest
-
+  
+variables:
+  JFROG_PLATFORM_URL: "https://psazuse.jfrog.io"
+  JFROG_USERNAME: ""
+  JFROG_PASSWORD: ""
+  RT_REPO_MVN_VIRTUAL: "krishnam-mvn-virtual"
+  RT_REPO_MVN_DEV_LOCAL: "krishnam-mvn-dev-local"
+  RT_REPO_DOCKER_VIRTUAL: "krishnam-docker-virtual"
+  RT_REPO_DOCKER_DEV_LOCAL: "krishnam-docker-dev-local"
+  BUILD_NAME: "spring-petclinic"
+  BUILD_ID: "ado-${Build.BuildNumber}"
 steps:
 - script: |
     java -version
-     mvn -v
-     docker -v
-     python3 -V
-     pip3 -V
+    mvn -v
+    docker -v
+    python3 -V
+    pip3 -V
+    echo "BUILD_ID: $(BUILD_ID)"
   displayName: "Software version"
+
+- script: |
+    sudo apt install -y jfrog-cli-v2-jf;
+  displayName: "JF CLI install"
