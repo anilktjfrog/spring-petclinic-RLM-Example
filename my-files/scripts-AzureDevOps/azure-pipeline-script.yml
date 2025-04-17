@@ -28,13 +28,13 @@ steps:
     python3 -V
     pip3 -V
     echo "BUILD_ID: $(BUILD_ID)"
+    pwd
+    tree .
   displayName: "Software version"
 
 - task: JfrogCliV2@1
   inputs:
     jfrogPlatformConnection: 'jfrog-ps'
     command: 'jf rt ping'
+    workingDirectory: "./"
 
-- script: |
-    jf config show
-  displayName: "JF CLI install"
