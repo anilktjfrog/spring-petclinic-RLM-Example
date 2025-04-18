@@ -35,7 +35,9 @@ steps:
 - task: JfrogCliV2@1
   inputs:
     jfrogPlatformConnection: 'jfrog-ps'
-    command: 'jf -v'
+    command: 'jf rt ping'
     workingDirectory: "./"
 
-
+- script: |
+    jf -version
+  displayName: "JF-CLI version"
