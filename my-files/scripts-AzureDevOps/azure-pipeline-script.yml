@@ -35,6 +35,7 @@ steps:
 - task: JfrogCliV2@1
   inputs:
     jfrogPlatformConnection: 'jfrog-ps'
-    command: 'jf rt ping'
+    command: 'jf rt ping && jf -v'
     workingDirectory: "./"
+
 
