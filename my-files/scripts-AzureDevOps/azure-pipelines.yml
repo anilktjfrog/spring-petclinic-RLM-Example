@@ -1,25 +1,69 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-
 trigger:
 - main
 
 pool:
   vmImage: ubuntu-latest
-  
+
 variables:
-  JF_HOST: "psazuse.jfrog.io"
-  JFROG_RT_USER: "${env:USER_NAME}"
-  JFROG_CLI_LOG_LEVEL: "DEBUG"
-  JF_ACCESS_TOKEN: "${env:ACCESS_TOKEN}"
-  JF_RT_URL: "https://${JF_HOST}"
-  RT_REPO_VIRTUAL: "krishnam-mvn-virtual"
+  # Predefined Azure Pipelines variables. There's no need to modify them.
+  JF_GIT_PROJECT: $(System.TeamProject)
+  JF_GIT_REPO: $(Build.Repository.Name)
+  JF_GIT_API_ENDPOINT: $(System.CollectionUri)
+  JF_GIT_BASE_BRANCH: $(Build.SourceBranchName)
+  JF_GIT_OWNER: $(System.TeamProject)
+  JF_GIT_PROVIDER: 'azureRepos'
+  
+jobs:
+- deployment: MVN_PIPELINE
+  displayName: End to End MVN pipeline
+  environment: 
+    name: gcp
+    resourceType: virtualMachine
+    resourceName: varunm-azuredevops-piplines
+  strategy:
+    runOnce:
+      deploy:   
+          steps:
+            - checkout: self
+            - task: CmdLine@2
+              inputs:
+                script: | 
+                  set -x
+                  # curl --location $(AZURETOKENURL) --header 'Content-Type: application/x-www-form-urlencoded' --data 'client_id=$(AZURECLIENTID)&grant_type=client_credentials&scope=$(AZURESCOPE)&client_secret=$(AZURECLIENTSECRET)' 
+                  echo "##vso[task.setvariable variable=idToken;issecret=true]$(curl --location '$(AZURETOKENURL)' --header 'Content-Type: application/x-www-form-urlencoded' --data 'client_id=$(AZURECLIENTID)&grant_type=client_credentials&scope=$(AZURESCOPE)&client_secret=$(AZURECLIENTSECRET)' | jq .access_token | tr -d '"')" 
+              displayName: 'Acquire Azure ID Token' 
+              env: 
+                AZURECLIENTSECRET: $(azureClientSecret) 
+            
+            - task: CmdLine@2
+              inputs:
+                script: 'echo "ID token: $(idToken)"'
+              displayName: 'Print Azure ID token'  
 
-steps:
-- task: JfrogCliV2@1
-  inputs:
-    jfrogPlatformConnection: 'jfrog-ps'
-    command: 'jf rt ping'
+            - task: CmdLine@2
+              inputs:
+                script: |
+                  set -x
+                  echo "##vso[task.setvariable variable=jfrogToken;issecret=true]$(curl --location '$(JFROGJPDURL)/access/api/v1/oidc/token' --header 'Content-Type: application/json' --data '{"grant_type": "urn:ietf:params:oauth:grant-type:token-exchange", "subject_token_type": "urn:ietf:params:oauth:token-type:id_token", "subject_token": "$(idToken)", "provider_name": "azure-oidc-varunm" } ' | jq .access_token | tr -d '"')"
+              displayName: 'Acquire JFrog token' 
 
+            - task: CmdLine@2
+              inputs:
+                script: 'echo "ID token: $(jfrogToken)"'
+              displayName: "Display acquired JFrog token" 
+            
+            - task: CmdLine@2
+              inputs:
+                script: | 
+                  set -x
+                  curl -fkL https://getcli.jfrog.io/v2-jf | sh
+                  mkdir -p /tmp/jftool
+                  mv jf /tmp/jftool/
+                  /tmp/jftool/jf c add --url $(JFROGJPDURL) --access-token $(jfrogToken) --overwrite oidctest
+                  /tmp/jftool/jf c use oidctest
+                  /tmp/jftool/jf c s
+                  /tmp/jftool/jf rt ping
+                  curl -XPUT -H "Authorization: Bearer $(jfrogToken)" "$(JFROGJPDURL)/artifactory/example-repo-local/azure/oidc--final-azure-pipeline-poc-$(date +%Y%m%d%H%M%S)" -d "oidc-azure-cicd-"
+              displayName: "Setup JF CLI and Upload text file" 
+              env: 
+                CI: True
