@@ -31,7 +31,7 @@ permissions:
   contents: read
   security-events: write # Required for uploading code scanning.
 env:
-  JF_RT_URL: https://${{vars.JF_NAME}}.jfrog.io
+  JF_RT_URL: "https://${{vars.JF_NAME}}.jfrog.io"
   BUILD_NAME: "spring-petclinic"
   BUILD_ID: "ga-${{github.run_number}}"
   JOB_SUMMARY: false
@@ -135,22 +135,7 @@ jobs:
 
       - name: "list folder"
         run: |
-          pwd
-          # ls -lrta /home/runner/work/spring-petclinic/spring-petclinic
-
-          SPLIT_STR=($(echo "${GITHUB_REPOSITORY}" | tr "/" "\n"))
-          echo "${SPLIT_STR}"
-          echo "${SPLIT_STR[2]}"
-          echo "REPO_NAME=${SPLIT_STR[2]}" >> $GITHUB_ENV
-
-          echo "OIDC_PROVIDER_NAME = ${{vars.JF_OIDC_PROVIDER_NAME}}"
-          echo "GITHUB_REPOSITORY = $GITHUB_REPOSITORY"
-          echo "GITHUB_SHA = $GITHUB_SHA"
-          echo "GITHUB_REPOSITORY_ID = $GITHUB_REPOSITORY_ID"
-          echo "REPO_NAME = $REPO_NAME" 
-
-          # cd /home/runner/work/spring-petclinic/spring-petclinic
-          pwd
+          pwd  
           tree .
 
       - name: "Docker: Prestep Summary "
@@ -172,7 +157,6 @@ jobs:
           echo "    - Docker Repo URL: ${{env.RT_REPO_DOCKER_VIRTUAL}}" >> $GITHUB_STEP_SUMMARY
           echo "    - Docker URL: ${{env.RT_REPO_DOCKER_URL}}" >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
-          echo " - Evidence Info: " >> $GITHUB_STEP_SUMMARY
 
       # Package
       - name: "Curation: audit" # https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/cli-for-jfrog-curation
@@ -449,10 +433,9 @@ jobs:
           NAME_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName=${{env.BUILD_NAME}}&bundleToFlash=${{env.BUILD_NAME}}&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
           VER_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&releaseBundleVersion='${{env.BUILD_ID}}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
         run: |
-          echo "# :frog:📦 Release Bundle v2 Summary :rocket: " >> $GITHUB_STEP_SUMMARY
+          echo "#📦 Release Bundle v2 Summary :rocket: " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
-          # echo "<details><summary>The RBv2 artifacts has elevated to the subsequent stages</summary>" >> $GITHUB_STEP_SUMMARY
           echo "The Build Artifacts has elevated to the subsequent stages" >> $GITHUB_STEP_SUMMARY
           RB2_STATUS_RESP=$(curl -v -G ${JF_RT_URL}/lifecycle/api/v2/promotion/records/${BUILD_NAME}/${BUILD_ID}?async=false -H 'Content-Type:  application/json' -H "Authorization: Bearer ${{steps.setup-cli.outputs.oidc-token}}")
           echo $RB2_STATUS_RESP > RBv2_STATUS-${{env.BUILD_ID}}.json
@@ -501,7 +484,7 @@ jobs:
           export JFROG_CLI_LOG_LEVEL=${{env.JFROG_CLI_LOG_LEVEL}}
       
       # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
-      - name: "RLM: RBv2 Distribute to SaaS Artifactory and edges"
+      - name: "RBv2 Distribute to SaaS Artifactory and edges"
         run: |
           jf rbd ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --sync=true --create-repo=true
 
@@ -518,18 +501,18 @@ jobs:
         run: |
           pwd 
           ls -lR .
-      - name: "Optional: Saas Artifactory summary"
+      - name: "Optional Saas Artifactory summary"
         run: |
-          echo "# :frog:📦 Download package from SaaS " >> $GITHUB_STEP_SUMMARY
+          echo "#📦 Download package from SaaS " >> $GITHUB_STEP_SUMMARY
           echo "  - Download RBv2 from Artifactory [${{env.JF_RT_URL}}](${{env.JF_RT_URL}}) " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
           
   saasEdge:
-    name: Download RBv2 from SaaS Edge
+    name: "Download RBv2 from SaaS Edge"
     needs: saasArtifactory
     runs-on: ubuntu-latest
     env:
-      JF_EDGE_URL: https://${{vars.JF_EDGE_NAME}}.jfrog.io
+      JF_EDGE_URL: "https://${{vars.JF_EDGE_NAME}}.jfrog.io"
     steps:
       - name: "Setup JFrog CLI"
         uses: jfrog/setup-jfrog-cli@v4
@@ -566,7 +549,7 @@ jobs:
           echo " " >> $GITHUB_STEP_SUMMARY
   
   mvnPackage:
-    name: MVN
+    name: "MVN Package"
     strategy:
       fail-fast: false
       matrix:
@@ -659,12 +642,6 @@ jobs:
           # echo " - Evidence Info: " >> $GITHUB_STEP_SUMMARY
 
       # Package
-      - name: "Curation: audit" # https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/cli-for-jfrog-curation
-        timeout-minutes: 15    # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
-        continue-on-error: true    # ref: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepscontinue-on-error
-        run: |
-          jf ca --format=table --threads=10
-
       - name: "Package: Create MVN Build"
         run: |     # -Djar.finalName=${{env.JAR_FINAL_NAME}} 
           jf mvn clean install -DskipTests=true -Denforcer.skip=true --build-name=${{env.BUILD_NAME}} --build-number=${{env.BUILD_ID}}
@@ -687,10 +664,6 @@ jobs:
       - name: "BuildInfo: Build Publish"
         run: jf rt bp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} --detailed-summary=true
 
-      - name: "Optional: Xray sbom-enrich" 
-        run: |
-          jf se "target/classes/META-INF/sbom/application.cdx.json" --threads=100
-  
       # Evidence - Build references
       #     Docs# https://jfrog.com/help/r/jfrog-artifactory-documentation/evidence-management
       #     CLI# https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/evidence-service
@@ -792,12 +765,6 @@ jobs:
           echo " " >> $GITHUB_STEP_SUMMARY
 
       # Package
-      - name: "Curation: audit" # https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/cli-for-jfrog-security/cli-for-jfrog-curation
-        timeout-minutes: 15    # ref https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes
-        continue-on-error: true    # ref: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstepscontinue-on-error
-        run: |
-          jf ca --format=table --threads=10
-
       - name: "Package: Create Build"
         run: |
           jf gradle clean artifactoryPublish -x test -b ./build.gradle --build-name=${{env.BUILD_NAME}} --build-number=${{env.BUILD_ID}} 
@@ -847,7 +814,7 @@ jobs:
       matrix:
         python-version: ["3.13"]
     env:
-      JF_RT_URL: https://${{vars.JF_NAME}}.jfrog.io
+      JF_RT_URL: "https://${{vars.JF_NAME}}.jfrog.io"
       JOB_SUMMARY: true # default is false, true - turn of publish Gradle buildinfo
       JFROG_CLI_LOG_LEVEL: DEBUG # DEBUG, INFO, WARN, ERROR
     permissions:
@@ -876,33 +843,16 @@ jobs:
           jf -v
           jf config show
 
-      - name: "set env"
-        run: |
-          echo "REPO_HOME=/home/runner/work/spring-petclinic/spring-petclinic" >> $GITHUB_ENV
-          echo "REPO_HOME:: ${{env.REPO_HOME}}"
-          export REPORT_DATE="$(date '+%Y-%m-%d-%H-%M')" 
-          echo "REPORT_DATE=${REPORT_DATE}" >> $GITHUB_ENV
-
       - name: "Create Docs folder if doesn't exist"
         run: |
-          cd ${{env.REPO_HOME}}
           mkdir -p docs
           tree .
-
-      - name: "List folder"
-        run: |
-          echo "REPO_HOME = ${{env.REPO_HOME}}"
-          echo "REPORT_DATE = ${{env.REPORT_DATE}}"
-          echo "OIDC_PROVIDER_NAME = ${{vars.JF_OIDC_PROVIDER_NAME}}"
-          echo "OIDC user: ${{steps.setup-cli.outputs.oidc-user}}"
-          echo "password: ${{steps.setup-cli.outputs.oidc-token}}"
-
 
 #  jf curl -XGET "${{env.JF_RT_URL}}/artifactory/api/search/artifact?name=*log4j*&repos=mvn-remote-cache" -H "Content-Type: application/json" -H "Authorization: Bearer ${{steps.setup-cli.outputs.oidc-token}}"
       - name: "Generate Report"
           # GenerateSBOMreport.py
         run: | 
-          cd ${{env.REPO_HOME}}/my-files/scripts-report/
+          cd my-files/scripts-report/
           tree .
           pwd
 
@@ -913,19 +863,19 @@ jobs:
 
       - name: "Copy Report"
         run: | 
-          cd ${{env.REPO_HOME}}/my-files/scripts-report/
+          cd ${{env.DEFAULT_WORKSPACE}}/my-files/scripts-report/
           pwd
-          cp -r index.html ${{env.REPO_HOME}}/docs/report-${{env.REPORT_DATE}}.html
-          mv -f index.html ${{env.REPO_HOME}}/docs/index.html
+          cp -r index.html ${{env.DEFAULT_WORKSPACE}}/docs/report-${{env.REPORT_DATE}}.html
+          mv -f index.html ${{env.DEFAULT_WORKSPACE}}/docs/index.html
 
-          cd ${{env.REPO_HOME}}
+          cd ${{env.DEFAULT_WORKSPACE}}
           tree .
 
-      - name: Commit & Push changes  # ref: https://github.com/marketplace/actions/github-commit-push
+      - name: "Commit & Push changes"  # ref: https://github.com/marketplace/actions/github-commit-push
         uses: actions-js/push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          message: "SEC Report generated on ${{env.REPORT_DATE}}"
+          message: "SEC Report generated on ${{env.DEFAULT_WORKSPACE}}"
           branch: "gh-pages"
           author_name: "github-actions[bot]"
           rebase: true
