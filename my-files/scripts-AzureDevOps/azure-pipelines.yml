@@ -12,7 +12,31 @@ variables:
   JF_GIT_BASE_BRANCH: $(Build.SourceBranchName)
   JF_GIT_OWNER: $(System.TeamProject)
   JF_GIT_PROVIDER: 'azureRepos'
-  
+  JFROG_PLATFORM_URL: "https://psazuse.jfrog.io"
+  JFROG_USERNAME: ""
+  JFROG_PASSWORD: ""
+  RT_REPO_MVN_VIRTUAL: "krishnam-mvn-virtual"
+  RT_REPO_MVN_DEV_LOCAL: "krishnam-mvn-dev-local"
+  RT_REPO_DOCKER_VIRTUAL: "krishnam-docker-virtual"
+  RT_REPO_DOCKER_DEV_LOCAL: "krishnam-docker-dev-local"
+  BUILD_NAME: "spring-petclinic"
+  BUILD_ID: "ado-$(Build.BuildNumber)"
+ 
+steps:
+- script: |
+    java -version
+    mvn -v
+    docker -v
+    python3 -V
+    pip3 -V
+    echo "BUILD_ID: $(BUILD_ID)"
+    pwd
+    tree .
+  displayName: "Software version"
+- checkout: self
+
+
+
 jobs:
 - deployment: MVN_PIPELINE
   displayName: End to End MVN pipeline
@@ -24,7 +48,7 @@ jobs:
     runOnce:
       deploy:   
           steps:
-            - checkout: self
+            
             - task: CmdLine@2
               inputs:
                 script: | 
