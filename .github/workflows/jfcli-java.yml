@@ -466,7 +466,7 @@ jobs:
            cat $BUILD_INFO_JSON
 
   saasDistribute:
-    name: "Distribute & Download RLM from SaaS Artifactory"
+    name: "Distribute from SaaS Artifactory to Edges"
     needs: rbv2PromoteProd
     runs-on: ubuntu-latest
     defaults:
@@ -525,7 +525,7 @@ jobs:
   
   downloadFromSaasArtifactory:
     name: "Download RBv2 from SaaS Artifactory"
-    needs: saasDistribute
+    needs: sleepAfterDistribution
     runs-on: ubuntu-latest
     defaults:
        run:
@@ -536,11 +536,11 @@ jobs:
         id: setup-cli
         env:
           JF_URL: ${{env.JF_RT_URL}}
-          JF_ACCESS_TOKEN: ${{secrets.EDGE_ACCESS_TOKEN}}
           JFROG_CLI_LOG_LEVEL: ${{env.JFROG_CLI_LOG_LEVEL}}
         with:
           version: latest 
-      
+          oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
+
       - name: "Artifactory config show"
         run: |
           jf config show
@@ -581,6 +581,7 @@ jobs:
           JFROG_CLI_LOG_LEVEL: ${{env.JFROG_CLI_LOG_LEVEL}}
         with:
           version: latest 
+          oidc-provider-name: ${{vars.JF_EDGE_OIDC_PROVIDER_NAME}}    
       
       - name: "Edge config show"
         run: |
