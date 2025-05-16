@@ -821,6 +821,9 @@ jobs:
       id-token: write # for creating OIDC tokens for signing.
       pages: write  # deploy to GitHub Pages 'gh-pages' branch
       contents: write
+    defaults:
+       run:
+         working-directory: "${{env.DEFAULT_WORKSPACE}}/my-files/scripts-report/"
 
     steps:
       - name: "Setup JFrog CLI"
@@ -852,7 +855,6 @@ jobs:
       - name: "Generate Report"
           # GenerateSBOMreport.py
         run: | 
-          cd my-files/scripts-report/
           tree .
           pwd
 
@@ -862,6 +864,8 @@ jobs:
           tree .
 
       - name: "Copy Report"
+        env:
+          REPORT_DATE: "$(date +'%Y-%m-%d')-${{github.run_number}}"
         run: | 
           cd ${{env.DEFAULT_WORKSPACE}}/my-files/scripts-report/
           pwd
