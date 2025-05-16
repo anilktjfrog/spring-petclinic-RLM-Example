@@ -502,6 +502,7 @@ jobs:
           echo " " >> $GITHUB_STEP_SUMMARY
   
   sleepAfterDistribution:
+    name: "SYNC Sleep few seconds"
     needs: saasDistribute
     runs-on: ubuntu-latest
     env:
@@ -517,6 +518,7 @@ jobs:
     name: "Download RBv2 from SaaS ${{vars.JF_NAME}} Artifactory"
     needs: sleepAfterDistribution
     runs-on: ubuntu-latest
+    continue-on-error: true
     defaults:
        run:
          working-directory: "${{env.DEFAULT_WORKSPACE}}"
@@ -535,7 +537,7 @@ jobs:
         run: |
           jf config show
 
-      - name: "Download RBv2"
+      - name: "Download RBv2 from ${{vars.JF_NAME}} SaaS"
         run: |
           jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}} --detailed-summary=true --threads=100
 
@@ -554,6 +556,7 @@ jobs:
     name: "Download RBv2 from SaaS ${{vars.JF_NAME_2}} Artifactory"
     needs: sleepAfterDistribution
     runs-on: ubuntu-latest
+    continue-on-error: true
     env:
       JF_URL: "https://${{vars.JF_NAME_2}}.jfrog.io"
     defaults:
@@ -574,7 +577,7 @@ jobs:
         run: |
           jf config show
           
-      - name: "Download RBv2 from SaaS Artifactory"
+      - name: "Download RBv2 from ${{vars.JF_NAME_2}} SaaS"
         run: |
           jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}} --detailed-summary=true --threads=100
 
@@ -593,6 +596,7 @@ jobs:
     name: "Download RBv2 from SaaS ${{vars.JF_EDGE_NAME}} Edge"
     needs: sleepAfterDistribution
     runs-on: ubuntu-latest
+    continue-on-error: true
     defaults:
        run:
          working-directory: "${{env.DEFAULT_WORKSPACE}}"
