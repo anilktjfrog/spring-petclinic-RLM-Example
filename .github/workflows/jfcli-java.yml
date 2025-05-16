@@ -335,6 +335,8 @@ jobs:
     name: "RBv2 Promote DEV"
     needs: dockerPackage
     runs-on: ubuntu-latest
+    env:
+      RBv2_ENV_VAL: "DEV"
     defaults:
        run:
          working-directory: "${{env.DEFAULT_WORKSPACE}}"
@@ -349,26 +351,24 @@ jobs:
           version: latest  #2.71.0
           oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
 
-      - name: "RLM: RBv2 promote DEV"
+      - name: "RLM: RBv2 promote ${{env.RBv2_ENV_VAL}}"
         run: |
-          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} DEV --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
+          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} ${{env.RBv2_ENV_VAL}} --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
 
       - name: "Evidence: RBv2 state DEV"
-        continue-on-error: true 
-        env:
-          # https://psazuse.jfrog.io/ui/artifactory/lifecycle/?bundleName=spring-petclinic&bundleToFlash=spring-petclinic&repositoryKey=release-bundles-v2&activeKanbanTab=promotion
-          NAME_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName=${{env.BUILD_NAME}}&bundleToFlash=${{env.BUILD_NAME}}&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
-          VER_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&releaseBundleVersion='${{env.BUILD_ID}}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
+        continue-on-error: true
         run: |
-          echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-RBv2", "rbv2_stage": "DEV" }' > ./${{env.EVIDENCE_SPEC_JSON}}
+          echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-RBv2", "rbv2_stage": "${{env.RBv2_ENV_VAL}}" }' > ./${{env.EVIDENCE_SPEC_JSON}}
           cat ./${{env.EVIDENCE_SPEC_JSON}}
           jf evd create --release-bundle ${{env.BUILD_NAME}} --release-bundle-version ${{env.BUILD_ID}} --predicate ./${{env.EVIDENCE_SPEC_JSON}} --predicate-type https://jfrog.com/evidence/signature/v1 --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{secrets.EVIDENCE_KEY_ALIAS}}
-          #echo "    - Evidence for RBv2 attached at [${{env.BUILD_NAME}}](${{env.VER_LINK}}) " >> $GITHUB_STEP_SUMMARY
+
 
   rbv2PromoteQA:
     name: "RBv2 Promote QA"
     needs: rbv2PromoteDev
     runs-on: ubuntu-latest
+    env:
+      RBv2_ENV_VAL: "QA"
     defaults:
        run:
          working-directory: "${{env.DEFAULT_WORKSPACE}}"
@@ -382,27 +382,25 @@ jobs:
         with:
           version: latest  #2.71.0
           oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
-        
-      - name: "RLM: RBv2 promote QA"
-        run: |
-          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} QA --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
 
-      - name: "Evidence: RBv2 state QA"
-        continue-on-error: true 
-        env:
-          # https://psazuse.jfrog.io/ui/artifactory/lifecycle/?bundleName=spring-petclinic&bundleToFlash=spring-petclinic&repositoryKey=release-bundles-v2&activeKanbanTab=promotion
-          NAME_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName=${{env.BUILD_NAME}}&bundleToFlash=${{env.BUILD_NAME}}&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
-          VER_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&releaseBundleVersion='${{env.BUILD_ID}}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
+      - name: "RLM: RBv2 promote ${{env.RBv2_ENV_VAL}}"
         run: |
-          echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-RBv2", "rbv2_stage": "QA" }' > ./${{env.EVIDENCE_SPEC_JSON}}
+          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} ${{env.RBv2_ENV_VAL}} --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
+
+      - name: "Evidence: RBv2 state DEV"
+        continue-on-error: true
+        run: |
+          echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-RBv2", "rbv2_stage": "${{env.RBv2_ENV_VAL}}" }' > ./${{env.EVIDENCE_SPEC_JSON}}
           cat ./${{env.EVIDENCE_SPEC_JSON}}
           jf evd create --release-bundle ${{env.BUILD_NAME}} --release-bundle-version ${{env.BUILD_ID}} --predicate ./${{env.EVIDENCE_SPEC_JSON}} --predicate-type https://jfrog.com/evidence/signature/v1 --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{secrets.EVIDENCE_KEY_ALIAS}}
-          #echo "    - Evidence for RBv2 attached at [${{env.BUILD_NAME}}](${{env.VER_LINK}}) " >> $GITHUB_STEP_SUMMARY
+
         
   rbv2PromoteProd:
     name: "RBv2 Promote Prod"
     needs: rbv2PromoteQA
     runs-on: ubuntu-latest
+    env:
+      RBv2_ENV_VAL: "PROD"
     defaults:
        run:
          working-directory: "${{env.DEFAULT_WORKSPACE}}"
@@ -416,22 +414,17 @@ jobs:
         with:
           version: latest  #2.71.0
           oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
-        
-      - name: "RLM: RBv2 promote PROD"
-        run: |
-          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} PROD --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
 
-      - name: "Evidence: RBv2 state PROD"
-        continue-on-error: true 
-        env:
-          # https://psazuse.jfrog.io/ui/artifactory/lifecycle/?bundleName=spring-petclinic&bundleToFlash=spring-petclinic&repositoryKey=release-bundles-v2&activeKanbanTab=promotion
-          NAME_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName=${{env.BUILD_NAME}}&bundleToFlash=${{env.BUILD_NAME}}&repositoryKey=release-bundles-v2&activeKanbanTab=promotion"
-          VER_LINK: "${{env.JF_RT_URL}}/ui/artifactory/lifecycle/?bundleName='${{env.BUILD_NAME}}'&bundleToFlash='${{env.BUILD_NAME}}'&releaseBundleVersion='${{env.BUILD_ID}}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion"
+      - name: "RLM: RBv2 promote ${{env.RBv2_ENV_VAL}}"
         run: |
-          echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-RBv2", "rbv2_stage": "PROD" }' > ./${{env.EVIDENCE_SPEC_JSON}}
+          jf rbp ${{env.BUILD_NAME}} ${{env.BUILD_ID}} ${{env.RBv2_ENV_VAL}} --sync=true --signing-key=${{env.RBV2_SIGNING_KEY}}  
+
+      - name: "Evidence: RBv2 state DEV"
+        continue-on-error: true
+        run: |
+          echo '{ "actor": "${{github.actor}}", "pipeline": "github actions", "build_name": "${{env.BUILD_NAME}}", "build_id": "${{env.BUILD_ID}}", "evd": "Evidence-RBv2", "rbv2_stage": "${{env.RBv2_ENV_VAL}}" }' > ./${{env.EVIDENCE_SPEC_JSON}}
           cat ./${{env.EVIDENCE_SPEC_JSON}}
           jf evd create --release-bundle ${{env.BUILD_NAME}} --release-bundle-version ${{env.BUILD_ID}} --predicate ./${{env.EVIDENCE_SPEC_JSON}} --predicate-type https://jfrog.com/evidence/signature/v1 --key "${{secrets.KRISHNAM_JFROG_EVD_PRIVATEKEY}}" --key-alias ${{secrets.EVIDENCE_KEY_ALIAS}}
-          #echo "    - Evidence for RBv2 attached at [${{env.BUILD_NAME}}](${{env.VER_LINK}}) " >> $GITHUB_STEP_SUMMARY
 
       - name: "Optional: rbv2-summary"
         continue-on-error: true 
@@ -466,7 +459,7 @@ jobs:
            cat $BUILD_INFO_JSON
 
   saasDistribute:
-    name: "Distribute from SaaS Artifactory to Edges"
+    name: "Distribute to SaaS JPDs & Edges"
     needs: rbv2PromoteProd
     runs-on: ubuntu-latest
     defaults:
@@ -483,9 +476,6 @@ jobs:
           version: latest  #2.71.0
           oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
 
-      - name: "Config jf-cli"
-        run: |
-          export JFROG_CLI_LOG_LEVEL=${{env.JFROG_CLI_LOG_LEVEL}}
       
       # ref: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#distribute-a-release-bundle-v2
       - name: "RBv2 Distribute to SaaS Artifactory and edges"
@@ -515,7 +505,7 @@ jobs:
     needs: saasDistribute
     runs-on: ubuntu-latest
     env:
-      SLEEP_TIME: 30
+      SLEEP_TIME: 60
     steps:
       - name: "Sleep for ${{env.SLEEP_TIME}} seconds"
         run: |
@@ -523,8 +513,8 @@ jobs:
           sleep ${{env.SLEEP_TIME}}
           echo "Awake now!"
   
-  downloadFromSaasArtifactory:
-    name: "Download RBv2 from SaaS Artifactory"
+  downloadFromSaasPsAzUse:
+    name: "Download RBv2 from SaaS ${{vars.JF_NAME}} Artifactory"
     needs: sleepAfterDistribution
     runs-on: ubuntu-latest
     defaults:
@@ -545,7 +535,45 @@ jobs:
         run: |
           jf config show
 
-      # refer: https://docs.jfrog-applications.jfrog.io/jfrog-applications/jfrog-cli/binaries-management-with-jfrog-artifactory/release-lifecycle-management#download-release-bundle-v2-content
+      - name: "Download RBv2"
+        run: |
+          jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}} --detailed-summary=true --threads=100
+
+      - name: "Info list"
+        run: |
+          pwd
+          ls -lR .
+
+      - name: "Optional: Saas ${{vars.JF_RT_URL}} Artifactory summary"
+        run: |
+          echo "# :frog:📦 Download package from SaaS " >> $GITHUB_STEP_SUMMARY
+          echo "  - Download RBv2 from SaaS Artifactory [${{env.JF_URL}}](${{env.JF_URL}}) " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY
+
+  downloadFromSaasSolEng:
+    name: "Download RBv2 from SaaS ${{vars.JF_NAME_2}} Artifactory"
+    needs: sleepAfterDistribution
+    runs-on: ubuntu-latest
+    env:
+      JF_URL: "https://${{vars.JF_NAME_2}}.jfrog.io"
+    defaults:
+        run:
+          working-directory: "${{env.DEFAULT_WORKSPACE}}"
+    steps:
+      - name: "Setup JFrog CLI"
+        uses: jfrog/setup-jfrog-cli@v4
+        id: setup-cli
+        env:
+          JF_URL: "${{env.JF_URL}}"
+          JFROG_CLI_LOG_LEVEL: ${{env.JFROG_CLI_LOG_LEVEL}}
+        with:
+          version: latest 
+          oidc-provider-name: ${{vars.JF_OIDC_PROVIDER_NAME}}
+
+      - name: "Artifactory config show"
+        run: |
+          jf config show
+          
       - name: "Download RBv2 from SaaS Artifactory"
         run: |
           jf rt dl --bundle ${{env.BUILD_NAME}}/${{env.BUILD_ID}} --detailed-summary=true --threads=100
@@ -555,16 +583,15 @@ jobs:
           pwd
           ls -lR .
 
-      - name: "Optional: Saas Artifactory summary"
+      - name: "Optional: Saas ${{vars.JF_NAME_2}} Artifactory summary"
         run: |
           echo "# :frog:📦 Download package from SaaS " >> $GITHUB_STEP_SUMMARY
-          echo "  - Download RBv2 from SaaS Artifactory [${{env.JF_URL}}](${{env.JF_URL}}) " >> $GITHUB_STEP_SUMMARY
-          echo " " >> $GITHUB_STEP_SUMMARY
-  
+          echo "  - Download RBv2 from SaaS Artifactory [${{vars.JF_NAME_2}}](${{env.JF_URL}}) " >> $GITHUB_STEP_SUMMARY
+          echo " " >> $GITHUB_STEP_SUMMARY        
 
   downloadFromSaasEdge:
-    name: "Download RBv2 from SaaS Edge"
-    needs: downloadFromSaasArtifactory
+    name: "Download RBv2 from SaaS ${{vars.JF_EDGE_NAME}} Edge"
+    needs: sleepAfterDistribution
     runs-on: ubuntu-latest
     defaults:
        run:
@@ -597,10 +624,10 @@ jobs:
           pwd
           ls -lR .
 
-      - name: "Optional: Saas Edge summary"
+      - name: "Optional: Saas ${{vars.JF_EDGE_NAME}} Edge summary"
         run: |
           echo "# :frog:📦 Download package from SaaS " >> $GITHUB_STEP_SUMMARY
-          echo "  - Download RBv2 from Edge [${{env.JF_EDGE_URL}}](${{env.JF_EDGE_URL}}) " >> $GITHUB_STEP_SUMMARY
+          echo "  - Download RBv2 from Edge [${{vars.JF_EDGE_NAME}}](${{env.JF_EDGE_URL}}) " >> $GITHUB_STEP_SUMMARY
           echo " " >> $GITHUB_STEP_SUMMARY
   
   mvnPackage:
